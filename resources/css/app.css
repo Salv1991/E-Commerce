@@ -1,0 +1,15 @@
+
+html,
+body{
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+}
+
+nav{
+    list-style: none;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
