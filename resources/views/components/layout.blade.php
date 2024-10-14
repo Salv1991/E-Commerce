@@ -19,7 +19,8 @@
         <x-nav.header/>
 
         {{ $slot }}
-    
+        <!-- <img src="{{ asset('storage/products/placeholder.jpg') }}" alt="Product Image"> -->
+
         <x-nav.footer/>
     </body>
 </html>

@@ -10,6 +10,9 @@ nav{
     list-style: none;
 }
 
+input {
+
+}
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

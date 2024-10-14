@@ -20,11 +20,24 @@
         <div class="flex flex-col justify-between items-center relative h-full">
             <x-heroicon-o-x-mark data-action="click->responsive-nav-menu#toggle" class="w-7 h-7 text-gray-500 hover:text-primary-500 absolute top-0 right-0"/>
             <nav class="py-12 flex flex-col justify-center items-center gap-5">
+                <ul class="*:block">
                     <x-nav.link href="/" :active="request()->is('/')" >Home</x-nav.link>
                     <x-nav.link href="/products" :active="request()->is('products')" >Products</x-nav.link>
                     <x-nav.link href="/contact" :active="request()->is('contact')" >Contact</x-nav.link>
-                    <a href="#" class="hover:text-primary-500">Log in</a>
-                    <a href="#" class="hover:text-primary-500">Settings</a>
+
+                    @guest                    
+                        <x-nav.link href="{{route('login')}}" >Login</x-nav.link>
+                        <x-nav.link href="{{route('signup')}}" >Sign up</x-nav.link>
+                    @endguest
+                    @auth 
+                        <li class="p-3">
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit" class="hover:text-primary-500">Log out</button>
+                            </form>
+                        </li>
+                    @endauth
+                </ul>
             </nav>
             <div class="flex justify-center items-center gap-5">
                 <div>

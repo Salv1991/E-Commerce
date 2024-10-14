@@ -2,12 +2,13 @@
 
 namespace Database\Factories;
 
+use App\Models\Product;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Product>
  */
-class ProductFactory extends Factory
+class ProductImageFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -16,13 +17,16 @@ class ProductFactory extends Factory
      */
     public function definition(): array
     {
+        $images = [
+            'products/product1.jpg',
+            'products/product2.jpg',
+            'products/product3.jpg',
+            'products/product4.jpg',
+        ];
+
         return [
-            'title' => fake()->word(),
-            'mpn' => fake()->shuffleString(),
-            'description' => fake()->realText(),
-            'price' => fake()->numberBetween(1, 999),
-            'discounted_price' => null,
-            'stock' => fake()->numberBetween(0,20),
+            'product_id' => Product::factory(),
+            'image_path' => $this->faker->randomElement($images),
         ];
     }
 }
