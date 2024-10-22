@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Category;
 use App\Models\User;
 use App\Models\ProductImage;
 use Illuminate\Database\Seeder;
@@ -16,10 +17,19 @@ class DatabaseSeeder extends Seeder
         User::factory(10)->create();
 
         User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+            'name' => 'user',
+            'email' => 'user@user.com',
+            'password' => 'user1234',
+            'admin' => true,
         ]);
         
-        ProductImage::factory(50)->create();
-    }
+        $categories = Category::factory(5)->create();
+
+        $productImages = ProductImage::factory(50)->create();
+
+        foreach( $productImages as $productImage) {
+            $productImage->product->categories()->attach($categories->random());
+        }
+
+    }   
 }

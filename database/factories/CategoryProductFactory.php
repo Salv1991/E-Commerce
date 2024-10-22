@@ -2,12 +2,15 @@
 
 namespace Database\Factories;
 
+use App\Models\Category;
+use App\Models\Product;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Product>
  */
-class ProductFactory extends Factory
+ 
+class CategoryProductFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -17,12 +20,8 @@ class ProductFactory extends Factory
     public function definition(): array
     {
         return [
-            'title' => fake()->word(),
-            'mpn' => fake()->shuffleString(),
-            'description' => fake()->text(),
-            'price' => fake()->numberBetween(1, 999),
-            'discounted_price' => fake()->numberBetween(0,999),
-            'stock' => fake()->numberBetween(0,20),
+            'product_id' => Product::factory(),
+            'category_id' => Category::factory(),
         ];
     }
 }

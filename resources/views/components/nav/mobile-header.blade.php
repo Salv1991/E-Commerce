@@ -1,4 +1,4 @@
-<div class="cursor-pointer md:hidden flex justify-between items-center gap-5">
+<div class="cursor-pointer md:hidden flex justify-between items-center gap-5 z-50">
     <div class="relative">
         <div class="absolute -top-4 -right-2 bg-gray-500 text-white rounded-full w-5 h-5 text-xs flex justify-center items-center" >
             2

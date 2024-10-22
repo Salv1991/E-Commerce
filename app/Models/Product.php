@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Events\ModelsPruned;
 use Illuminate\Support\Arr;
 use App\Models\ProductImage;
+use App\Models\Category;
+use Illuminate\Support\Facades\Auth;
 
 class Product extends Model
 {
@@ -25,5 +27,15 @@ class Product extends Model
 
     public function image() {
         return $this->hasOne(ProductImage::class);
+    }
+    
+    public function isWishlisted() {
+        return Wishlist::where('user_id', Auth::id())
+                    ->where('product_id', $this->id)
+                    ->exists();
+    }
+
+    public function categories() {
+        return $this->belongsToMany(Category::class);
     }
 }

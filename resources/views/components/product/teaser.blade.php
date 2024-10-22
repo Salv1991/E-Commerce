@@ -1,10 +1,12 @@
-<a href={{route('product', $product)}} class="col-span-1">
-    <div class="aspect-[278/416]">
+<a href="{{ route('product', $product) }}" class="col-span-1 relative" >
+
+    {{-- IMAGE CONTAINER --}}
+    <div class="aspect-[308/416]">
         @if ($product->images->isNotEmpty())
-        <img 
-            src="{{ asset('storage/' . $product->image->image_path) }}" 
-            alt="Product Image" 
-            class="w-full h-full object-cover" />
+            <img 
+                src="{{ asset('storage/' . $product->images->first()->image_path) }}" 
+                alt="Product Image" 
+                class="w-full h-full object-cover" />
         @else
             <img 
                 src="{{ asset('storage/products/placeholder.jpg') }}" 
@@ -13,20 +15,27 @@
         @endif
     </div>
 
-    <div>
+    {{-- PRODUCT DETAILS --}}
+    <div class="flex justify-between items-center mt-3">
         <div>
-            <h2 class="text-lg font-bold text-center">{{$product->title}}</h2>
-            <div class="m-auto w-fit *:inline-block">
+            <h2 class="text-lg font-bold text-start">{{$product->title}}</h2>
+
+            <div class="w-fit *:inline-block">
                 <p @class([
-                    'text-base font-semibold text-gray-400',
-                    'line-through' => $product->discounted_price,
-                    ])>${{$product->price}}</p>
+                        'text-base font-semibold text-gray-400',
+                        'line-through' => $product->discounted_price,
+                    ])>
+                    ${{$product->price}}
+                </p>
 
                 @if ($product->discounted_price)
                     <p class="text-base font-bold text-primary-500">${{$product->discounted_price}}</p>   
                 @endif
             </div>
         </div>
+
+        {{-- WISHLIST BUTTON --}}
+        <x-form.wishlist-toggle :product='$product' :isWishlisted="$product->is_wishlisted"/>
+        
     </div>
-    <!-- <button class="px-4 py-2 bg-gray-800 text-white rounded-sm">Add to cart</button> -->
 </a>
