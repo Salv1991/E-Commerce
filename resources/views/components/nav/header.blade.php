@@ -26,7 +26,7 @@
                 <x-nav.link href="/" :active="request()->is('/')" >Home</x-nav.link>
                 <div class="relative group p-3">
                     <div class="flex justify-center items-center group-hover:text-primary-500 cursor-pointer">
-                        <h2 class="mr-1">Products</h2>
+                        <h2 class="mr-1">Categories</h2>
                         <x-heroicon-c-chevron-down class="-translate-x-1 w-4 h-4 text-black group-hover:text-primary-500"/>
                     </div>
                     <div class="z-10 min-w-48 absolute top-12 -right-3 bg-white border border-gray-200 p-4 group-hover:block hidden">

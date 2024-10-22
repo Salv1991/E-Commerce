@@ -2,7 +2,7 @@
 
     {{-- IMAGE CONTAINER --}}
     <div class="aspect-[308/416]">
-        @if ($product->images->isNotEmpty())
+        @if ($product->images?->isNotEmpty())
             <img 
                 src="{{ asset('storage/' . $product->images->first()->image_path) }}" 
                 alt="Product Image" 

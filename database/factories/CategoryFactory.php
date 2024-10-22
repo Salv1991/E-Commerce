@@ -17,7 +17,7 @@ class CategoryFactory extends Factory
      */
     public function definition(): array
     {
-        $title = fake()->word(); 
+        $title = fake()->unique()->word(); 
         $slug = Str::slug($title);
 
         return [

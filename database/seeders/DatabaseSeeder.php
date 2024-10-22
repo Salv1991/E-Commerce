@@ -14,6 +14,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        //Creates users and admin user.
         User::factory(10)->create();
 
         User::factory()->create([
@@ -23,12 +24,39 @@ class DatabaseSeeder extends Seeder
             'admin' => true,
         ]);
         
-        $categories = Category::factory(5)->create();
+        //Creates Products with Images.
+        $productsWithImages = ProductImage::factory(50)->create();
 
-        $productImages = ProductImage::factory(50)->create();
+        //Creates Categories and children Categories.
+        $categories = Category::factory(2)->sequence(
+            ['depth' => 0, 'weight' => 0],
+            ['depth' => 0, 'weight' => 1],
+        )->create();
 
-        foreach( $productImages as $productImage) {
-            $productImage->product->categories()->attach($categories->random());
+        $firstDepthCategories = collect();
+        foreach ($categories as $category) {
+            $newCategories = Category::factory(2)->sequence(
+                ['parent_id' => $category->id, 'depth' => 1, 'weight' => 0],
+                ['parent_id' => $category->id, 'depth' => 1, 'weight' => 1]
+            )->create();
+
+            $firstDepthCategories = $firstDepthCategories->concat($newCategories);
+        }
+
+        $childrenCategories = collect();
+        foreach ($firstDepthCategories as $firstDepthCategory) {
+            $secondDepthCategories = Category::factory(3)->sequence(
+                ['parent_id' => $firstDepthCategory->id, 'depth' => 2, 'weight' => 0],
+                ['parent_id' => $firstDepthCategory->id, 'depth' => 2, 'weight' => 1],
+                ['parent_id' => $firstDepthCategory->id, 'depth' => 2, 'weight' => 2]
+            )->create();
+
+            $childrenCategories = $childrenCategories->concat($secondDepthCategories);
+        }
+
+        //Attaches categories to each product.
+        foreach( $productsWithImages as $productWithImage) {
+            $productWithImage->product->categories()->attach($childrenCategories->random());
         }
 
     }   
