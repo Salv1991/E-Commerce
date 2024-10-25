@@ -46,7 +46,7 @@ class WishlistController extends Controller
 
         if ( request()->ajax() ) {
             $formHtml = view('components.form.wishlist-toggle', compact('product', 'isWishlisted'))->render();
-            $wishlistCount = Auth::user()->wishlistItems()->count();
+            $wishlistCount = Auth::user()?->wishlistItems()->count();
 
             return response()->json([
                 'status' => $status,
@@ -55,6 +55,7 @@ class WishlistController extends Controller
                 'productId' => $id,
                 'formHtml' => $formHtml,
                 'isWishlisted' =>  $product->isWishlisted(),
+                'userLoggedIn' => Auth::user(),
             ]);
         }
     }

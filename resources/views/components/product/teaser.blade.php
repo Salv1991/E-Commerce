@@ -35,7 +35,9 @@
         </div>
 
         {{-- WISHLIST BUTTON --}}
-        <x-form.wishlist-toggle :product='$product' :isWishlisted="$product->is_wishlisted"/>
+        @auth   
+            <x-form.wishlist-toggle :product='$product' :isWishlisted="$product->is_wishlisted"/>
+        @endauth
         
     </div>
 </a>

@@ -23,26 +23,26 @@
 
         <div class="w-full hidden md:flex justify-between items-center gap-20">
             <nav class="flex justify-center items-center gap-5">
+                {{-- HOME --}}
                 <x-nav.link href="/" :active="request()->is('/')" >Home</x-nav.link>
-                <div class="relative group p-3">
-                    <div class="flex justify-center items-center group-hover:text-primary-500 cursor-pointer">
+
+                {{-- CATEGORIES --}}
+                <li class="relative group/zeroDepth p-3">
+                    <div class="flex justify-center items-center group-hover/zeroDepth:text-primary-500 cursor-pointer">
                         <h2 class="mr-1">Categories</h2>
-                        <x-heroicon-c-chevron-down class="-translate-x-1 w-4 h-4 text-black group-hover:text-primary-500"/>
+                        <x-heroicon-c-chevron-down class="-translate-x-1 w-4 h-4 text-black group-hover/zeroDepth:text-primary-500"/>
                     </div>
-                    <div class="z-10 min-w-48 absolute top-12 -right-3 bg-white border border-gray-200 p-4 group-hover:block hidden">
+
+                    <div class="z-10 min-w-48 absolute top-12 -right-3 bg-white border border-gray-200 p-3 group-hover/zeroDepth:block hidden">
                         <ul class="space-y-2">
+                            {{-- ALL DEPTH CATEGORIES --}}
                             @foreach ($categories as $category)
-                                <li>
-                                    <a 
-                                        href="{{route('category', $category)}}" 
-                                        class="inline-block w-full hover:text-primary-500 {{request()->is('category/' . $category->id) ? 'text-primary-500' : '' }}">
-                                        {{ $category->title }}
-                                    </a>
-                                </li>
+                                <x-nav.category :$category />
                             @endforeach 
                         </ul>
                     </div>
-                </div>
+                </li>
+
                 <x-nav.link href="/contact" :active="request()->is('contact')" >Contact</x-nav.link>
             </nav>
 
@@ -53,14 +53,12 @@
                 </div>
 
                 {{-- WISHLIST --}}
-                @auth
                     <a href="{{ route('wishlist') }}" class="relative group">
                         <div id="wishlist-count" class="absolute -top-4 -right-2 bg-gray-500 group-hover:bg-primary-500 text-white rounded-full w-5 h-5 text-xs flex justify-center items-center">
-                             {{auth()->user()->wishlistItems()->count()}}
+                             {{auth()->user()?->wishlistItems()->count() ?? 0}}
                         </div>
                         <x-heroicon-o-heart class="w-7 h-7 text-gray-500 group-hover:text-primary-500"/>
                     </a>
-                @endauth
 
                 {{-- CART --}}
                 <div class="relative group">

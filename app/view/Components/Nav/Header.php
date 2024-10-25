@@ -11,7 +11,7 @@ class Header extends Component
 
     public function __construct()
     {
-        $this->categories = Category::all();
+        $this->categories = Category::with('children')->whereNull('parent_id')->get();
     }
 
     public function render()

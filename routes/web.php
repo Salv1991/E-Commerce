@@ -25,7 +25,6 @@ Route::get('/signup', [SignupController::class, 'show'])->name('signup');
 Route::post('/signup', [SignupController::class, 'create']);
 
 Route::get('/wishlist', [WishlistController::class, 'show'])->middleware('auth')->name('wishlist');
-//Route::post('/wishlist/{id}', [WishlistController::class, 'create'])->middleware('auth')->name('wishlist.create');
 Route::post('/wishlist/{id}', [WishlistController::class, 'toggle'])->middleware('auth')->name('wishlist.create');
 Route::delete('/wishlist/{id}', [WishlistController::class, 'destroy'])->middleware('auth')->name('wishlist.destroy');
 

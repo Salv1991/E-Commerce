@@ -27,12 +27,13 @@ class DatabaseSeeder extends Seeder
         //Creates Products with Images.
         $productsWithImages = ProductImage::factory(50)->create();
 
-        //Creates Categories and children Categories.
+        //Creates 0 depth Categories.
         $categories = Category::factory(2)->sequence(
             ['depth' => 0, 'weight' => 0],
             ['depth' => 0, 'weight' => 1],
         )->create();
 
+        //Creates 1st depth Categories.
         $firstDepthCategories = collect();
         foreach ($categories as $category) {
             $newCategories = Category::factory(2)->sequence(
@@ -43,6 +44,7 @@ class DatabaseSeeder extends Seeder
             $firstDepthCategories = $firstDepthCategories->concat($newCategories);
         }
 
+        //Creates 2nd depth Categories.
         $childrenCategories = collect();
         foreach ($firstDepthCategories as $firstDepthCategory) {
             $secondDepthCategories = Category::factory(3)->sequence(
@@ -54,7 +56,7 @@ class DatabaseSeeder extends Seeder
             $childrenCategories = $childrenCategories->concat($secondDepthCategories);
         }
 
-        //Attaches categories to each product.
+        //Attaches 2nd depth categories to each product.
         foreach( $productsWithImages as $productWithImage) {
             $productWithImage->product->categories()->attach($childrenCategories->random());
         }
