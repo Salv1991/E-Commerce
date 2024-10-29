@@ -25,7 +25,7 @@ class LoginController extends Controller
             if (Auth::check()) {
                 session()->flash('success', 'Welcome back, ' . Auth::user()->name . '!');
             }
-            return redirect()->intended('/');
+            return redirect('/');
         }
 
         throw ValidationException::withMessages([

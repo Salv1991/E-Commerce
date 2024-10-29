@@ -28,15 +28,13 @@ class Product extends Model
     public function image() {
         return $this->hasOne(ProductImage::class);
     }
-    
-    public function isWishlisted() {
-        return Wishlist::where('user_id', Auth::id())
-                    ->where('product_id', $this->id)
-                    ->exists();
+
+    public function isWishlistedByUser() {
+        return Auth::user()?->wishlistedProducts->contains($this->id);
     }
 
     public function categories() {
         return $this->belongsToMany(Category::class, 'category_products');
     }
-  
+
 }

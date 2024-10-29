@@ -49,7 +49,7 @@
                             Add to cart 
                             <x-heroicon-c-shopping-bag class="inline-block w-7 h-7 -translate-y-1"/>
                         </button>
-                        <!-- @if ($product->isWishlisted())
+                        <!-- @if ($product->isWishlistedByUser())
                             <form action="{{ route('wishlist.destroy', $product->id) }}" method="post" class="w-fit m-auto bg-white text-black border-2 border-black group">
                                 @csrf
                                 @method('DELETE')
@@ -68,7 +68,7 @@
                                 </button>
                             </form>
                         @endif -->
-                        <x-form.wishlist-toggle :product='$product' :isWishlisted="$product->isWishlisted()"/>
+                        <x-form.wishlist-toggle :product='$product' :isWishlisted="$product->isWishlistedByUser()"/>
                     </div>
                 </div>
             </div>

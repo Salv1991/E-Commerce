@@ -1,5 +1,4 @@
 <a href="{{ route('product', $product) }}" class="col-span-1 relative" >
-
     {{-- IMAGE CONTAINER --}}
     <div class="aspect-[308/416]">
         @if ($product->images?->isNotEmpty())
@@ -36,7 +35,7 @@
 
         {{-- WISHLIST BUTTON --}}
         @auth   
-            <x-form.wishlist-toggle :product='$product' :isWishlisted="$product->is_wishlisted"/>
+            <x-form.wishlist-toggle :product='$product' :isWishlisted="$product->isWishlistedByUser()"/>
         @endauth
         
     </div>

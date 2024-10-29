@@ -19,9 +19,9 @@
                 </div>           
             </div>
 
-            @if ($wishlistItems->isNotEmpty())
-                @foreach ($wishlistItems as $item )
-                    <x-wishlist.teaser :product="$item->product" />
+            @if ($wishlistedProducts->isNotEmpty())
+                @foreach ($wishlistedProducts as $product )
+                    <x-wishlist.teaser :$product />
                 @endforeach
             @else
                <span> Your Wishlist is empty ... </span>

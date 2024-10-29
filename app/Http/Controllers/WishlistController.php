@@ -9,10 +9,9 @@ use Illuminate\Support\Facades\Auth;
 class WishlistController extends Controller
 {
     public function show() {
-        $wishlistItems = Auth::user()->wishlistItems;
-        $wishlistItems->load('product');
+        $wishlistedProducts = Auth::user()->wishlistedProducts;
 
-        return view('wishlist', compact('wishlistItems'));
+        return view('wishlist', compact('wishlistedProducts'));
     }
 
     
@@ -20,14 +19,14 @@ class WishlistController extends Controller
        
         $product = Product::findOrFail($id);
 
-        if (!$product->isWishlisted()) {
+        if (!$product->isWishlistedByUser()) {
             $status = 'added';
 
             Wishlist::create([
                 'user_id' => Auth::id(),
                 'product_id' => $id,
             ]);
-       
+            $isWishlisted = true;
         } else {
             $status = 'removed';
             $wishlist_item = Wishlist::where('product_id', $id)
@@ -37,16 +36,14 @@ class WishlistController extends Controller
             if ($wishlist_item) {
                 $product_title = $wishlist_item->product->title;
                 $wishlist_item->delete();
-
+                $isWishlisted = false;
             }
 
         }
 
-        $isWishlisted = $product->isWishlisted();
-
         if ( request()->ajax() ) {
             $formHtml = view('components.form.wishlist-toggle', compact('product', 'isWishlisted'))->render();
-            $wishlistCount = Auth::user()?->wishlistItems()->count();
+            $wishlistCount = Auth::user()?->refresh()->wishlistedProducts->count();
 
             return response()->json([
                 'status' => $status,
@@ -54,7 +51,7 @@ class WishlistController extends Controller
                 'message' => $product->title . ' has been added to your wishlist.',
                 'productId' => $id,
                 'formHtml' => $formHtml,
-                'isWishlisted' =>  $product->isWishlisted(),
+                'isWishlisted' =>  $isWishlisted,
                 'userLoggedIn' => Auth::user(),
             ]);
         }
@@ -71,7 +68,7 @@ class WishlistController extends Controller
         ]);
 
         if (request()->ajax()) {
-            $wishlistCount = Auth::user()->wishlistItems()->count();
+            $wishlistCount = Auth::user()->wishlistedProducts()->count();
             $formHtml = view('components.form.wishlist-add', compact('product', 'isWishlisted'))->render();
 
             return response()->json([
@@ -101,7 +98,7 @@ class WishlistController extends Controller
             $wishlist_item->delete();
 
             if (request()->ajax()) {
-                $wishlistCount = Auth::user()->wishlistItems()->count(); 
+                $wishlistCount = Auth::user()->wishlistedProducts()->count(); 
                 $formHtml = view('components.form.wishlist-toggle', compact('product', 'isWishlisted'))->render();
 
                 return response()->json([

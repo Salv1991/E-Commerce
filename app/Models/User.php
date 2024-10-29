@@ -46,8 +46,7 @@ class User extends Authenticatable
         ];
     }
 
-    public function wishlistItems() {
-        return $this->hasMany(Wishlist::class);
+    public function wishlistedProducts() {
+        return $this->belongsToMany(Product::class, 'wishlists');
     }
-
 }
