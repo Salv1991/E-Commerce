@@ -5,7 +5,7 @@
             {{-- LEFT --}}
             <div class="col-span-full order-2 md:order-1 md:col-span-1 py-14 px-10 bg-white">
                 <h1 class="text-3xl font-semibold">Sign Up</h1>
-                <form action="/signup" method="POST" class="mt-10">
+                <form action="{{route('signup.create')}}" method="POST" class="mt-10">
                     @csrf
                     
                     <x-form.input label="Name" name="name" placeholder="Name" />

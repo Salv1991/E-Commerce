@@ -3,9 +3,9 @@
         {{-- BREADCRUMBS --}}
         <x-nav.breadcrumbs :category="$product->categories->first()" :$product />
 
-        <div class="w-full m-auto grid grid-cols-2 gap-5">
-        {{-- IMAGE --}}
-        <div class="aspect-[300/416]">
+        <div class="w-full m-auto grid grid-cols-2 gap-5 *:col-span-full *:md:col-span-1">
+            {{-- IMAGE --}}
+            <div class="aspect-[300/416] ">
                 @if ($product->images->isNotEmpty())
                 <img 
                     src="{{ asset('storage/' . $product->image->image_path) }}" 
@@ -19,11 +19,11 @@
                 @endif
             </div>
 
-        {{-- DETAILS --}}
+            {{-- DETAILS --}}
             <div>
-                <a href="{{ url()->previous() }}" class="">Back to products</a>
+                <!-- <a href="{{ url()->previous() }}" class="">Back to products</a> -->
 
-                <div class="my-8">
+                <div class="">
                     <h1 class="text-5xl font-bold">{{$product->title}}</h1>
                     <div class="mt-5">Reviews</div>
                     <div class="mt-5 m-auto *:inline-block">
@@ -44,35 +44,92 @@
                     <div class="mt-5">
                         <p>{{ $product->description }}</p>
                     </div>
-                    <div class="mt-10 flex justify-center items-center gap-5 *:px-4 *:py-4 *:text-2xl *:rounded-sm *:w-full">
-                        <button class="bg-black border-2 border-black hover:bg-white hover:text-black  text-white duration-300">
-                            Add to cart 
+                    <div class="mt-10 flex flex-col xl:flex-row justify-center items-center gap-5 *:text-2xl *:rounded-sm *:w-full">
+                        {{-- CART --}}
+                        <button class="px-4 py-4 bg-black border-2 border-black hover:bg-white hover:text-black  text-white duration-300">
+                            <span>Add to cart</span> 
                             <x-heroicon-c-shopping-bag class="inline-block w-7 h-7 -translate-y-1"/>
                         </button>
-                        <!-- @if ($product->isWishlistedByUser())
-                            <form action="{{ route('wishlist.destroy', $product->id) }}" method="post" class="w-fit m-auto bg-white text-black border-2 border-black group">
-                                @csrf
-                                @method('DELETE')
 
-                                <button type="submit" class="mx-auto block text-xl">
-                                    Remove from Wishlist
-                                    <x-heroicon-o-heart class="inline-block w-7 h-7 fill-red-300 text-red-300 -translate-y-1"/>
-                                </button>
-                            </form>
-                        @else
-                            <form action="{{ route('wishlist.create', $product->id) }}" method="post" class="w-fit m-auto bg-white text-black border-2 border-black group">
-                                @csrf
-                                <button type="submit" class="mx-auto block">
-                                    Add to Wishlist
-                                    <x-heroicon-o-heart class="inline-block w-7 h-7 group-hover:fill-red-300 group-hover:text-red-300 -translate-y-1"/>
-                                </button>
-                            </form>
-                        @endif -->
-                        <x-form.wishlist-toggle :product='$product' :isWishlisted="$product->isWishlistedByUser()"/>
+                        {{-- WISHLIST --}}
+                        <x-form.wishlist-toggle-alternative :product='$product' :isWishlisted="$product->isWishlistedByUser()"/>
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 </x-layout>
+
+<!-- <script>
+        function wishlist(event){
+            console.log('Event:', event);
+            event.preventDefault();
+            const form = event.target;
+            const actionUrl = form.action;
+            const method = form.method;
+            const formData = new FormData(form);
+            const viewType = form.getAttribute('data-view-type');
+            formData.append('viewType', viewType);
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            fetch(actionUrl, {
+                method: method,
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken, 
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                    document.getElementById('wishlist-count').textContent= data.newCount;
+                    form.outerHTML = data.formHtml;
+                })
+        };
+</script> -->
+
+<script>
+
+    async function wishlistItem(event){
+        event.preventDefault();
+        const form = event.target;
+        const formData = new FormData(form);
+        const viewType = form.getAttribute('data-view-type');
+        formData.append('viewType', viewType);
+        const url = event.target.action;
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+        try {
+
+            const response = await fetch(url, {
+                method: form.method,
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken, 
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+
+            const data = await response.json();
+            form.outerHTML = data.formHtml;
+            
+            document.getElementById('wishlist-count').textContent = data.updatedWishlistCount;
+
+            if(data.status === 'added') {
+                                    
+                const wishlistIcon = document.querySelector('.wishlist-icon');
+
+                wishlistIcon.classList.add('animate');
+
+                setTimeout(() => {
+                    wishlistIcon.classList.remove('animate');
+                }, 300); 
+            };
+                    
+        } catch (error){
+            console.log('Error', error);
+        }
+    }
+
+</script>

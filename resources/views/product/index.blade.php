@@ -4,31 +4,48 @@
         {{-- BREADCRUMBS --}}
         <x-nav.breadcrumbs :$category />
 
-        {{-- PRODUCTS --}}
-        <div class="wishlist-container">
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
-            @foreach ($products as $product)
-                <x-product.teaser :product="$product" />
-            @endforeach
+        <div class="products-container">
+
+            {{-- FILTERS --}}
+            <div class="flex justify-start items-center">
+                <button class="peer border focus:border-red-400 bg-gray-50 ">
+                    SORT BY
+                </button>
+                <div class="peer-focus:block hidden">
+                    <option class="border focus:border-red-400">Asc</option>
+                    <option>Desc</option>
+                </div>
             </div>
+
+            {{-- PRODUCTS --}}
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+                @if ($products->isNotEmpty())            
+                    @foreach ($products as $product)
+                        <x-product.teaser :product="$product" />
+                    @endforeach
+                @else
+                    <p class="text-center w-full col-span-full mt-20 text-lg font-semibold">No products found for '{{ $category->title }}' category.</p>
+                @endif
+            </div>
+            
         </div>
 
         {{-- PAGINATION --}}
         <div class="mt-20">
             {{ $products->links() }}
         </div>
+
     </div>
 </x-layout>
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        // Use event delegation on the document or a parent container
-        const container = document.querySelector('.wishlist-container'); // Use the parent wrapper of the forms
+        // Use event delegation on the parent container
+        const productsContainer = document.querySelector('.products-container');
 
-        container.addEventListener('submit', function (event) {
+        productsContainer.addEventListener('submit', function (event) {
             if (event.target.matches('.wishlist-form')) {
-                event.preventDefault(); // Prevent default form submission
-
+                event.preventDefault(); 
                 const form = event.target;
                 const actionUrl = form.action;
                 const method = form.method;
@@ -39,22 +56,27 @@
                     method: method,
                     body: formData,
                     headers: {
-                        'X-CSRF-TOKEN': csrfToken,  // Include CSRF token
-                        'X-Requested-With': 'XMLHttpRequest' // Set header to indicate AJAX request
+                        'X-CSRF-TOKEN': csrfToken, 
+                        'X-Requested-With': 'XMLHttpRequest'
                     }
                 })
                 .then(response => response.json())
                 .then(data => {
                     console.log(data)
+                    
+                    document.getElementById('wishlist-count').textContent = data.updatedWishlistCount;
 
-                    // Update the wishlist count
-                    const wishlistCounterOnHeader = document.getElementById('wishlist-count'); 
-                    wishlistCounterOnHeader.textContent = data.newCount; // Update count
-
-                    // Replace the current form with the updated form HTML from the response
                     const productForm = document.querySelector(`[data-product-id="${data.productId}"]`);
-                    productForm.outerHTML = data.formHtml; // Replace form
+                    productForm.outerHTML = data.formHtml; 
+                    if(data.status === 'added') {                                            
+                        const wishlistIcon = document.querySelector('.wishlist-icon');
 
+                        wishlistIcon.classList.add('animate');
+
+                        setTimeout(() => {
+                            wishlistIcon.classList.remove('animate');
+                        }, 300); 
+                    };
                 })
                 .catch(error => {
                     console.error('Error:', error);
