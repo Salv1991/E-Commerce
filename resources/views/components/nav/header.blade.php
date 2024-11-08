@@ -1,38 +1,9 @@
-<header class="sticky top-0 border border-b-stone-300 w-full z-40  bg-white" data-controller="responsive-nav-menu" >
-    
-    <div class="relative px-5 py-4 max-w-screen-xl m-auto flex justify-between items-center gap-10">
+<header 
+    class="sticky top-0 border-b border-b-stone-300 w-full z-40  bg-white" 
+    data-controller="responsive-nav-menu" 
+    data-action="mouseover->responsive-nav-menu#closeSubmenu">
 
-        {{-- CATEGORIES OVERLAY --}}
-        <div id="categories-container" 
-            data-responsive-nav-menu-target="categoriesContainer2" 
-            class="hidden w-full px-5 md:pl-[100px] md:pr-5 absolute top-[60px] left-0 p-3 grid grid-cols-5">
-            <div class="z-50 col-span-2 md:col-span-1 bg-white border border-stone-300 overflow-hidden rounded-s-md">
-                @foreach ($categories as $category)
-                    <a  href="{{ route('category', $category) }}"
-                        class="p-4 flex justify-between items-center"
-                        data-responsive-nav-menu-target="firstDepth" 
-                        data-action="mouseover->responsive-nav-menu#openChildrenCategoriesMenu"
-                        data-category-id="{{ $category->id }}">  
-                        <span>{{$category->title}}</span>
-                        <x-heroicon-c-chevron-right class="w-4 h-4 hover:text-white"/>
-                    </a>
-                @endforeach
-            </div>
-            <div data-responsive-nav-menu-target="categoryChildrenContainer" class=" col-span-3 md:col-span-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 px-6 py-4">
-                @foreach ($childrenCategories as $secondDepthCategory)
-                    <div data-responsive-nav-menu-target="categoriesContainer" 
-                        data-parent-id="{{ $secondDepthCategory->parent_id }}" 
-                        class="hidden">
-                        <a href="{{ route('category', $secondDepthCategory) }}" class="text-red-500 text-xl font-semibold">{{ $secondDepthCategory->title }}</a>
-                        <div class="flex flex-col justify-start items-start text-md mt-2">
-                            @foreach ($secondDepthCategory->children as $thirdDepthCategory)
-                                <a href="{{ route('category', $thirdDepthCategory) }}">{{ $thirdDepthCategory->title }}</a>
-                            @endforeach
-                        </div>
-                    </div>       
-                @endforeach
-            </div>
-        </div>
+    <div class="relative px-5 max-w-screen-xl m-auto flex justify-between items-center gap-10">
 
         {{-- MESSAGE --}}
         @if(session('success'))    
@@ -56,27 +27,66 @@
             <img src="{{ asset('svg/logo.svg') }}" alt="Logo" class="w-10 h-10">
         </a>
 
-
         <div class="w-full flex justify-between items-center gap-20">
             <nav class="flex justify-center items-center gap-5">
              
                 {{-- CATEGORIES --}}
-                <div id="categories-wrapper" data-responsive-nav-menu-target="categoriesWrapper" class="relative">
-                    <button 
-                        data-responsive-nav-menu-target="categoriesMenuButton" 
-                        data-action="click->responsive-nav-menu#toggleCategoriesMenu" 
-                        class="peer flex justify-center items-center gap-1 bg-gradient-to-br from-red-500 to-pink-500 p-2 rounded-md">
-                        <x-heroicon-m-bars-3-bottom-left class="open -translate-x-1 w-5 h-5 text-white"/>     
-                        <x-heroicon-o-x-mark class="hidden close -translate-x-1 w-5 h-5 text-white"/>     
-                        <span class="text-white">Categories</span>
-                    </button>
+                <div id="categories-wrapper" 
+                    data-responsive-nav-menu-target="categoriesWrapper" 
+                    class="relative flex justify-center items-center gap-5">
+
+                    <ul class="flex justify-center items-center">          
+                        @foreach ($categories as $category)
+                            <li class="group" data-action="mouseover->responsive-nav-menu#openSubmenu">
+
+                                <a  href="{{ route('category', $category) }}"
+                                    class="p-6 flex justify-between items-center group-hover:text-primary-500"
+                                    data-responsive-nav-menu-target="firstDepth" 
+                                    data-category-id="{{ $category->id }}">  
+                                    <span class="text-sm uppercase font-semibold">{{$category->title}}</span>
+                                    <!-- <x-heroicon-c-chevron-down class="w-4 h-4 hover:text-white "/> -->
+                                </a>
+                                <div data-responsive-nav-menu-target="submenu" 
+                                    class="submenu hidden fixed top-[68px] right-0 left-0 bottom-0 bg-black/70" 
+                                    data-action="mouseover->responsive-nav-menu#closeSubmenu2">
+                                    <div class="category-container min-h-[450px] bg-white z-50 col-span-2 grid grid-cols-5" id="categories-container">
+                                        <div class="col-span-3 grid grid-cols-2 p-8 gap-1">
+                                            @foreach ($category->children as $secondDepthCategory)
+                                                <div class="p-4 col-span-1">
+                                                    <a href="{{ route('category', $secondDepthCategory) }}"
+                                                        class="block text-black text-base font-semibold uppercase border-b border-b-gray-300 pb-1">
+                                                        {{ $secondDepthCategory->title }}
+                                                    </a>
+                                                    <div class="flex flex-col justify-start items-start text-md mt-2 space-y-2">
+                                                        @foreach ($secondDepthCategory->children as $thirdDepthCategory)
+                                                            <a href="{{ route('category', $thirdDepthCategory) }}" class="text-sm uppercase text-gray-600">{{ $thirdDepthCategory->title }}</a>
+                                                        @endforeach
+                                                    </div>
+                                                </div>       
+                                            @endforeach
+                                        </div>
+                                        <div class="col-span-2">
+                                            {{-- IMAGE --}}
+                                            <a href="{{ route('category', $category)}}" class="block aspect-[360/416] h-full">  
+                                                <img 
+                                                    src="{{ asset('storage/' . ($category->image_path ? $category->image_path : 'products/placeholder.jpg') )}}" 
+                                                    alt="Product Image" 
+                                                    class="w-full h-full object-cover" />
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                        @endforeach
+
+                    </ul>
                 </div>
             </nav>
 
             <div class="flex justify-center items-center gap-2">
                 {{-- SEARCH --}}
                 <form action="{{route('search')}}" method="get" class="relative w-[70%]">
-                    <input type="search" placeholder="Search" name="query" value="{{ request()->query('query') }}" class="w-full rounded-xl py-1 pl-9 pr-2 border-2 border-gray-200 outline-none" />
+                    <input type="search" placeholder="Search" name="query" value="{{ request()->query('query') }}" class="w-full rounded-xl py-1 pl-9 pr-2 border-2 border-gray-200 outline-none text-sm placeholder:text-sm" />
                     <button type='submit' class="absolute left-2 top-[5px] mr-2 ">
                         <x-heroicon-c-magnifying-glass  class="w-6 h-6 text-gray-500 hover:text-primary-500"/>       
                     </button>

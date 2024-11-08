@@ -52,7 +52,9 @@
                         </button>
 
                         {{-- WISHLIST --}}
-                        <x-form.wishlist-toggle-alternative :product='$product' :isWishlisted="$product->isWishlistedByUser()"/>
+                        @auth
+                            <x-form.wishlist-toggle-alternative :product='$product' :isWishlisted="$product->isWishlistedByUser()"/>      
+                        @endif
                     </div>
                 </div>
             </div>

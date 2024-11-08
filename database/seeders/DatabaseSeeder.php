@@ -28,7 +28,7 @@ class DatabaseSeeder extends Seeder
         $productsWithImages = ProductImage::factory(50)->create();
 
         //Creates 0 depth Categories.
-        $categories = Category::factory(2)->sequence(
+        $categories = Category::factory(3)->sequence(
             ['depth' => 0, 'weight' => 0],
             ['depth' => 0, 'weight' => 1],
         )->create();
@@ -36,9 +36,10 @@ class DatabaseSeeder extends Seeder
         //Creates 1st depth Categories.
         $firstDepthCategories = collect();
         foreach ($categories as $category) {
-            $newCategories = Category::factory(2)->sequence(
+            $newCategories = Category::factory(3)->sequence(
                 ['parent_id' => $category->id, 'depth' => 1, 'weight' => 0],
-                ['parent_id' => $category->id, 'depth' => 1, 'weight' => 1]
+                ['parent_id' => $category->id, 'depth' => 1, 'weight' => 1],
+                ['parent_id' => $category->id, 'depth' => 1, 'weight' => 2]
             )->create();
 
             $firstDepthCategories = $firstDepthCategories->concat($newCategories);
@@ -47,10 +48,11 @@ class DatabaseSeeder extends Seeder
         //Creates 2nd depth Categories.
         $childrenCategories = collect();
         foreach ($firstDepthCategories as $firstDepthCategory) {
-            $secondDepthCategories = Category::factory(3)->sequence(
+            $secondDepthCategories = Category::factory(4)->sequence(
                 ['parent_id' => $firstDepthCategory->id, 'depth' => 2, 'weight' => 0],
                 ['parent_id' => $firstDepthCategory->id, 'depth' => 2, 'weight' => 1],
-                ['parent_id' => $firstDepthCategory->id, 'depth' => 2, 'weight' => 2]
+                ['parent_id' => $firstDepthCategory->id, 'depth' => 2, 'weight' => 2],
+                ['parent_id' => $firstDepthCategory->id, 'depth' => 2, 'weight' => 3]
             )->create();
 
             $childrenCategories = $childrenCategories->concat($secondDepthCategories);

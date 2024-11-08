@@ -5,7 +5,7 @@
         <img 
             src="{{ asset('storage/' . ($product->images->isNotEmpty() ? $product->images->first()->image_path : 'products/placeholder.jpg') )}}" 
             alt="Product Image" 
-            class="w-full h-full object-cover" />
+            class="w-full h-full object-cover rounded-md" />
     </div>
 
     {{-- PRODUCT DETAILS --}}
