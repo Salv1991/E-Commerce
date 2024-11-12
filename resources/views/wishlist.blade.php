@@ -31,7 +31,7 @@
     </div>
 </x-layout>
 
-<script>
+<script defer>
     const wishlistContainer = document.getElementById('wishlist-container');
     document.addEventListener('DOMContentLoaded', () => {
         wishlistContainer.addEventListener('submit', (event) => {

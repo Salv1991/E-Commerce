@@ -9,7 +9,6 @@ class Header extends Component
 {
     public $wishlistCount;
     public $categories;
-    public $childrenCategories;
 
     public function __construct()
     {
@@ -17,9 +16,6 @@ class Header extends Component
         
         $this->categories = Category::with('children')->whereNull('parent_id')->get();
 
-        $this->childrenCategories = $this->categories->flatMap( function($category) {
-            return $category->children;
-        });
     }
 
     public function render()

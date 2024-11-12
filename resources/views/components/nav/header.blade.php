@@ -3,7 +3,7 @@
     data-controller="responsive-nav-menu" 
     data-action="mouseover->responsive-nav-menu#closeSubmenu">
 
-    <div class="relative px-5 max-w-screen-xl m-auto flex justify-between items-center gap-10">
+    <div class="relative px-5 max-w-screen-xl m-auto flex justify-between items-center gap-2 md:gap-10">
 
         {{-- MESSAGE --}}
         @if(session('success'))    
@@ -27,27 +27,27 @@
             <img src="{{ asset('svg/logo.svg') }}" alt="Logo" class="w-10 h-10">
         </a>
 
-        <div class="w-full flex justify-between items-center gap-20">
+        <div class="w-full flex justify-between items-center gap-6">
             <nav class="flex justify-center items-center gap-5">
              
                 {{-- CATEGORIES --}}
                 <div id="categories-wrapper" 
                     data-responsive-nav-menu-target="categoriesWrapper" 
-                    class="relative flex justify-center items-center gap-5">
+                    class="relative justify-center items-center gap-5 hidden md:flex">
 
                     <ul class="flex justify-center items-center">          
                         @foreach ($categories as $category)
                             <li class="group" data-action="mouseover->responsive-nav-menu#openSubmenu">
 
                                 <a  href="{{ route('category', $category) }}"
-                                    class="p-6 flex justify-between items-center group-hover:text-primary-500"
+                                    class="px-5 py-9 flex justify-between items-center group-hover:text-primary-500"
                                     data-responsive-nav-menu-target="firstDepth" 
                                     data-category-id="{{ $category->id }}">  
                                     <span class="text-sm uppercase font-semibold">{{$category->title}}</span>
                                     <!-- <x-heroicon-c-chevron-down class="w-4 h-4 hover:text-white "/> -->
                                 </a>
                                 <div data-responsive-nav-menu-target="submenu" 
-                                    class="submenu hidden fixed top-[68px] right-0 left-0 bottom-0 bg-black/70" 
+                                    class="submenu hidden fixed top-[92px] right-0 left-0 bottom-0 bg-black/70" 
                                     data-action="mouseover->responsive-nav-menu#closeSubmenu2">
                                     <div class="category-container min-h-[450px] bg-white z-50 col-span-2 grid grid-cols-5" id="categories-container">
                                         <div class="col-span-3 grid grid-cols-2 p-8 gap-1">
@@ -59,7 +59,8 @@
                                                     </a>
                                                     <div class="flex flex-col justify-start items-start text-md mt-2 space-y-2">
                                                         @foreach ($secondDepthCategory->children as $thirdDepthCategory)
-                                                            <a href="{{ route('category', $thirdDepthCategory) }}" class="text-sm uppercase text-gray-600">{{ $thirdDepthCategory->title }}</a>
+                                                            <a href="{{ route('category', $thirdDepthCategory) }}" class="text-sm uppercase text-gray-600">
+                                                                {{ $thirdDepthCategory->title }}</a>
                                                         @endforeach
                                                     </div>
                                                 </div>       
@@ -78,12 +79,11 @@
                                 </div>
                             </li>
                         @endforeach
-
                     </ul>
                 </div>
             </nav>
 
-            <div class="flex justify-center items-center gap-2">
+            <div class="flex justify-center items-center gap-2 py-6">
                 {{-- SEARCH --}}
                 <form action="{{route('search')}}" method="get" class="relative w-[70%]">
                     <input type="search" placeholder="Search" name="query" value="{{ request()->query('query') }}" class="w-full rounded-xl py-1 pl-9 pr-2 border-2 border-gray-200 outline-none text-sm placeholder:text-sm" />
@@ -138,53 +138,13 @@
                 </div>
                 
                 {{-- RESPONSIVE MENU ICON --}}
-                <div class="cursor-pointer hidden">
-                    <x-heroicon-m-bars-3-bottom-right data-action="click->responsive-nav-menu#toggleResponsiveMenu" class=" -translate-x-1 w-7 h-7 text-gray-500 hover:text-primary-500"/>
+                <div class="cursor-pointer block md:hidden">
+                    <x-heroicon-m-bars-3-bottom-right data-action="click->responsive-nav-menu#toggleResponsiveMenu" class="-translate-x-1 w-7 h-7 text-gray-500 hover:text-primary-500"/>
                 </div>
                 
                 {{-- HIDDEN CONTAINER --}}
-                <div data-responsive-nav-menu-target="menu" class="z-50 translate-x-full transition-transform duration-500 p-6 bg-gray-50 fixed top-0 right-0 left-0 bottom-0">
-                    <div class="flex flex-col justify-between items-center relative h-full">
-                        <x-heroicon-o-x-mark data-action="click->responsive-nav-menu#toggleResponsiveMenu" class="w-7 h-7 text-gray-500 hover:text-primary-500 absolute top-0 right-0"/>
-                        
-                        <nav class="w-full py-12 flex flex-col justify-center items-center gap-5">
-                            <ul class="w-full *:block *:border-b *:border-b-gray-300 *:w-full">
-                                <x-nav.link href="/categories" :active="request()->is('categories')" >Categories</x-nav.link>
-                                <x-nav.link href="/contact" :active="request()->is('contact')" >Contact</x-nav.link>
-                                @guest                    
-                                    <x-nav.link href="{{route('login.show')}}" >Login</x-nav.link>
-                                    <x-nav.link href="{{route('signup')}}" >Sign up</x-nav.link>
-                                @endguest
-                                @auth 
-                                    <li class="p-3">
-                                        <form method="POST" action="{{ route('logout') }}">
-                                            @csrf
-                                            <button type="submit" class="hover:text-primary-500">Log out</button>
-                                        </form>
-                                    </li>
-                                @endauth
-                            </ul>
-                        </nav>
+                <x-nav.mobile-header  :$categories/>
 
-                        <div class="flex justify-center items-center gap-5">
-                            <div>
-                                <x-heroicon-c-magnifying-glass class="w-7 h-7 text-gray-500 hover:text-primary-500"/>
-                            </div>
-                            <div class="relative">
-                                <div class="absolute -top-4 -right-2 bg-gray-500 text-white rounded-full w-5 h-5 text-xs flex justify-center items-center" >
-                                    2
-                                </div>
-                                <x-heroicon-o-heart class="w-7 h-7 text-gray-500 hover:text-primary-500"/>
-                            </div>
-                            <div class="relative">
-                                <div class="absolute -top-4 -right-2 bg-gray-500 text-white rounded-full w-5 h-5 text-xs flex justify-center items-center" >
-                                        22
-                                </div>
-                                <x-heroicon-c-shopping-bag class="w-7 h-7 text-gray-500 hover:text-primary-500"/>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div> 
         </div>     
     </div>

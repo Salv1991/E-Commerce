@@ -1,7 +1,7 @@
 import { Controller } from "stimulus";
 
 export default class extends Controller {
-    static targets = ['firstDepth','submenu', 'menu', 'close']
+    static targets = ['firstDepth','submenu', 'menu', 'close', 'responsiveMenuContainer', 'closeButton']
 
     connect() {
         this.selectedCategory;
@@ -11,8 +11,10 @@ export default class extends Controller {
     }
 
     toggleResponsiveMenu() {
-        this.menuTarget.classList.toggle('translate-x-0');
-        this.menuTarget.classList.toggle('translate-x-full');
+        this.responsiveMenuContainerTarget.classList.toggle('opacity-100');
+        this.responsiveMenuContainerTarget.classList.toggle('pointer-events-none');
+        this.closeButtonTarget.classList.toggle('hidden');
+        this.menuTarget.classList.toggle('-translate-x-full');
     }
 
     openSubmenu(event) {
@@ -31,5 +33,16 @@ export default class extends Controller {
     closeSubmenu2(event) {
         event.stopPropagation();
         event.currentTarget.closest('div.submenu').classList.add('hidden');         
+    }
+    
+    toggleMobileSubmenu(event) {
+        console.log(event.currentTarget);
+        event.currentTarget.closest('.mobile-category').querySelector('.mobile-category-submenu').classList.toggle('-translate-x-full');
+    }
+
+    toggleMobileChildrenSubmenu(event) {
+        console.log('EVENT MOBILE', event.currentTarget);
+        console.log('MOBILE CHILDREN',event.currentTarget.closest('.mobile-submenu'));
+        event.currentTarget.closest('.children-mobile-submenu').querySelector('.submenu-card').classList.toggle('-translate-x-full');
     }
 }
