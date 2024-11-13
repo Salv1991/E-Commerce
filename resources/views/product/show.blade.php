@@ -1,9 +1,11 @@
 <x-layout>
     <div class="w-full px-5 pb-20 max-w-screen-xl m-auto">
+        
         {{-- BREADCRUMBS --}}
         <x-nav.breadcrumbs :category="$product->categories->first()" :$product />
 
         <div class="w-full m-auto grid grid-cols-2 gap-5 *:col-span-full *:md:col-span-1">
+
             {{-- IMAGE --}}
             <div class="aspect-[300/416] ">
                 @if ($product->images->isNotEmpty())
@@ -21,8 +23,6 @@
 
             {{-- DETAILS --}}
             <div>
-                <!-- <a href="{{ url()->previous() }}" class="">Back to products</a> -->
-
                 <div class="">
                     <h1 class="text-5xl font-bold">{{$product->title}}</h1>
                     <div class="mt-5">Reviews</div>
@@ -53,12 +53,14 @@
 
                         {{-- WISHLIST --}}
                         @auth
-                            <x-form.wishlist-toggle-alternative :product='$product' :isWishlisted="$product->isWishlistedByUser()"/>      
+                            <x-form.wishlist-toggle-alternative :product='$product' :isWishlisted="in_array($product->id, $wishlistedProductsIds)"/>      
                         @endif
                     </div>
                 </div>
             </div>
+
         </div>
+
     </div>
 </x-layout>
 

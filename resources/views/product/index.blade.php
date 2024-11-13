@@ -4,7 +4,9 @@
         {{-- BREADCRUMBS --}}
         <x-nav.breadcrumbs :$category />
 
-        <div class="products-container">
+        <h1 class="font-semibold text-3xl text-center mt-16 uppercase text-gray-700">{{ $category->title }}</h1>
+        <p class="text-center mt-6 text-gray-500">{{ $category->description}}</p>
+        <div class="products-container mt-14">
 
             {{-- FILTERS --}}
             <div class="flex justify-start items-center">

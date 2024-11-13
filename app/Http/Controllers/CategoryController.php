@@ -16,11 +16,15 @@ class CategoryController extends Controller
                                         ->prepend($category->id)
                                         ->unique();
                                      
+        $wishlistedProductsIds = auth()->check() 
+            ? auth()->user()->wishlistedProducts()->pluck('product_id')->toArray()
+            : []; 
+
         $products = Product::whereHas('categories', function($query) use ($childrenCategories) {
             $query->whereIn('categories.id', $childrenCategories);
         })->with('images')
         ->paginate(9);
        
-        return view('product.index', compact(['products', 'category']));
+        return view('product.index', compact(['products', 'category', 'wishlistedProductsIds']));
     }
 }

@@ -4,6 +4,7 @@ namespace App\View\Components\Nav;
 
 use Illuminate\View\Component;
 use App\Models\Category;
+use Illuminate\Support\Facades\Cache;
 
 class Header extends Component
 {
@@ -14,8 +15,9 @@ class Header extends Component
     {
         $this->wishlistCount = auth()->check() ? auth()->user()->wishlistedProducts()->count() : 0;
         
-        $this->categories = Category::with('children')->whereNull('parent_id')->get();
-
+        $this->categories = Cache::remember('first-depth-categories', 60, function () {
+            return Category::with('children')->whereNull('parent_id')->get();
+        });
     }
 
     public function render()

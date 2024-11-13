@@ -1,3 +1,4 @@
+@props(['product', 'wishlistedProductsIds' => []])
 <a href="{{ route('product', $product) }}" class="col-span-1 relative" >
 
     {{-- IMAGE CONTAINER --}}
@@ -30,7 +31,7 @@
 
         {{-- WISHLIST BUTTON --}}
         @auth   
-            <x-form.wishlist-toggle :product='$product' :isWishlisted="$product->isWishlistedByUser()"/>
+            <x-form.wishlist-toggle :product='$product' :isWishlisted="in_array($product->id, $wishlistedProductsIds)"/>
         @endauth
     </div>
 

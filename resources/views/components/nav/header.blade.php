@@ -40,40 +40,43 @@
                             <li class="group" data-action="mouseover->responsive-nav-menu#openSubmenu">
 
                                 <a  href="{{ route('category', $category) }}"
-                                    class="px-5 py-9 flex justify-between items-center group-hover:text-primary-500"
+                                    class="px-5 py-9 group-hover:text-primary-500 text-sm uppercase font-semibold"
                                     data-responsive-nav-menu-target="firstDepth" 
                                     data-category-id="{{ $category->id }}">  
-                                    <span class="text-sm uppercase font-semibold">{{$category->title}}</span>
-                                    <!-- <x-heroicon-c-chevron-down class="w-4 h-4 hover:text-white "/> -->
+                                        {{$category->title}}
                                 </a>
+                                
                                 <div data-responsive-nav-menu-target="submenu" 
-                                    class="submenu hidden fixed top-[92px] right-0 left-0 bottom-0 bg-black/70" 
+                                    class="submenu hidden fixed top-[88px] right-0 left-0 bottom-0 bg-black/80" 
                                     data-action="mouseover->responsive-nav-menu#closeSubmenu2">
-                                    <div class="category-container min-h-[450px] bg-white z-50 col-span-2 grid grid-cols-5" id="categories-container">
-                                        <div class="col-span-3 grid grid-cols-2 p-8 gap-1">
-                                            @foreach ($category->children as $secondDepthCategory)
-                                                <div class="p-4 col-span-1">
-                                                    <a href="{{ route('category', $secondDepthCategory) }}"
-                                                        class="block text-black text-base font-semibold uppercase border-b border-b-gray-300 pb-1">
-                                                        {{ $secondDepthCategory->title }}
-                                                    </a>
-                                                    <div class="flex flex-col justify-start items-start text-md mt-2 space-y-2">
-                                                        @foreach ($secondDepthCategory->children as $thirdDepthCategory)
-                                                            <a href="{{ route('category', $thirdDepthCategory) }}" class="text-sm uppercase text-gray-600">
-                                                                {{ $thirdDepthCategory->title }}</a>
-                                                        @endforeach
-                                                    </div>
-                                                </div>       
-                                            @endforeach
-                                        </div>
-                                        <div class="col-span-2">
-                                            {{-- IMAGE --}}
-                                            <a href="{{ route('category', $category)}}" class="block aspect-[360/416] h-full">  
-                                                <img 
-                                                    src="{{ asset('storage/' . ($category->image_path ? $category->image_path : 'products/placeholder.jpg') )}}" 
-                                                    alt="Product Image" 
-                                                    class="w-full h-full object-cover" />
-                                            </a>
+                                    <div class="category-container  bg-white z-50 " >
+                                        <div class="max-w-screen-xl min-h-[400px] m-auto col-span-2 grid grid-cols-5" id="categories-container">
+                                            <div class="col-span-3 grid grid-cols-2 xl:grid-cols-3 p-8 gap-1">
+                                                @foreach ($category->children as $secondDepthCategory)
+                                                    <div class="p-4 col-span-1">
+                                                        <a href="{{ route('category', $secondDepthCategory) }}"
+                                                            class="block text-black text-base font-semibold uppercase border-b border-b-gray-300 pb-1">
+                                                            {{ $secondDepthCategory->title }}
+                                                        </a>
+                                                        <div class="flex flex-col justify-start items-start text-md mt-2 space-y-2">
+                                                            @foreach ($secondDepthCategory->children as $thirdDepthCategory)
+                                                                <a href="{{ route('category', $thirdDepthCategory) }}" class="text-sm uppercase text-gray-600">
+                                                                    {{ $thirdDepthCategory->title }}</a>
+                                                            @endforeach
+                                                        </div>
+                                                    </div>       
+                                                @endforeach
+                                            </div>
+                                            <div class="col-span-2">
+                                                {{-- IMAGE --}}
+                                                <a href="{{ route('category', $category)}}" class="block aspect-[360/416] max-h-[600px] h-full">  
+                                                    <img 
+                                                        src="{{ asset('storage/' . ($category->image_path ? $category->image_path : 'products/placeholder.jpg') )}}" 
+                                                        alt="Product Image" 
+                                                        class="w-full h-full object-cover" 
+                                                        loading="lazy"/>
+                                                </a>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -143,7 +146,7 @@
                 </div>
                 
                 {{-- HIDDEN CONTAINER --}}
-                <x-nav.mobile-header  :$categories/>
+                <x-nav.mobile.responsive-menu  :$categories/>
 
             </div> 
         </div>     

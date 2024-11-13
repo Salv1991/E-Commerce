@@ -1,7 +1,7 @@
-<div class="w-full h-12 flex items-center border-b border-b-gray-200 *:px-4">
+<div class="group w-full h-12 flex items-center border-b border-b-gray-200 *:px-4">
     <a  
         href="{{ route('category', $category) }}"
-        class="w-full flex justify-between items-center group-hover/{{ $groupName }}:bg-gray-100 py-4"
+        class="w-full flex justify-between items-center group-hover:bg-gray-100 py-4"
         data-category-id="{{ $category->id }}">  
         <span class="text-sm uppercase font-semibold">{{$category->title}}</span>
     </a>
