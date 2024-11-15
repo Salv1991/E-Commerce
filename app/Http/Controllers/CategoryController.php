@@ -19,12 +19,21 @@ class CategoryController extends Controller
         $wishlistedProductsIds = auth()->check() 
             ? auth()->user()->wishlistedProducts()->pluck('product_id')->toArray()
             : []; 
-
-        $products = Product::whereHas('categories', function($query) use ($childrenCategories) {
+        
+        $productsQuery = Product::whereHas('categories', function($query) use ($childrenCategories) {
             $query->whereIn('categories.id', $childrenCategories);
-        })->with('images')
-        ->paginate(9);
-       
+        })
+        ->with('images')
+        ->when(request()->has('sort'), function($query) {
+            return $query->orderBy('title', request()->input('sort'));
+        })
+        ->when(request()->has('price'), function($query) {
+            return $query->orderBy('price', request()->input('price'));
+        });
+
+        // Paginate products
+        $products = $productsQuery->paginate(9);
+               
         return view('product.index', compact(['products', 'category', 'wishlistedProductsIds']));
     }
 }

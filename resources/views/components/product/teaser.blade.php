@@ -1,4 +1,4 @@
-@props(['product', 'wishlistedProductsIds' => []])
+@props(['product', 'isWishlisted' => false])
 <a href="{{ route('product', $product) }}" class="col-span-1 relative" >
 
     {{-- IMAGE CONTAINER --}}
@@ -12,26 +12,13 @@
     {{-- PRODUCT DETAILS --}}
     <div class="flex justify-between items-center mt-3">
         <div>
-
             <h2 class="text-lg font-bold text-start">{{$product->title}}</h2>
-
-            <div class="w-fit *:inline-block">
-                <p @class([
-                        'text-base font-semibold text-gray-400',
-                        'line-through' => $product->discounted_price,
-                    ])>
-                    ${{$product->price}}
-                </p>
-
-                @if ($product->discounted_price)
-                    <p class="text-base font-bold text-primary-500">${{$product->discounted_price}}</p>   
-                @endif
-            </div>
+            <x-product.price :$product />
         </div>
 
         {{-- WISHLIST BUTTON --}}
         @auth   
-            <x-form.wishlist-toggle :product='$product' :isWishlisted="in_array($product->id, $wishlistedProductsIds)"/>
+            <x-form.wishlist-toggle :product='$product' :$isWishlisted/>
         @endauth
     </div>
 

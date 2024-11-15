@@ -9,11 +9,10 @@ use Illuminate\Support\Facades\Auth;
 class WishlistController extends Controller
 {
     public function show() {
-        $wishlistedProducts = Auth::user()->wishlistedProducts;
+        $wishlistedProducts = Auth::user()->wishlistedProducts()->paginate(5);
         return view('wishlist', compact('wishlistedProducts'));
     }
 
-    
     public function toggle($id) {
        
         $product = Product::findOrFail($id);
