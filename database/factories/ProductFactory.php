@@ -21,7 +21,7 @@ class ProductFactory extends Factory
             'mpn' => fake()->shuffleString(),
             'description' => fake()->text(),
             'price' => fake()->numberBetween(1, 999),
-            'discounted_price' => fake()->numberBetween(0,999),
+            'discounted_price' => fake()->boolean(50) ? fake()->numberBetween(0, 999) : null,
             'stock' => fake()->numberBetween(0,20),
         ];
     }

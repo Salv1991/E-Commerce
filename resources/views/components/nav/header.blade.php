@@ -47,7 +47,7 @@
                                 </a>
                                 
                                 <div data-responsive-nav-menu-target="submenu" 
-                                    class="submenu hidden fixed top-[88px] right-0 left-0 bottom-0 bg-black/80" 
+                                    class="submenu hidden fixed top-[88px] right-0 left-0 bottom-0 bg-black/60" 
                                     data-action="mouseover->responsive-nav-menu#closeSubmenu2">
                                     <div class="category-container  bg-white z-50 " >
                                         <div class="max-w-screen-xl min-h-[400px] m-auto col-span-2 grid grid-cols-5" id="categories-container">
@@ -142,7 +142,7 @@
                 
                 {{-- RESPONSIVE MENU ICON --}}
                 <div class="cursor-pointer block md:hidden">
-                    <x-heroicon-m-bars-3-bottom-right data-action="click->responsive-nav-menu#toggleResponsiveMenu" class="-translate-x-1 w-7 h-7 text-gray-500 hover:text-primary-500"/>
+                    <x-heroicon-m-bars-3-bottom-right data-action="click->responsive-nav-menu#toggleResponsiveMenu" class="w-7 h-7 text-gray-500 hover:text-primary-500"/>
                 </div>
                 
                 {{-- HIDDEN CONTAINER --}}

@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
-use Illuminate\Http\Request;
+
+$validSortOrders = ['asc', 'desc'];
 
 class SearchController extends Controller
 {
+
     public function show() {
         return view('search');
     }
@@ -15,8 +17,17 @@ class SearchController extends Controller
         $query = request()->input('query');
 
         $products = Product::where('title', 'LIKE', '%' . $query . '%')
+            ->when(request()->has('sort'), function($query){
+                if(in_array(strtolower(request()->input('sort')), ['asc', 'desc'])){
+                    $query->orderBy('title', request()->input('sort'));
+                }
+            })
             ->paginate(10);
         
-        return view('search', compact('products', 'query'));
+        $wishlistedProductsIds = auth()->check()
+            ? auth()->user()->wishlistedProducts()->pluck('product_id')->toArray()
+            : [];
+
+        return view('search', compact('products', 'query', 'wishlistedProductsIds'));
     }
 }
