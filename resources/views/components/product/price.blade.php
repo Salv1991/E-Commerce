@@ -1,12 +1,12 @@
 <div class="w-fit *:inline-block">
     <p @class([
             'text-base font-semibold text-gray-400',
-            'line-through' => $product->discounted_price,
+            'line-through' => $product->discount,
         ])>
-        ${{$product->price}}
+        ${{ number_format($product->original_price, 2) }}
     </p>
 
-    @if ($product->discounted_price)
-        <p class="text-base font-bold text-primary-500">${{$product->discounted_price}}</p>   
+    @if ($product->discount)
+        <p class="text-base font-bold text-primary-500">${{ number_format($product->current_price, 2) }}</p>   
     @endif
 </div>

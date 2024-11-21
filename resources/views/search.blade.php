@@ -6,7 +6,7 @@
         <div class="products-container mt-0 lg:mt-14"> 
             <div class="relative grid grid-cols-4 mt-4">
                 {{-- FILTERS --}}
-                <div data-filter-target="filterContainer" data-action="click->filter#toggleFilters" class="z-10 bg-black/60 lg:bg-transparent transition-opacity duration-0 
+                <!-- <div data-filter-target="filterContainer" data-action="click->filter#toggleFilters" class="z-10 bg-black/60 lg:bg-transparent transition-opacity duration-0 
                     fixed opacity-0 lg:opacity-100 lg:static top-[88px] right-0 bottom-0 left-0 pointer-events-none lg:pointer-events-auto">
 
                     <aside data-filter-target="aside"
@@ -81,6 +81,13 @@
                             </x-filter.sort.index>
                         </div>
                     </aside>
+                </div> -->
+                <div 
+                    data-filter-target="filterContainer" 
+                    data-action="click->filter#toggleFilters" 
+                    class="z-10 bg-black/60 lg:bg-transparent transition-opacity duration-0 
+                    fixed opacity-0 lg:opacity-100 lg:static top-[88px] right-0 bottom-0 left-0 pointer-events-none lg:pointer-events-auto">
+                    <x-filter.aside/>
                 </div>
 
                 {{-- PRODUCTS --}}
@@ -90,7 +97,7 @@
                             <x-product.teaser :isWishlisted="in_array($product->id, $wishlistedProductsIds)" :product="$product" />
                         @endforeach
                     @else
-                        <p class="text-center w-full col-span-full mt-20 text-lg font-semibold">No products found for '{{ $category->title }}' category.</p>
+                        <p class="text-center w-full col-span-full mt-20 text-lg font-semibold">No products found.</p>
                     @endif
                 </div>
             </div> 

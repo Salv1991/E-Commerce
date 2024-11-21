@@ -16,8 +16,9 @@ return new class extends Migration
             $table->string('mpn')->nullable();
             $table->string('title')->nullable();
             $table->string('description')->nullable();
-            $table->integer('price')->nullable();
-            $table->string('discounted_price')->nullable();
+            $table->decimal('current_price')->nullable();
+            $table->decimal('original_price')->nullable();
+            $table->integer('discount')->nullable();
             $table->integer('stock')->nullable();
             $table->timestamps();
         });

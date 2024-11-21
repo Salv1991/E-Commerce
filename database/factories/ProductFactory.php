@@ -16,12 +16,15 @@ class ProductFactory extends Factory
      */
     public function definition(): array
     {
+        $price = fake()->numberBetween(1, 999);
+        $discount = fake()->boolean(50) ? fake()->numberBetween(5, 70) : null;
         return [
             'title' => fake()->word(),
             'mpn' => fake()->shuffleString(),
-            'description' => fake()->text(),
-            'price' => fake()->numberBetween(1, 999),
-            'discounted_price' => fake()->boolean(50) ? fake()->numberBetween(0, 999) : null,
+            'description' => fake()->text(400),
+            'current_price' => $price - $price * ($discount/100 ?? 0),
+            'original_price' => $price,
+            'discount' => $discount,
             'stock' => fake()->numberBetween(0,20),
         ];
     }
