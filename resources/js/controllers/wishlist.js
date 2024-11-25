@@ -1,60 +1,61 @@
 import { Controller } from "stimulus";
 
 export default class extends Controller {
-    static targets = ["form", "icon"];
+    static targets = ["form", "icon", 'productsContainer', 'wishlistsContainer'];
 
-    submit(event) {
-        event.preventDefault(); // Prevent default form submission
-        const form = event.currentTarget;
+    connect() {
+        this.csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+    }
 
-        // Use the appropriate method based on the action
-        const method = form.method; // This should be either POST or DELETE
+    toggle(event) {
+        event.preventDefault();
+        const selectedWishlistForm = event.currentTarget;
+        const formData = new FormData(selectedWishlistForm);
+        const viewType = selectedWishlistForm.getAttribute('data-view-type');
+        formData.append('viewType', viewType);
+        fetch( selectedWishlistForm.action, {
+            method: selectedWishlistForm.method,
+            body: formData,
+            headers: {
+                'X-CSRF-TOKEN': this.csrfToken,
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('wishlist-count').textContent = data.updatedWishlistCount;
+            selectedWishlistForm.outerHTML = data.formHtml;
+            if(data.status === 'added'){
+                const wishlistIcon = document.querySelector('.wishlist-icon');
 
-        fetch(form.action, {
-            method: method,
-            body: method === "POST" ? new FormData(form) : null, // Only add body for POST requests
+                wishlistIcon.classList.add('animate');
+
+                setTimeout(() => {
+                    wishlistIcon.classList.remove('animate');
+                }, 300); 
+            }
+        })
+        .catch(error => {
+            console.log('Error:', error);
+        });
+    }
+
+    remove(event) {
+        event.preventDefault();
+        const selectedWishlistForm = event.currentTarget;
+
+        fetch(selectedWishlistForm.action, {
+            method: selectedWishlistForm.method,
+            body: new FormData(selectedWishlistForm),
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                'X-CSRF-TOKEN': this.csrfToken,
             }
         })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
+        .then(response => response.json())
         .then(data => {
-            if (data.status === "added") {
-                this.iconTarget.classList.add('fill-red-300', 'text-red-300');
-                this.iconTarget.classList.remove('hover:fill-red-300', 'hover:text-red-300');
-
-                // Update form action and method for removing from wishlist
-                this.updateFormForRemoving(data.productId);
-            } else if (data.status === "removed") {
-                this.iconTarget.classList.remove('fill-red-300', 'text-red-300');
-                this.iconTarget.classList.add('hover:fill-red-300', 'hover:text-red-300');
-
-                // Update form action and method for adding to wishlist
-                this.updateFormForAdding(data.productId);
-            }
-
-            // Update wishlist count
-            const wishlistCountElement = document.getElementById("wishlist-count");
-            if (wishlistCountElement) {
-                wishlistCountElement.textContent = data.newCount; // Assuming newCount is returned in the response
-            }
+            selectedWishlistForm.closest(`#wishlist-item-${data.productId}`).remove();
+            document.getElementById('wishlist-count').textContent = data.updatedWishlistCount;
         })
-        .catch(error => console.error('Error:', error));
-    }
-
-    updateFormForRemoving(productId) {
-        this.formTarget.action = `/wishlist/${productId}`; // Adjust to your route for removing
-        this.formTarget.method = 'DELETE'; // Change method to DELETE
-    }
-
-    updateFormForAdding(productId) {
-        this.formTarget.action = `/wishlist/${productId}`; // Adjust to your route for adding
-        this.formTarget.method = 'POST'; // Change method back to POST
     }
 }

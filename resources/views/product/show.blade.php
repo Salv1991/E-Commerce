@@ -1,5 +1,6 @@
 <x-layout>
-    <div class="w-full px-5 pb-20 max-w-screen-xl m-auto">
+    <div class="w-full px-5 pb-20 max-w-screen-xl m-auto" data-controller="wishlist" 
+    data-filter-target="productsContainer" >
         
         {{-- BREADCRUMBS --}}
         <x-nav.breadcrumbs :category="$product->categories->first()" :$product />
@@ -63,77 +64,3 @@
 
     </div>
 </x-layout>
-
-<!-- <script>
-        function wishlist(event){
-            console.log('Event:', event);
-            event.preventDefault();
-            const form = event.target;
-            const actionUrl = form.action;
-            const method = form.method;
-            const formData = new FormData(form);
-            const viewType = form.getAttribute('data-view-type');
-            formData.append('viewType', viewType);
-            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
-            fetch(actionUrl, {
-                method: method,
-                body: formData,
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken, 
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log(data);
-                    document.getElementById('wishlist-count').textContent= data.newCount;
-                    form.outerHTML = data.formHtml;
-                })
-        };
-</script> -->
-
-<script>
-
-    async function wishlistItem(event){
-        event.preventDefault();
-        const form = event.target;
-        const formData = new FormData(form);
-        const viewType = form.getAttribute('data-view-type');
-        formData.append('viewType', viewType);
-        const url = event.target.action;
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
-        try {
-
-            const response = await fetch(url, {
-                method: form.method,
-                body: formData,
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken, 
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-
-            const data = await response.json();
-            form.outerHTML = data.formHtml;
-            
-            document.getElementById('wishlist-count').textContent = data.updatedWishlistCount;
-
-            if(data.status === 'added') {
-                                    
-                const wishlistIcon = document.querySelector('.wishlist-icon');
-
-                wishlistIcon.classList.add('animate');
-
-                setTimeout(() => {
-                    wishlistIcon.classList.remove('animate');
-                }, 300); 
-            };
-                    
-        } catch (error){
-            console.log('Error', error);
-        }
-    }
-
-</script>

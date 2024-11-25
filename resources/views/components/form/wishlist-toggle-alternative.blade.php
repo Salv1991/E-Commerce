@@ -1,10 +1,10 @@
 <form 
-    onsubmit="wishlistItem(event)"
     id="wishlist-form-show"
     action="{{ route('wishlist.create', $product->id) }}" 
     data-product-id="{{ $product->id }}" 
     method="post"
-    data-view-type="show" 
+    data-view-type="show"
+    data-action="submit->wishlist#toggle"
     class="m-auto bg-white text-black border-2 border-black group">
     @csrf
 

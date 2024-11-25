@@ -26,7 +26,7 @@
                 </div>
                 
                 {{-- PRODUCTS --}}
-                <div class="col-span-4 lg:col-span-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 ">
+                <div data-controller="wishlist" data-filter-target="productsContainer" class="col-span-4 lg:col-span-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 ">
                     @if ($products->isNotEmpty())            
                         @foreach ($products as $product)
                             <x-product.teaser :isWishlisted="in_array($product->id, $wishlistedProductsIds)" :product="$product" />
@@ -45,51 +45,3 @@
 
     </div>
 </x-layout>
-
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        // Use event delegation on the parent container
-        const productsContainer = document.querySelector('.products-container');
-
-        productsContainer.addEventListener('submit', function (event) {
-            if (event.target.matches('.wishlist-form')) {
-                event.preventDefault(); 
-                const form = event.target;
-                const actionUrl = form.action;
-                const method = form.method;
-                const formData = new FormData(form);
-                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
-                fetch(actionUrl, {
-                    method: method,
-                    body: formData,
-                    headers: {
-                        'X-CSRF-TOKEN': csrfToken, 
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    console.log(data)
-                    
-                    document.getElementById('wishlist-count').textContent = data.updatedWishlistCount;
-
-                    const productForm = document.querySelector(`[data-product-id="${data.productId}"]`);
-                    productForm.outerHTML = data.formHtml; 
-                    if(data.status === 'added') {                                            
-                        const wishlistIcon = document.querySelector('.wishlist-icon');
-
-                        wishlistIcon.classList.add('animate');
-
-                        setTimeout(() => {
-                            wishlistIcon.classList.remove('animate');
-                        }, 300); 
-                    };
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
-            }
-        });
-    });
-</script>

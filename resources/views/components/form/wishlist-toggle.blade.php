@@ -2,8 +2,8 @@
     action="{{ route('wishlist.create' , $product->id) }}" 
     method="post" 
     class="wishlist-form" 
-    data-action="submit->wishlist#submit" 
     data-wishlist-target="form"
+    data-action="submit->wishlist#toggle"
     data-product-id="{{ $product->id }}"> 
 
     @csrf
