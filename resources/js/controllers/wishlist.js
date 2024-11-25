@@ -12,7 +12,9 @@ export default class extends Controller {
         const selectedWishlistForm = event.currentTarget;
         const formData = new FormData(selectedWishlistForm);
         const viewType = selectedWishlistForm.getAttribute('data-view-type');
+        selectedWishlistForm.querySelector('button').disabled = true;
         formData.append('viewType', viewType);
+
         fetch( selectedWishlistForm.action, {
             method: selectedWishlistForm.method,
             body: formData,
@@ -43,6 +45,7 @@ export default class extends Controller {
     remove(event) {
         event.preventDefault();
         const selectedWishlistForm = event.currentTarget;
+        selectedWishlistForm.querySelector('button').disabled = true;
 
         fetch(selectedWishlistForm.action, {
             method: selectedWishlistForm.method,
