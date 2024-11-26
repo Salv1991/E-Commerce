@@ -17,7 +17,7 @@ class CategoryController extends Controller
                                         ->unique();
                                      
         $wishlistedProductsIds = auth()->check() 
-            ? auth()->user()->wishlistedProducts()->pluck('product_id')->toArray()
+            ? auth()->user()->wishlistedProductsIds()
             : []; 
         
         $productsQuery = Product::whereHas('categories', function($query) use ($childrenCategories) {

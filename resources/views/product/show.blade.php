@@ -46,15 +46,23 @@
                         <p>{{ $product->description }}</p>
                     </div>
                     <div class="mt-10 flex flex-col xl:flex-row justify-center items-center gap-5 *:text-2xl *:rounded-sm *:w-full">
+
                         {{-- CART --}}
-                        <button class="px-4 py-4 bg-black border-2 border-black hover:bg-white hover:text-black  text-white duration-300">
-                            <span>Add to cart</span> 
-                            <x-heroicon-c-shopping-bag class="inline-block w-7 h-7 -translate-y-1"/>
-                        </button>
+                        <form action="{{ route('cart.add', $product->id) }}" method="post">
+                            @csrf
+                            <button type="submit" 
+                                class="w-full px-4 py-4 bg-black border-2 border-black hover:bg-white hover:text-black 
+                                text-white duration-300">
+                                <span>Add to cart</span> 
+                                <x-heroicon-c-shopping-bag class="inline-block w-7 h-7 -translate-y-1"/>
+                            </button>
+                        </form>
 
                         {{-- WISHLIST --}}
                         @auth
-                            <x-form.wishlist-toggle-alternative :product='$product' :isWishlisted="in_array($product->id, $wishlistedProductsIds)"/>      
+                            <x-form.wishlist-toggle-alternative 
+                                :product='$product' 
+                                :isWishlisted="in_array($product->id, $wishlistedProductsIds)"/>      
                         @endif
                     </div>
                 </div>

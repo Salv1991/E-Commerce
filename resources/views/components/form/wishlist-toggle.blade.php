@@ -1,5 +1,5 @@
 <form 
-    action="{{ route('wishlist.create' , $product->id) }}" 
+    action="{{ route('wishlist.toggle' , $product->id) }}" 
     method="post" 
     class="wishlist-form" 
     data-wishlist-target="form"
@@ -10,7 +10,7 @@
 
     <button type="submit" class="mx-auto block text-xl">
         <x-heroicon-o-heart @class([
-            'inline-block w-8 h-8 -translate-y-1',
+            'inline-block w-8 h-8',
             'fill-red-300 text-red-300' => $isWishlisted 
             ])/>
     </button>

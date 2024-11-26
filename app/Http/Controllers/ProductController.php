@@ -9,7 +9,7 @@ class ProductController extends Controller
     public function show(Product $product) {
         $product->load(['images']);
         $wishlistedProductsIds = auth()->check()
-            ? auth()->user()->wishlistedProducts()->pluck('product_id')->toArray()
+            ? auth()->user()->wishlistedProductsIds()
             : [];
 
         return view('product.show', compact(['product', 'wishlistedProductsIds']));

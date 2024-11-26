@@ -2,11 +2,9 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Facades\Auth;
 
 class User extends Authenticatable
 {
@@ -48,5 +46,13 @@ class User extends Authenticatable
 
     public function wishlistedProducts() {
         return $this->belongsToMany(Product::class, 'wishlists');
+    }
+
+    public function wishlistedProductsIds() {
+        return  $this->wishlistedProducts()->pluck('product_id')->toArray();
+    }
+
+    public function cart() {
+        return $this->hasMany(Cart::class);
     }
 }

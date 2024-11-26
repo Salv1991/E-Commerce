@@ -6,7 +6,7 @@
     <div class="grid grid-cols-2 col-span-3 lg:col-span-2 h-full">
         <form 
             id="wishlist-form-{{ $product->id }}" 
-            action="{{ route('wishlist.create', $product->id) }}" 
+            action="{{ route('wishlist.toggle', $product->id) }}" 
             data-action="submit->wishlist#remove"
             method="post" 
             class="wishlist-form col-span-1 m-auto absolute top-6 right-6 lg:block lg:static">

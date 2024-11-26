@@ -43,7 +43,7 @@ class SearchController extends Controller
             ->paginate(9);
         
         $wishlistedProductsIds = auth()->check()
-            ? auth()->user()->wishlistedProducts()->pluck('product_id')->toArray()
+            ? auth()->user()->wishlistedProductsIds()
             : [];
 
         return view('search', compact('products', 'query', 'wishlistedProductsIds'));

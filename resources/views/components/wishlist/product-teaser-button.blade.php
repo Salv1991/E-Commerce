@@ -3,7 +3,7 @@
 @if ($productId)
 <div class="wishlist-container absolute top-4 right-4 w-fit m-auto z-50">
    
-    <form class="wishlist-form" data-product-id="{{ $productId }}" method="POST" action="{{ $isAdded ? route('wishlist.create', $productId) : route('wishlist.create', $productId) }}">
+    <form class="wishlist-form" data-product-id="{{ $productId }}" method="POST" action="{{ $isAdded ? route('wishlist.toggle', $productId) : route('wishlist.toggle', $productId) }}">
         @csrf
         @if($isAdded)
             <button type="submit" class="mx-auto block text-xl">

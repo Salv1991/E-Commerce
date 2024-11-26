@@ -101,7 +101,7 @@
                 </x-nav.icon>
                 
                 {{-- CART --}}
-                <x-nav.icon numberContainerId="cart-count" href="#" :number="25">
+                <x-nav.icon numberContainerId="cart-count" href="{{ route('cart.index') }}" :number="auth()->check() ? count(auth()->user()->cart) : 0">
                     <x-heroicon-o-shopping-bag class="w-6 h-6 text-gray-600 group-hover:text-primary-500"/>
                 </x-nav.icon>
 
@@ -118,25 +118,28 @@
                         </x-nav.user-icon> 
                     @endguest            
 
-                    <div class="z-10 min-w-32 absolute top-14 -right-3 bg-white border border-gray-200 p-4 group-hover:block hidden">
-                        <ul class="space-y-2">
-                            @auth 
-                                <li>
-                                    <form method="POST" action="{{ route('logout') }}">
-                                        @csrf
-                                        <button type="submit" class="hover:text-primary-500">Log out</button>
-                                    </form>
-                                </li>
-                            @endauth
-                            @guest
-                                <li>
-                                    <a href="{{route('login')}}" class="inline-block w-full hover:text-primary-500">Login</a>
-                                </li> 
-                                <li>
-                                    <a href="{{route('signup')}}" class="inline-block w-full hover:text-primary-500">Sign up</a>
-                                </li> 
-                            @endguest
-                        </ul>
+                    <div class="z-10 min-w-32 absolute top-10 -right-3 py-[24px] group-hover:block hidden">
+                        <div class="bg-white border 
+                        border-gray-200 p-4">
+                            <ul class="space-y-2">
+                                @auth 
+                                    <li>
+                                        <form method="POST" action="{{ route('logout') }}">
+                                            @csrf
+                                            <button type="submit" class="hover:text-primary-500">Log out</button>
+                                        </form>
+                                    </li>
+                                @endauth
+                                @guest
+                                    <li>
+                                        <a href="{{route('login')}}" class="inline-block w-full hover:text-primary-500">Login</a>
+                                    </li> 
+                                    <li>
+                                        <a href="{{route('signup')}}" class="inline-block w-full hover:text-primary-500">Sign up</a>
+                                    </li> 
+                                @endguest
+                            </ul>
+                        </div>
                     </div>
                 </div>
                 

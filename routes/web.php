@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SignupController;
@@ -28,7 +29,11 @@ Route::get('/signup', [SignupController::class, 'show'])->middleware('guest')->n
 Route::post('/signup', [SignupController::class, 'create'])->middleware('guest')->name('signup.create');
 
 Route::get('/wishlist', [WishlistController::class, 'show'])->middleware('auth')->name('wishlist');
-Route::post('/wishlist/{id}', [WishlistController::class, 'toggle'])->middleware('auth')->name('wishlist.create');
+Route::post('/wishlist/{id}', [WishlistController::class, 'toggle'])->middleware('auth')->name('wishlist.toggle');
+
+Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+Route::post('/cart/{id}', [CartController::class, 'add'])->name('cart.add');
+Route::delete('/cart/{id}', [CartController::class, 'delete'])->name('cart.delete');
 
 Route::get('/contact', function(){
     return view('contact');

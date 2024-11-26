@@ -1,6 +1,6 @@
 <form 
     id="wishlist-form-show"
-    action="{{ route('wishlist.create', $product->id) }}" 
+    action="{{ route('wishlist.toggle', $product->id) }}" 
     data-product-id="{{ $product->id }}" 
     method="post"
     data-view-type="show"
