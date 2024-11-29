@@ -1,6 +1,8 @@
 <x-layout>
-    <div class="w-full px-5 pb-20 max-w-screen-xl m-auto" data-controller="wishlist" 
-    data-filter-target="productsContainer" >
+    <div 
+        class="w-full px-5 pb-20 max-w-screen-xl m-auto" 
+        data-controller="wishlist" 
+        data-filter-target="productsContainer" >
         
         {{-- BREADCRUMBS --}}
         <x-nav.breadcrumbs :category="$product->categories->first()" :$product />
@@ -27,15 +29,8 @@
                 <div class="">
                     <h1 class="text-5xl font-bold">{{$product->title}}</h1>
                     <div class="mt-5">Reviews</div>
-                    <div class="mt-5 m-auto *:inline-block">
-                        <p @class([
-                            'text-3xl font-semibold text-gray-400',
-                            'line-through' => $product->discounted_price,
-                            ])>${{$product->price}}</p>
-
-                        @if ($product->discounted_price)
-                            <p class="text-3xl font-bold text-primary-500">${{$product->discounted_price}}</p>   
-                        @endif
+                    <div class="flex  justify-start items-center gap-2">
+                        <x-product.price :$product />
                     </div>
                     <div class="mt-5">
                         <p>Stock: {{ $product->stock }}</p>
@@ -62,13 +57,11 @@
                         @auth
                             <x-form.wishlist-toggle-alternative 
                                 :product='$product' 
-                                :isWishlisted="in_array($product->id, $wishlistedProductsIds)"/>      
+                                :isWishlisted="$wishlistedProductsIds->contains($product->id)"/>      
                         @endif
                     </div>
                 </div>
             </div>
-
         </div>
-
     </div>
 </x-layout>

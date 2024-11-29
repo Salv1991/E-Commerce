@@ -15,15 +15,15 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         //Creates users and admin user.
-        User::factory(10)->create();
-
         User::factory()->create([
             'name' => 'user',
             'email' => 'user@user.com',
             'password' => 'user1234',
-            'admin' => true,
+            'admin' => false,
         ]);
         
+        User::factory(10)->create();
+
         //Creates Products with Images.
         $productsWithImages = ProductImage::factory(50)->create();
 

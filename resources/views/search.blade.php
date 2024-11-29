@@ -27,7 +27,7 @@
                     
                     @if ($products->isNotEmpty())            
                         @foreach ($products as $product)
-                            <x-product.teaser :isWishlisted="in_array($product->id, $wishlistedProductsIds)" :product="$product" />
+                            <x-product.teaser :isWishlisted="$wishlistedProductsIds->contains($product->id)" :product="$product" />
                         @endforeach
                     @else
                         <p class="text-center w-full col-span-full mt-20 text-lg font-semibold">No products found.</p>

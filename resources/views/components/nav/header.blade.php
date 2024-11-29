@@ -101,9 +101,69 @@
                 </x-nav.icon>
                 
                 {{-- CART --}}
-                <x-nav.icon numberContainerId="cart-count" href="{{ route('cart.index') }}" :number="auth()->check() ? count(auth()->user()->cart) : 0">
+                <!-- <x-nav.icon numberContainerId="cart-count" href="{{ route('cart.index') }}" :number="$cartCount">
                     <x-heroicon-o-shopping-bag class="w-6 h-6 text-gray-600 group-hover:text-primary-500"/>
-                </x-nav.icon>
+                </x-nav.icon> -->
+
+                <div class="relative group ">
+                    <x-nav.icon numberContainerId="cart-count" href="{{ route('cart.index') }}" :number="$cartCount">
+                        <x-heroicon-o-shopping-bag class="w-6 h-6 text-gray-600 group-hover:text-primary-500"/>
+                    </x-nav.icon>
+       
+                    <div class="bg-white z-10 min-w-96 absolute top-10 -right-[92px] md:-right-3 pt-[24px] group-hover:block hidden">
+                        <div class="border border-gray-200 border-b-0 px-5 py-3">
+                            <div class="mt-2">
+                                <span class="font-semibold">CART</span>
+                            </div>
+                        </div>
+                        @if ($cart->isNotEmpty())
+                            <div class="border border-gray-200 p-4 max-h-80 overflow-y-auto">
+                                <ul class="flex flex-col gap-5">
+                                    @foreach ($cart as $lineItem)
+                                        <li class="grid grid-cols-4 gap-3">
+                                            <a href="{{route('product', $lineItem->product)}}" class="col-span-1 lg:col-span-1 w-full h-full overflow-hidden aspect-[.75]">
+                                                <img 
+                                                    class="h-full w-full object-cover object-center" 
+                                                    src="{{ asset('storage/' . ($lineItem->product->images->isNotEmpty() ? $lineItem->product->images->first()->image_path : 'products/placeholder.jpg') )}}" 
+                                                    alt="Product Image">  
+                                            </a>
+                                            <div class="col-span-2">
+                                                <a 
+                                                    href="{{ route('product', $lineItem->product) }}" 
+                                                    class="font-bold text-gray-600">
+                                                    {{$lineItem->product->title}}
+                                                </a>
+                                                <p class="line-clamp-2">{{$lineItem->product->description}}</p>
+                                                <div class="flex justify-start items-center gap-2 mt-3">
+                                                    <x-product.price :product="$lineItem->product" />
+                                                </div>                                            
+                                            </div>
+                                            <div class="col-span-1 justify-self-end">
+                                                <form class="w-full" method='post' action="{{ route('cart.delete', $lineItem->product->id) }}">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit">
+                                                        <x-heroicon-o-x-mark class="inline-block w-6 h-6 text-gray-500"/>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @else
+                            <div class="bg-white border border-gray-200 p-4 h-40 flex justify-center items-center">
+                                No products in cart.
+                            </div>
+                        @endif
+                        <div class="border border-gray-200 border-t-0  p-5">
+                            <a href="{{ route('cart.index') }}" class="inline-block text-center bg-black px-3 py-5 text-white w-full">Cart</a>
+                            <div class="mt-2">
+                                <span class="font-semibold">Total: {{ $cartTotal }}$</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 {{-- USER --}}
                 <div class="relative group ml-2">
@@ -118,7 +178,7 @@
                         </x-nav.user-icon> 
                     @endguest            
 
-                    <div class="z-10 min-w-32 absolute top-10 -right-3 py-[24px] group-hover:block hidden">
+                    <div class="z-10 min-w-32 absolute top-10 -right-[35px] md:-right-3 py-[24px] group-hover:block hidden">
                         <div class="bg-white border 
                         border-gray-200 p-4">
                             <ul class="space-y-2">

@@ -44,15 +44,29 @@ class User extends Authenticatable
         ];
     }
 
+    public function orders() {
+        return $this->hasMany(Order::class);
+    }
+
+    public function currentOrder() {
+        return $this->hasOne(Order::class)->where('status', 'pending');
+    }
+
     public function wishlistedProducts() {
         return $this->belongsToMany(Product::class, 'wishlists');
     }
 
     public function wishlistedProductsIds() {
-        return  $this->wishlistedProducts()->pluck('product_id')->toArray();
+        return $this->wishlistedProducts()->pluck('product_id');
     }
 
     public function cart() {
         return $this->hasMany(Cart::class);
     }
+
+    public function cartQuantity() {
+        return $this->currentOrder()->sum('quantity');
+    }
+
+    
 }

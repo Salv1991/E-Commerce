@@ -29,7 +29,7 @@
                 <div data-controller="wishlist" data-filter-target="productsContainer" class="col-span-4 lg:col-span-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 ">
                     @if ($products->isNotEmpty())            
                         @foreach ($products as $product)
-                            <x-product.teaser :isWishlisted="in_array($product->id, $wishlistedProductsIds)" :product="$product" />
+                            <x-product.teaser :isWishlisted="$wishlistedProductsIds->contains($product->id)" :product="$product" />
                         @endforeach
                     @else
                         <p class="text-center w-full col-span-full mt-20 text-lg font-semibold">No products found.</p>
