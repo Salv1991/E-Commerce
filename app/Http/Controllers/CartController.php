@@ -12,15 +12,17 @@ class CartController extends Controller
 {
     public function index(){
         $cart = collect();
+        $cartTotal = 0;
         $wishlistedProductsIds = collect();
 
         if(auth()->check()) {
             $currentOrder = auth()->user()->currentOrder()->with('lineItems.product')->first();
+            $cartTotal = $currentOrder->total_price;
             $cart = $currentOrder?->lineItems ?? $cart;
             $wishlistedProductsIds = auth()->user()->wishlistedProductsIds();
         };
 
-        return view('cart.index', compact(['cart', 'wishlistedProductsIds']));
+        return view('cart.index', compact(['cart', 'cartTotal', 'wishlistedProductsIds']));
     }
 
     public function add($id){
@@ -59,6 +61,30 @@ class CartController extends Controller
         }
 
         return redirect()->back();
+    }
+
+    public function quantity(Request $request, $id){
+        $request->validate([
+            'quantity' => 'integer|min:0|required'
+        ]);
+
+        $lineItem = LineItem::where('id', $id)
+            ->where('order_id', auth()->user()->currentOrder->id)
+            ->firstOrFail();
+
+        if($request->quantity > $lineItem->product->stock){
+            return redirect()->route('cart.index')->with('error', 'Not enough stock available');
+        }
+
+        if($request->quantity > 0){
+            $lineItem->update([
+                'quantity' => $request->quantity    
+            ]); 
+        }else if($request->quantity == 0) {
+            $lineItem->delete();
+        }
+
+        return redirect()->back()->with('success', 'Cart updated successfully');
     }
 
     public function delete($id){

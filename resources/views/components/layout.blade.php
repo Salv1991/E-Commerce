@@ -12,8 +12,8 @@
 
     </head>
     <body class="font-sans antialiased bg-stone-100 dark:bg-black dark:text-white/50">
-        <x-nav.header  />
+        <x-nav.header />
             {{ $slot }}
-        <x-nav.footer/>
+        <x-nav.footer />
     </body>
 </html>

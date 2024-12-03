@@ -5,7 +5,7 @@
 
         <div id="cart-container" class="mt-14 grid grid-cols-6 items-start gap-8 bg-gray-100">
             <div 
-                data-controller="wishlist" 
+                data-controller="wishlist lineItemQuantity" 
                 data-filter-target="productsContainer" 
                 class="col-span-full lg:col-span-4  divide-y-2 bg-white px-5">
 
@@ -37,7 +37,7 @@
                                     </div>
 
                                     {{-- PRICE --}}
-                                    <div class="flex  justify-start items-center gap-2">
+                                    <div class="flex justify-start lg:justify-center items-center gap-2">
                                         <x-product.price :product="$lineItem->product" />
                                     </div>
                                 </div>
@@ -45,12 +45,35 @@
                                 <div class="flex justify-start lg:justify-end items-center gap-3">
                                     
                                     {{-- QUANTITY --}}
-                                    <div class="border border-gray-300 rounded-md min-w-14 py-[1px] px-2 flex justify-end items-center gap-2">
-                                        <div class="text-xl">
-                                            {{$lineItem->quantity}}
-                                        </div>
-                                        <div>
-                                            <x-heroicon-o-chevron-down class="inline-block w-4 h-4"/>
+                                    <div data-action="" class="quantity-container cursor-pointer relative border border-gray-300 rounded-md min-w-14 px-2 ">
+                                        
+                                        <form
+                                            action="{{route('cart.quantity', $lineItem->id)}}"
+                                            method="post" 
+                                            data-lineItemQuantity-target="quantityMenu" 
+                                            class="quantity-menu hidden absolute bottom-8 left-0 w-full max-h-28 overflow-y-auto border 
+                                            border-gray-200 bg-white rounded-md">
+                                            @csrf
+                                            @method('PATCH')
+                                            @for ($i =0; $i <= $lineItem->product->stock; $i++)
+                                                <button class="w-full text-lg {{ $lineItem->quantity == $i 
+                                                    ? 'bg-primary-500 text-white' 
+                                                    : 'hover:bg-gray-100 hover:text-black'}}"
+                                                    name="quantity"
+                                                    value="{{ $i }}">
+                                                    {{ $i }}
+                                                </button>
+                                            @endfor
+                                        </form>
+
+                                        <div class="flex justify-end items-center gap-2" data-action="click->lineItemQuantity#openMenu">
+                                            <div class="text-xl">
+                                                {{$lineItem->quantity}}
+                                            </div>
+                                            <div>
+                                                <x-heroicon-o-chevron-down class="closed-chevron inline-block w-4 h-4"/>
+                                                <x-heroicon-o-chevron-up class="open-chevron inline-block w-4 h-4 hidden"/>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -85,7 +108,7 @@
                     
                     <div class="flex justify-between items-center">
                         <span>Subtotal (VAT included):</span>
-                        <span>123,40$</span>
+                        <span>{{$cartTotal}}$</span>
                     </div>
                     <div class="flex justify-between items-center">
                         <span>Shipping Fee:</span>
@@ -93,7 +116,7 @@
                     </div>
                     <div class="flex justify-between items-center mt-4">
                         <span class="text-lg font-bold">Total:</span>
-                        <span>223,40$</span>
+                        <span>{{$cartTotal}}$</span>
                     </div>
                     <button class="w-full mt-2 px-4 py-4 bg-black border-2 border-black hover:bg-white 
                         hover:text-black  text-white duration-300">
@@ -102,6 +125,7 @@
                 </div>
             </div>
         </div>
+
         <div class="hidden fixed bottom-10 w-full left-0 right-0 px-6">
             <div class="h-28 bg-gradient-to-br from-red-500 to-pink-500 rounded-md shadow-md ">
 

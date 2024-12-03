@@ -33,6 +33,7 @@ Route::post('/wishlist/{id}', [WishlistController::class, 'toggle'])->middleware
 
 Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
 Route::post('/cart/{id}', [CartController::class, 'add'])->name('cart.add');
+Route::patch('/cart/{id}', [CartController::class, 'quantity'])->name('cart.quantity');
 Route::delete('/cart/{id}', [CartController::class, 'delete'])->name('cart.delete');
 
 Route::get('/contact', function(){

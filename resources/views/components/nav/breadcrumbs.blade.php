@@ -8,7 +8,7 @@
     }
 @endphp
 
-<div class="flex justify-start items-center gap-2 text-gray-400 mt-3 mb-5"> 
+<div class="flex justify-start items-center gap-2 flex-wrap text-gray-400 mt-3 mb-5"> 
     <a href="/" class="text-black hover:bg-gray-50 rounded-full p-2">
         <x-heroicon-o-home class="w-5 h-5 text-primary-500"/>
     </a>

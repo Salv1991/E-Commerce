@@ -28,9 +28,9 @@
             <div>
                 <div class="">
                     <h1 class="text-5xl font-bold">{{$product->title}}</h1>
-                    <div class="mt-5">Reviews</div>
-                    <div class="flex  justify-start items-center gap-2">
-                        <x-product.price :$product />
+                    <!-- <div class="mt-5">Reviews</div> -->
+                    <div class="flex  justify-start items-center gap-2 mt-2">
+                        <x-product.price class="*:text-xl" :$product />
                     </div>
                     <div class="mt-5">
                         <p>Stock: {{ $product->stock }}</p>

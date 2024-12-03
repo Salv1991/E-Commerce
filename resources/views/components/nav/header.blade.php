@@ -112,7 +112,7 @@
        
                     <div class="bg-white z-10 min-w-96 absolute top-10 -right-[92px] md:-right-3 pt-[24px] group-hover:block hidden">
                         <div class="border border-gray-200 border-b-0 px-5 py-3">
-                            <div class="mt-2">
+                            <div>
                                 <span class="font-semibold">CART</span>
                             </div>
                         </div>
@@ -127,23 +127,23 @@
                                                     src="{{ asset('storage/' . ($lineItem->product->images->isNotEmpty() ? $lineItem->product->images->first()->image_path : 'products/placeholder.jpg') )}}" 
                                                     alt="Product Image">  
                                             </a>
-                                            <div class="col-span-2">
-                                                <a 
-                                                    href="{{ route('product', $lineItem->product) }}" 
-                                                    class="font-bold text-gray-600">
-                                                    {{$lineItem->product->title}}
-                                                </a>
-                                                <p class="line-clamp-2">{{$lineItem->product->description}}</p>
-                                                <div class="flex justify-start items-center gap-2 mt-3">
-                                                    <x-product.price :product="$lineItem->product" />
-                                                </div>                                            
+                                            <div class="col-span-2 flex flex-col justify-between items-start">
+                                                <div>
+                                                    <a 
+                                                        href="{{ route('product', $lineItem->product) }}" 
+                                                        class="font-bold text-gray-600 hover:text-primary-500">
+                                                        {{$lineItem->quantity . ' x ' . $lineItem->product->title}}
+                                                    </a>
+                                                    <p class="line-clamp-2 text-xs text-gray-500">{{$lineItem->product->description}}</p>
+                                                </div>
+                                                <span class="mt-3 inline-block font-semibold text-sm">{{ $lineItem->quantity * $lineItem->product->current_price}}$</span>                                           
                                             </div>
                                             <div class="col-span-1 justify-self-end">
                                                 <form class="w-full" method='post' action="{{ route('cart.delete', $lineItem->product->id) }}">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit">
-                                                        <x-heroicon-o-x-mark class="inline-block w-6 h-6 text-gray-500"/>
+                                                        <x-heroicon-o-x-mark class="inline-block w-6 h-6 text-gray-500 hover:text-primary-500"/>
                                                     </button>
                                                 </form>
                                             </div>
@@ -156,11 +156,16 @@
                                 No products in cart.
                             </div>
                         @endif
-                        <div class="border border-gray-200 border-t-0  p-5">
-                            <a href="{{ route('cart.index') }}" class="inline-block text-center bg-black px-3 py-5 text-white w-full">Cart</a>
-                            <div class="mt-2">
-                                <span class="font-semibold">Total: {{ $cartTotal }}$</span>
+                        <div class="border border-gray-200 border-t-0 p-5 pt-3">
+                            <div class="flex justify-between items-center">
+                                <span class="text-lg font-bold">Total:</span>
+                                <span>{{$cartTotal}}$</span>
                             </div>
+                            <a href="{{ route('cart.index') }}" 
+                                class="mt-2 inline-block text-center bg-black border-2 border-black hover:bg-white 
+                                hover:text-black duration-300 px-3 py-5 text-white w-full">
+                                Proceed to Cart
+                            </a>                    
                         </div>
                     </div>
                 </div>
