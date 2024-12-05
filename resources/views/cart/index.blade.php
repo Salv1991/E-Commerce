@@ -13,12 +13,12 @@
                     @foreach ($cart as $lineItem )
                         <div class="bg-white grid grid-cols-7 py-5 gap-4">
                           
-                            <a href="{{route('product', $lineItem->product)}}" 
+                            <a href="{{route('product', $lineItem['product'])}}" 
                                 class="w-full h-full overflow-hidden aspect-[.75] col-span-2 lg:col-span-1">
                                 <img 
                                     class="h-full w-full object-cover object-center" 
-                                    src="{{ asset('storage/' . ($lineItem->product->images->isNotEmpty() 
-                                        ? $lineItem->product->images->first()->image_path 
+                                    src="{{ asset('storage/' . ($lineItem['product']->images->isNotEmpty() 
+                                        ? $lineItem['product']->images->first()->image_path 
                                         : 'products/placeholder.jpg') )}}" 
                                     alt="Product Image">  
                             </a>
@@ -29,16 +29,16 @@
                                     
                                     {{-- TITLE --}}
                                     <div class="">
-                                        <a  href="{{route('product', $lineItem->product)}}" 
+                                        <a  href="{{route('product', $lineItem['product'])}}" 
                                             class="text-xl font-bold hover:text-primary-500">
-                                            {{ $lineItem->product->title }}
+                                            {{ $lineItem['product']->title }}
                                         </a>
-                                        <p class="text-gray-400 line-clamp-3">{{ $lineItem->product->description }}</p>
+                                        <p class="text-gray-400 line-clamp-3">{{ $lineItem['product']->description }}</p>
                                     </div>
 
                                     {{-- PRICE --}}
                                     <div class="flex justify-start lg:justify-center items-center gap-2">
-                                        <x-product.price :product="$lineItem->product" />
+                                        <x-product.price :product="$lineItem['product']" />
                                     </div>
                                 </div>
 
@@ -48,15 +48,15 @@
                                     <div data-action="" class="quantity-container cursor-pointer relative border border-gray-300 rounded-md min-w-14 px-2 ">
                                         
                                         <form
-                                            action="{{route('cart.quantity', $lineItem->id)}}"
+                                            action="{{route('cart.quantity', $lineItem['id'])}}"
                                             method="post" 
                                             data-lineItemQuantity-target="quantityMenu" 
                                             class="quantity-menu hidden absolute bottom-8 left-0 w-full max-h-28 overflow-y-auto border 
                                             border-gray-200 bg-white rounded-md">
                                             @csrf
                                             @method('PATCH')
-                                            @for ($i =0; $i <= $lineItem->product->stock; $i++)
-                                                <button class="w-full text-lg {{ $lineItem->quantity == $i 
+                                            @for ($i =0; $i <= $lineItem['product']->stock; $i++)
+                                                <button class="w-full text-lg {{ $lineItem['quantity'] == $i 
                                                     ? 'bg-primary-500 text-white' 
                                                     : 'hover:bg-gray-100 hover:text-black'}}"
                                                     name="quantity"
@@ -68,7 +68,7 @@
 
                                         <div class="flex justify-end items-center gap-2" data-action="click->lineItemQuantity#openMenu">
                                             <div class="text-xl">
-                                                {{$lineItem->quantity}}
+                                                {{$lineItem['quantity']}}
                                             </div>
                                             <div>
                                                 <x-heroicon-o-chevron-down class="closed-chevron inline-block w-4 h-4"/>
@@ -79,12 +79,12 @@
 
                                     {{-- WISHLIST TOGGLE BUTTON --}}
                                     <x-form.wishlist-toggle 
-                                        :product='$lineItem->product' 
-                                        :isWishlisted="$wishlistedProductsIds->contains($lineItem->product->id)"/>
+                                        :product='$lineItem['product']' 
+                                        :isWishlisted="$wishlistedProductsIds->contains($lineItem['product']->id)"/>
                                     
                                     {{-- REMOVE FROM CART BUTTON --}}
                                     <div>
-                                        <form class="w-full" method='post' action="{{ route('cart.delete', $lineItem->product->id) }}">
+                                        <form class="w-full" method='post' action="{{ route('cart.delete', $lineItem['product']->id) }}">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit">

@@ -4,34 +4,22 @@ namespace App\View\Components\Nav;
 
 use Illuminate\View\Component;
 use App\Models\Category;
+use App\Models\Product;
+use App\Services\CartService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 
 class Header extends Component
 {
-    public $cart;
-    public $cartCount;
     public $wishlistCount;
     public $categories;
-    public $cartTotal;
 
-    public function __construct()
-    {
-        $this->cart = collect();
+    public function __construct( protected CartService $cart)
+    {    
         $this->wishlistCount = 0;
-        $this->cartCount = 0;
-        $this->cartTotal = 0;
 
         if(Auth::check()) {
-            $user = Auth::user();
-            $currentOrder = $user->currentOrder()->with('lineItems.product')->first();
-
-            if( $currentOrder ){
-                $this->cart = $currentOrder->lineItems;
-                $this->cartCount = $currentOrder->lineItemsQuantity();
-                $this->cartTotal = $currentOrder->total_price;
-            }
-            
+            $user = Auth::user();        
             $this->wishlistCount = $user->wishlistedProducts()->count();     
         };
 
@@ -42,6 +30,11 @@ class Header extends Component
 
     public function render()
     {
-        return view('components.nav.header');
+        //$cartData = $this->cart->getCartData();
+        return view('components.nav.header',[
+            //'cart' => $cartData['cart'],
+            //'cartCount' => $cartData['cartCount'],
+            //'cartTotal' => $cartData['cartTotal'],
+        ]);
     }
 }

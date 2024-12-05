@@ -121,25 +121,25 @@
                                 <ul class="flex flex-col gap-5">
                                     @foreach ($cart as $lineItem)
                                         <li class="grid grid-cols-4 gap-3">
-                                            <a href="{{route('product', $lineItem->product)}}" class="col-span-1 lg:col-span-1 w-full h-full overflow-hidden aspect-[.75]">
+                                            <a href="{{route('product', $lineItem['product'])}}" class="col-span-1 lg:col-span-1 w-full h-full overflow-hidden aspect-[.75]">
                                                 <img 
                                                     class="h-full w-full object-cover object-center" 
-                                                    src="{{ asset('storage/' . ($lineItem->product->images->isNotEmpty() ? $lineItem->product->images->first()->image_path : 'products/placeholder.jpg') )}}" 
+                                                    src="{{ asset('storage/' . ($lineItem['product']->images->isNotEmpty() ? $lineItem['product']->images->first()->image_path : 'products/placeholder.jpg') )}}" 
                                                     alt="Product Image">  
                                             </a>
                                             <div class="col-span-2 flex flex-col justify-between items-start">
                                                 <div>
                                                     <a 
-                                                        href="{{ route('product', $lineItem->product) }}" 
+                                                        href="{{ route('product', $lineItem['product']) }}" 
                                                         class="font-bold text-gray-600 hover:text-primary-500">
-                                                        {{$lineItem->quantity . ' x ' . $lineItem->product->title}}
+                                                        {{$lineItem['quantity'] . ' x ' . $lineItem['product']->title}}
                                                     </a>
-                                                    <p class="line-clamp-2 text-xs text-gray-500">{{$lineItem->product->description}}</p>
+                                                    <p class="line-clamp-2 text-xs text-gray-500">{{$lineItem['product']->description}}</p>
                                                 </div>
-                                                <span class="mt-3 inline-block font-semibold text-sm">{{ $lineItem->quantity * $lineItem->product->current_price}}$</span>                                           
+                                                <span class="mt-3 inline-block font-semibold text-sm">{{ $lineItem['quantity'] * $lineItem['product']->current_price}}$</span>                                           
                                             </div>
                                             <div class="col-span-1 justify-self-end">
-                                                <form class="w-full" method='post' action="{{ route('cart.delete', $lineItem->product->id) }}">
+                                                <form class="w-full" method='post' action="{{ route('cart.delete', $lineItem['product']->id) }}">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit">

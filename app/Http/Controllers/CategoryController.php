@@ -18,7 +18,7 @@ class CategoryController extends Controller
                                      
         $wishlistedProductsIds = auth()->check() 
             ? auth()->user()->wishlistedProductsIds()
-            : []; 
+            : collect(); 
         
         $productsQuery = Product::whereHas('categories', function($query) use ($childrenCategories) {
                 $query->whereIn('categories.id', $childrenCategories)

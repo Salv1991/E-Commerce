@@ -1,14 +1,22 @@
 <?php
 
-namespace App\Services;
+namespace App\Http\Middleware;
 
 use App\Models\Product;
+use Closure;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
+use Symfony\Component\HttpFoundation\Response;
 
-class CartService
+class CartData
 {
-    public function getCartData()
+    /**
+     * Handle an incoming request.
+     *
+     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     */
+    public function handle(Request $request, Closure $next): Response
     {
         $cartData = [
             'cart' => collect(),
@@ -57,7 +65,7 @@ class CartService
                 });
             }
         }
-
-        return $cartData;
+        view()->share('test', $cartData['cart']);
+        return $next($request);
     }
 }
