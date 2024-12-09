@@ -66,7 +66,5 @@ class User extends Authenticatable
 
     public function cartQuantity() {
         return $this->currentOrder()->sum('quantity');
-    }
-
-    
+    } 
 }

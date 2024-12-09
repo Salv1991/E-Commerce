@@ -35,8 +35,5 @@ class Order extends Model
         $this->update([
             'total_price' => $totalPrice    
         ]);
-        //$totalPrice = $this->lineItems()
-   // ->selectRaw('SUM(quantity * price) as total')
-   // ->value('total') ?? 0;
     }
 }

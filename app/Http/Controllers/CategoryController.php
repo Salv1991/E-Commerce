@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Product;
+use Illuminate\Support\Facades\Auth;
 
 class CategoryController extends Controller
 {   
@@ -16,8 +17,8 @@ class CategoryController extends Controller
                                         ->prepend($category->id)
                                         ->unique();
                                      
-        $wishlistedProductsIds = auth()->check() 
-            ? auth()->user()->wishlistedProductsIds()
+        $wishlistedProductsIds = Auth::check() 
+            ? Auth::user()->wishlistedProductsIds()
             : collect(); 
         
         $productsQuery = Product::whereHas('categories', function($query) use ($childrenCategories) {

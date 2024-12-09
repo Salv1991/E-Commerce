@@ -11,9 +11,7 @@ use Illuminate\Support\Facades\Auth;
 
 class CartController extends Controller
 {
-    public function __construct(protected CartService $cart){
-
-    }
+    public function __construct(protected CartService $cart){}
 
     public function index(){
         $wishlistedProductsIds = collect();
@@ -32,8 +30,12 @@ class CartController extends Controller
 
     public function add($id){
         $product = Product::find($id);
-        
-        if( Auth::check() ){
+
+        if(!$product){
+            return redirect()->back()->with('error', 'Product not found.');
+        }
+
+        if(Auth::check()){
             $user = Auth::user();
             $currentOrder = $user->currentOrder()->first();
             
@@ -45,17 +47,17 @@ class CartController extends Controller
                 ]);
             }
             
-            if(!$product){
-                return redirect()->back()->withErrors(['error' => 'Product not found.']);
-            }
-
             $lineItem = LineItem::where('order_id', $currentOrder->id)
                 ->where('product_id', $product->id)
                 ->first();
 
             if($lineItem) {
+                if($lineItem->quantity >= $product->stock){
+                    return redirect()->back()->with('error', 'Not enough stock available');
+                }; 
+
                 $lineItem->increment('quantity');
-            }else{
+            } else {
                 LineItem::create([
                     'order_id' => $currentOrder->id,
                     'product_id' => $id,
@@ -66,8 +68,12 @@ class CartController extends Controller
 
         } else {
             $cart = session()->get('cart', []);
-            
+
             if(isset($cart[$id])){
+                if($cart[$id]['quantity'] >= $product->stock){
+                    return redirect()->back()->with('error', 'Not enough stock available');
+                } 
+
                 $cart[$id]['quantity']++;
             }else{
                 $cart[$id] = [
@@ -76,12 +82,11 @@ class CartController extends Controller
                     'price' => $product->current_price,    
                 ];
             }
-
+            
             session()->put('cart', $cart);
         }
 
         return redirect()->back();
-
     }
 
     public function quantity(Request $request, $id){
@@ -93,18 +98,15 @@ class CartController extends Controller
             $lineItem = LineItem::where('id', $id)
                 ->where('order_id', Auth::user()->currentOrder->id)
                 ->firstOrFail();
-
-            if($request->quantity > $lineItem->product->stock){
-                return redirect()->route('cart.index')->with('error', 'Not enough stock available');
-            }
-
-            if($request->quantity > 0){
-                $lineItem->update([
-                    'quantity' => $request->quantity    
-                ]); 
-            }else if($request->quantity == 0) {
+          
+            if($request->quantity <= 0) {
                 $lineItem->delete();
+            } else {          
+                $lineItem->update([
+                    'quantity' => min($request->quantity, $lineItem->product->stock)    
+                ]); 
             }
+
         } else {
             $cart = session()->get('cart', []);
             $product = Product::find($id);

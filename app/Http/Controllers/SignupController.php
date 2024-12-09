@@ -16,7 +16,6 @@ class SignupController extends Controller
 
     public function create(Request $request)
     {
-
         $validatedData = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
@@ -30,7 +29,6 @@ class SignupController extends Controller
             'password' => Hash::make($validatedData['password']),
             'admin' => false,
         ]);
-
 
         Auth::login($user);
 

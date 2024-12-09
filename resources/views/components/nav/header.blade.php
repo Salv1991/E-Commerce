@@ -6,9 +6,9 @@
     <div class="relative px-5 max-w-screen-xl m-auto flex justify-between items-center gap-2 md:gap-10">
 
         {{-- MESSAGE --}}
-        @if(session('success'))    
-            <div id='flash-message' class="z-30 rounded-lg bg-red-500 text-white p-5  absolute -bottom-20 right-5 ">
-                {{ session('success') }}
+        @if(session('success') || session('error'))    
+            <div id='flash-message' class="z-30 rounded-lg {{session('success') ? 'bg-black' : 'bg-red-500'}} text-white p-5  absolute -bottom-20 right-5 ">
+                {{ session('success') ?? session('error') }}
             </div>
 
             <script>
@@ -21,6 +21,7 @@
                 }
             </script>
         @endif
+        
         
         {{-- LOGO --}}
         <a href="/" class="min-w-[40px]" >

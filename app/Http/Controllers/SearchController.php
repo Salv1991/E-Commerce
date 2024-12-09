@@ -44,7 +44,7 @@ class SearchController extends Controller
         
         $wishlistedProductsIds = auth()->check()
             ? auth()->user()->wishlistedProductsIds()
-            : [];
+            : collect();
 
         return view('search', compact('products', 'query', 'wishlistedProductsIds'));
     }

@@ -17,22 +17,22 @@
             <x-filter.sort.option 
                 href="{{ request()->fullUrlWithQuery(['sort' => 'asc', 'price' => null]) }}" 
                 :condition="request()->input('sort') === 'asc'" 
-                title="Alphabetically Asc"/>
+                title="Name (A-Z)"/>
             
             <x-filter.sort.option 
                 href="{{ request()->fullUrlWithQuery(['sort' => 'desc', 'price' => null]) }}" 
                 :condition="request()->input('sort') === 'desc'" 
-                title="Alphabetically Desc"/>
+                title="Name (Z-A)"/>
             
             <x-filter.sort.option 
                 href="{{ request()->fullUrlWithQuery(['price' => 'asc', 'sort' => null]) }}" 
                 :condition="request()->input('price') === 'asc'" 
-                title="Price Asc"/>
+                title="Price (Low-High)"/>
                 
             <x-filter.sort.option 
                 href="{{ request()->fullUrlWithQuery(['price' => 'desc', 'sort' => null]) }}" 
                 :condition="request()->input('price') === 'desc'" 
-                title="Price Desc"/>                          
+                title="Price (High-Low)"/>                          
         </x-filter.sort.index> 
         
         <x-filter.sort.index title="DISCOUNTS">                        
