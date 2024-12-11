@@ -79,7 +79,7 @@
 
                                     {{-- WISHLIST TOGGLE BUTTON --}}
                                     <x-form.wishlist-toggle 
-                                        :product='$lineItem['product']' 
+                                        :product="$lineItem['product']" 
                                         :isWishlisted="$wishlistedProductsIds->contains($lineItem['product']->id)"/>
                                     
                                     {{-- REMOVE FROM CART BUTTON --}}

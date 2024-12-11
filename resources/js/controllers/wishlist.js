@@ -1,7 +1,7 @@
 import { Controller } from "stimulus";
 
 export default class extends Controller {
-    static targets = ["form", "icon", 'productsContainer', 'wishlistsContainer'];
+    static targets = ['form', 'icon', 'productsContainer', 'wishlistsContainer'];
 
     connect() {
         this.csrfToken = document.querySelector('meta[name="csrf-token"]').content;
@@ -12,7 +12,12 @@ export default class extends Controller {
         const selectedWishlistForm = event.currentTarget;
         const formData = new FormData(selectedWishlistForm);
         const viewType = selectedWishlistForm.getAttribute('data-view-type');
-        selectedWishlistForm.querySelector('button').disabled = true;
+        const wishlistButton = selectedWishlistForm.querySelector('button');
+        const wishlistIcon = selectedWishlistForm.querySelector('.wishlist-icon');
+        const wishlistText = selectedWishlistForm.querySelector('.wishlist-text');
+
+        wishlistButton.disabled = true;
+        
         formData.append('viewType', viewType);
 
         fetch( selectedWishlistForm.action, {
@@ -26,19 +31,41 @@ export default class extends Controller {
         .then(response => response.json())
         .then(data => {
             document.getElementById('wishlist-count').textContent = data.updatedWishlistCount;
-            selectedWishlistForm.outerHTML = data.formHtml;
+
             if(data.status === 'added'){
-                const wishlistIcon = document.querySelector('.wishlist-icon');
+                const headerWishlistIcon = document.querySelector('header .wishlist-icon');
+                
+                if(wishlistText){
+                    wishlistText.textContent = 'Remove from Wishlist';
+                }
 
-                wishlistIcon.classList.add('animate');
-
+                headerWishlistIcon.classList.add('animate');
+                wishlistIcon.classList.add('animate', 'fill-red-300', 'text-red-300');
+            
                 setTimeout(() => {
+                    headerWishlistIcon.classList.remove('animate');
                     wishlistIcon.classList.remove('animate');
                 }, 300); 
+            } else {
+                wishlistIcon.classList.remove('fill-red-300', 'text-red-300'); 
+                
+                if(wishlistText){
+                    wishlistText.textContent = 'Add to Wishlist';
+                }
             }
+        })
+        .finally(() => {
+            wishlistButton.disabled = false;
+
         })
         .catch(error => {
             console.log('Error:', error);
+            if (data.status === 'added') {
+                wishlistIcon.classList.remove('fill-red-300', 'text-red-300');
+                if (wishlistText) {
+                    wishlistText.textContent = 'Add to Wishlist';
+                }
+            }
         });
     }
 

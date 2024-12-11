@@ -9,48 +9,41 @@ use Illuminate\Support\Facades\Auth;
 class WishlistController extends Controller
 {
     public function show() {
-        $wishlistedProducts = Auth::user()->wishlistedProducts()->get();
+        $wishlistedProducts = Auth::user()->wishlistedProducts()->with('images')->get();
         return view('wishlist', compact('wishlistedProducts'));
     }
 
     public function toggle($id) {
-       
+        $userId = Auth::id();
         $product = Product::findOrFail($id);
 
-        if (!$product->isWishlistedByUser()) {
+        $wishlistedProduct = Wishlist::where('user_id', $userId)
+            ->where('product_id', $id)
+            ->first();
+
+        if (!$wishlistedProduct) {
             $status = 'added';
 
             Wishlist::create([
-                'user_id' => Auth::id(),
+                'user_id' => $userId,
                 'product_id' => $id,
             ]);
 
             $isWishlisted = true;
         } else {
             $status = 'removed';
-
-            $wishlist_item = Wishlist::where('product_id', $id)
-                                    ->where('user_id', Auth::id())
-                                    ->first();
-
-            if ($wishlist_item) {
-                $product_title = $wishlist_item->product->title;
-                $wishlist_item->delete();
-                $isWishlisted = false;
-            }
-
+            $wishlistedProduct->delete();
+            $isWishlisted = false;     
         }
 
-        if ( request()->ajax() ) {
-            $viewPath = request('viewType') === 'show' ? 'components.form.wishlist-toggle-alternative' : 'components.form.wishlist-toggle';
-            $formHtml = view($viewPath, compact('product', 'isWishlisted'))->render();            
-            $wishlistCount = Auth::user()?->refresh()->wishlistedProducts()->count();
+        if (request()->ajax()) {
+            $wishlistCount = Auth::user()->wishlistedProducts()->count();
 
             return response()->json([
                 'status' => $status,
                 'updatedWishlistCount' => $wishlistCount,
                 'productId' => $id,
-                'formHtml' => $formHtml,
+                'formHtml' => '',
                 'isWishlisted' =>  $isWishlisted,
                 'viewType' => request('viewType'),
             ]);

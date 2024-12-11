@@ -4,37 +4,51 @@ namespace App\View\Components\Nav;
 
 use Illuminate\View\Component;
 use App\Models\Category;
-use App\Models\Product;
 use App\Services\CartService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Route;
 
 class Header extends Component
 {
     public $wishlistCount;
     public $categories;
+    public $cart;
+    public $cartCount;
+    public $cartTotal;
+    public $isCartView;
 
-    public function __construct( protected CartService $cart)
-    {    
-        $this->wishlistCount = 0;
+    public function __construct( protected CartService $cartService)
+    {       
+        $this->cart = collect();
+        $this->cartCount = 0;
+        $this->cartTotal = 0;
+        $this->isCartView = $this->isCartView();
+        
+        $this->wishlistCount = Auth::check() 
+            ? Auth::user()->wishlistedProducts()->count() 
+            : 0;     
 
-        if(Auth::check()) {
-            $user = Auth::user();        
-            $this->wishlistCount = $user->wishlistedProducts()->count();     
-        };
-
-        $this->categories = Cache::remember('first-depth-categories', 60, function () {
-            return Category::with('children')->whereNull('parent_id')->get();
+        $this->categories = Cache::remember('first-depth-categories', config('cache.durations.categories'), function () {
+            return Category::with('children.children')->whereNull('parent_id')->get();
         });
+
+        if(!$this->isCartView){
+            $cartData = $this->cartService->getCartData();
+            $this->cart = $cartData['cart'] ?? collect();
+            $this->cartCount = $cartData['cartCount'] ?? 0;
+            $this->cartTotal = $cartData['cartTotal'] ?? 0;
+        } else {
+            $this->cartCount = $this->cartService->getCartCount();
+        }
+    }
+
+    protected function isCartView() {
+        return Route::currentRouteName() === 'cart.index';
     }
 
     public function render()
     {
-        //$cartData = $this->cart->getCartData();
-        return view('components.nav.header',[
-            //'cart' => $cartData['cart'],
-            //'cartCount' => $cartData['cartCount'],
-            //'cartTotal' => $cartData['cartTotal'],
-        ]);
+        return view('components.nav.header');
     }
 }

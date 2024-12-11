@@ -1,17 +1,15 @@
 <form 
-    id="wishlist-form-show"
-    action="{{ route('wishlist.toggle', $product->id) }}" 
-    data-product-id="{{ $product->id }}" 
     method="post"
-    data-view-type="show"
+    action="{{ route('wishlist.toggle', $product->id) }}" 
+    class="m-auto bg-white text-black border-2 border-black group"
     data-action="submit->wishlist#toggle"
-    class="m-auto bg-white text-black border-2 border-black group">
+    data-product-id="{{ $product->id }}">
     @csrf
 
-    <button  type="submit" class="px-4 py-4 w-full text-xl flex justify-center items-center gap-2">
-        <span>{{$isWishlisted ? 'Remove from Wishlist' : 'Add from Wishlist'}}</span>
+    <button type="submit" class="px-4 py-4 w-full text-xl flex justify-center items-center gap-2">
+        <span class="wishlist-text">{{$isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist'}}</span>
         <x-heroicon-o-heart @class([
-            'inline-block w-8 h-8 -translate-y-1',
+            'inline-block w-8 h-8 -translate-y-1 wishlist-icon transform transition-transform duration-500',
             'fill-red-300 text-red-300' => $isWishlisted 
             ])/>    
     </button>

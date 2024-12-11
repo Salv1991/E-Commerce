@@ -12,6 +12,7 @@ class CategoryController extends Controller
     {
         //Get all the current category's children's children.
         $childrenCategories = $category->children()
+                                        ->with('children')
                                         ->get()
                                         ->flatMap(fn($child) =>  $child->children->pluck('id')->prepend($child->id))
                                         ->prepend($category->id)

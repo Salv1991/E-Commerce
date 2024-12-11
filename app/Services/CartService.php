@@ -60,4 +60,25 @@ class CartService
 
         return $cartData;
     }
+
+    public function getCartCount() {
+        $cartCount = 0;
+
+        if (Auth::check()) {
+            $user = Auth::user();
+            $currentOrder = $user->currentOrder()->first();
+
+            if ($currentOrder) {
+                $cartCount = $currentOrder->lineItemsQuantity();
+            }
+        } else {
+            $guestCart = collect(Session::get('cart', []));
+
+            if ($guestCart->isNotEmpty()) {
+                $cartCount = $guestCart->sum('quantity');
+            }
+        }
+
+        return $cartCount;
+    }
 }

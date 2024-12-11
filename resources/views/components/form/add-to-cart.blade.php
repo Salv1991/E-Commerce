@@ -1,4 +1,7 @@
-<form action="{{ route('cart.add', $product->id) }}" method="post">
+<form 
+    action="{{ route('cart.add', $product->id) }}" 
+    method="post"
+    data-action="submit->cart#add">
     @csrf
     <button type="submit" 
         class="w-full p-2 rounded-sm hover:bg-black text-black hover:text-white duration-300">

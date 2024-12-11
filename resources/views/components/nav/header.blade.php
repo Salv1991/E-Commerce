@@ -111,7 +111,7 @@
                         <x-heroicon-o-shopping-bag class="w-6 h-6 text-gray-600 group-hover:text-primary-500"/>
                     </x-nav.icon>
        
-                    <div class="bg-white z-10 min-w-96 absolute top-10 -right-[92px] md:-right-3 pt-[24px] group-hover:block hidden">
+                    <div class="bg-white z-10 min-w-96 absolute top-10 -right-[92px] md:-right-3 pt-[24px] {{ $isCartView ? '' : 'group-hover:block'}} hidden">
                         <div class="border border-gray-200 border-b-0 px-5 py-3">
                             <div>
                                 <span class="font-semibold">CART</span>
@@ -137,7 +137,7 @@
                                                     </a>
                                                     <p class="line-clamp-2 text-xs text-gray-500">{{$lineItem['product']->description}}</p>
                                                 </div>
-                                                <span class="mt-3 inline-block font-semibold text-sm">{{ $lineItem['quantity'] * $lineItem['product']->current_price}}$</span>                                           
+                                                <span class="mt-3 inline-block font-semibold text-sm">{{ number_format($lineItem['quantity'] * $lineItem['product']->current_price, 2) }}$</span>                                           
                                             </div>
                                             <div class="col-span-1 justify-self-end">
                                                 <form class="w-full" method='post' action="{{ route('cart.delete', $lineItem['product']->id) }}">
@@ -166,7 +166,7 @@
                                 class="mt-2 inline-block text-center bg-black border-2 border-black hover:bg-white 
                                 hover:text-black duration-300 px-3 py-5 text-white w-full">
                                 Proceed to Cart
-                            </a>                    
+                            </a>             
                         </div>
                     </div>
                 </div>

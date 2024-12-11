@@ -30,7 +30,7 @@ class Product extends Model
     }
 
     public function isWishlistedByUser() {
-        return Auth::user()?->wishlistedProducts->contains($this->id);
+        return Auth::user()?->wishlistedProducts()->where('id', $this->id)->exists();
     }
 
     public function categories() {

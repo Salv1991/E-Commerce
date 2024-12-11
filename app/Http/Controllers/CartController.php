@@ -21,11 +21,10 @@ class CartController extends Controller
             $wishlistedProductsIds = $user->wishlistedProductsIds();
         };
 
-        //$cartData = $this->cart->getCartData();
-        //$cartTotal = $cartData['cartTotal'];
-        //$cart = $cartData['cart'];
-        
-        return view('cart.index', compact(['wishlistedProductsIds']));
+        $cartData = $this->cart->getCartData();
+        $cartTotal = $cartData['cartTotal'];
+        $cart = $cartData['cart'];
+        return view('cart.index', compact(['cart', 'cartTotal','wishlistedProductsIds']));
     }
 
     public function add($id){
@@ -94,7 +93,7 @@ class CartController extends Controller
             'quantity' => 'integer|min:0|required'
         ]);
 
-        if( Auth::check()){   
+        if(Auth::check()){   
             $lineItem = LineItem::where('id', $id)
                 ->where('order_id', Auth::user()->currentOrder->id)
                 ->firstOrFail();
@@ -111,7 +110,7 @@ class CartController extends Controller
             $cart = session()->get('cart', []);
             $product = Product::find($id);
 
-            if(isset($cart[$id]) && $product){
+            if($product && isset($cart[$id])){
                 if($request->quantity > $product->stock){
                     return redirect()->route('cart.index')->with('error', 'Not enough stock available');
                 }
