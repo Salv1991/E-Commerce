@@ -106,7 +106,7 @@
                     <x-heroicon-o-shopping-bag class="w-6 h-6 text-gray-600 group-hover:text-primary-500"/>
                 </x-nav.icon> -->
 
-                <div class="relative group ">
+                <div class="relative group" data-controller="cart">
                     <x-nav.icon numberContainerId="cart-count" href="{{ route('cart.index') }}" :number="$cartCount">
                         <x-heroicon-o-shopping-bag class="w-6 h-6 text-gray-600 group-hover:text-primary-500"/>
                     </x-nav.icon>
@@ -117,50 +117,25 @@
                                 <span class="font-semibold">CART</span>
                             </div>
                         </div>
-                        @if ($cart->isNotEmpty())
-                            <div class="border border-gray-200 p-4 max-h-80 overflow-y-auto">
-                                <ul class="flex flex-col gap-5">
+
+                        <div class="border border-gray-200 p-4 max-h-80 overflow-y-auto">
+                            <ul id="cart-teasers-container" class="flex flex-col gap-5">
+                                @if ($cart->isNotEmpty())
                                     @foreach ($cart as $lineItem)
-                                        <li class="grid grid-cols-4 gap-3">
-                                            <a href="{{route('product', $lineItem['product'])}}" class="col-span-1 lg:col-span-1 w-full h-full overflow-hidden aspect-[.75]">
-                                                <img 
-                                                    class="h-full w-full object-cover object-center" 
-                                                    src="{{ asset('storage/' . ($lineItem['product']->images->isNotEmpty() ? $lineItem['product']->images->first()->image_path : 'products/placeholder.jpg') )}}" 
-                                                    alt="Product Image">  
-                                            </a>
-                                            <div class="col-span-2 flex flex-col justify-between items-start">
-                                                <div>
-                                                    <a 
-                                                        href="{{ route('product', $lineItem['product']) }}" 
-                                                        class="font-bold text-gray-600 hover:text-primary-500">
-                                                        {{$lineItem['quantity'] . ' x ' . $lineItem['product']->title}}
-                                                    </a>
-                                                    <p class="line-clamp-2 text-xs text-gray-500">{{$lineItem['product']->description}}</p>
-                                                </div>
-                                                <span class="mt-3 inline-block font-semibold text-sm">{{ number_format($lineItem['quantity'] * $lineItem['product']->current_price, 2) }}$</span>                                           
-                                            </div>
-                                            <div class="col-span-1 justify-self-end">
-                                                <form class="w-full" method='post' action="{{ route('cart.delete', $lineItem['product']->id) }}">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit">
-                                                        <x-heroicon-o-x-mark class="inline-block w-6 h-6 text-gray-500 hover:text-primary-500"/>
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </li>
+                                        <x-nav.cart-teaser :product="$lineItem->product" :quantity="$lineItem->quantity" />
                                     @endforeach
-                                </ul>
-                            </div>
-                        @else
-                            <div class="bg-white border border-gray-200 p-4 h-40 flex justify-center items-center">
-                                No products in cart.
-                            </div>
-                        @endif
+                                @else
+                                    <div class="empty-cart-message bg-white h-40 flex justify-center items-center">
+                                        No products in cart.
+                                    </div> 
+                                @endif
+                            </ul>
+                        </div>
+                        
                         <div class="border border-gray-200 border-t-0 p-5 pt-3">
                             <div class="flex justify-between items-center">
                                 <span class="text-lg font-bold">Total:</span>
-                                <span>{{$cartTotal}}$</span>
+                                <span id="cart-total">{{$cartTotal}}$</span>
                             </div>
                             <a href="{{ route('cart.index') }}" 
                                 class="mt-2 inline-block text-center bg-black border-2 border-black hover:bg-white 

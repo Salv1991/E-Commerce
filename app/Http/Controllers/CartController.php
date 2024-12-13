@@ -29,14 +29,17 @@ class CartController extends Controller
 
     public function add($id){
         $product = Product::find($id);
+        $cartTotal = 0;
+        $cartCount = 0;
+        $lineItemExists = false;
 
         if(!$product){
-            return redirect()->back()->with('error', 'Product not found.');
+            return response()->json(['error' => 'Product not found.']);
         }
 
         if(Auth::check()){
             $user = Auth::user();
-            $currentOrder = $user->currentOrder()->first();
+            $currentOrder = $user->currentOrder()->with('lineItems')->first();
             
             if(!$currentOrder){
                 $currentOrder = Order::create([
@@ -46,34 +49,38 @@ class CartController extends Controller
                 ]);
             }
             
-            $lineItem = LineItem::where('order_id', $currentOrder->id)
-                ->where('product_id', $product->id)
-                ->first();
+            $lineItem = $currentOrder->lineItems->firstWhere('product_id', $product->id);
 
             if($lineItem) {
                 if($lineItem->quantity >= $product->stock){
-                    return redirect()->back()->with('error', 'Not enough stock available');
+                    return response()->json(['error' => 'Not enough stock available']);
                 }; 
 
                 $lineItem->increment('quantity');
+                $lineItemExists = true;
             } else {
-                LineItem::create([
+                $lineItem = LineItem::create([
                     'order_id' => $currentOrder->id,
                     'product_id' => $id,
                     'quantity' => 1,
                     'price' => $product->current_price 
                 ]);
+
             }
 
+            $currentOrder = $currentOrder->refresh();
+            $cartCount = $currentOrder->lineItems->sum('quantity'); 
+            $cartTotal = $currentOrder->total_price; 
         } else {
             $cart = session()->get('cart', []);
 
             if(isset($cart[$id])){
                 if($cart[$id]['quantity'] >= $product->stock){
-                    return redirect()->back()->with('error', 'Not enough stock available');
+                    return response()->json(['error' => 'Not enough stock available']);
                 } 
 
                 $cart[$id]['quantity']++;
+                $lineItemExists = true;
             }else{
                 $cart[$id] = [
                     'product_id' => $id,
@@ -81,8 +88,34 @@ class CartController extends Controller
                     'price' => $product->current_price,    
                 ];
             }
-            
+
+            $cartCount = array_sum(array_column($cart, 'quantity'));
+            $cartTotal = array_reduce($cart, function($total, $product){
+                return $total + ($product['quantity'] * $product['price']);
+            }, 0);
+
             session()->put('cart', $cart);
+        }
+
+        if(request()->ajax()){
+            $quantity = $lineItem->quantity ?? $cart[$id]['quantity'];
+
+            $data = [
+                'product_id' => $product->id,
+                'cartTotal' => number_format($cartTotal, 2),
+                'cartCount' => $cartCount,
+                'lineItemExists' => $lineItemExists
+            ];
+
+            if(!$lineItemExists){
+                $data['view'] = view('components.nav.cart-teaser', compact(['product', 'quantity']))->render();           
+            } else {
+                $data['title'] = $product->title;
+                $data['quantity'] = $quantity;
+                $data['total'] = number_format($product->current_price * $quantity, 2);
+            }
+
+            return response()->json($data);
         }
 
         return redirect()->back();
@@ -131,24 +164,43 @@ class CartController extends Controller
     }
 
     public function delete($id){
+        $cartTotal = 0;
+        $cartCount = 0;
+
         if(Auth::check()){     
-            $currentOrder = Auth::user()->currentOrder()->first();
+            $currentOrder = Auth::user()->currentOrder()->with('lineItems')->first();
 
             if($currentOrder){
-                $lineItem = LineItem::where('order_id', $currentOrder->id)
-                    ->where('product_id', $id)
-                    ->first();
+                $lineItem = $currentOrder->lineItems->firstWhere('product_id', $id);
+
                 if($lineItem){
                     $lineItem->delete();
                 }
-            }
+
+                $currentOrder = $currentOrder->refresh();
+                $cartCount = $currentOrder->lineItems->sum('quantity'); 
+                $cartTotal = $currentOrder->total_price;             }
         } else {
             $cart = session()->get('cart', []);
 
             if(isset($cart[$id])){
                 unset($cart[$id]);
                 session()->put('cart', $cart);
+
+                $cartCount = array_sum(array_column($cart, 'quantity'));
+                $cartTotal = array_reduce($cart, function($total, $product){
+                    return $total + ($product['quantity'] * $product['price']);
+                }, 0);
+
             }
+        }
+
+        if(request()->ajax()){
+            return response()->json([
+                'product_id' => $id,
+                'cartTotal' => number_format($cartTotal, 2),
+                'cartCount' => $cartCount,
+            ]);
         }
 
         return redirect()->back();

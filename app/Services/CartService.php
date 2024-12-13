@@ -22,7 +22,7 @@ class CartService
 
             if ($currentOrder) {
                 $cartData['cart'] = $currentOrder->lineItems->map(function ($lineItem) {
-                    return [
+                    return (object)[
                         'id' => $lineItem->id,
                         'product' => $lineItem->product,
                         'quantity' => $lineItem->quantity,
@@ -42,7 +42,7 @@ class CartService
                 $cartData['cart'] = $products->map(function ($product) use ($guestCart) {
                     if (isset($guestCart[$product->id])) {
                         $quantity = $guestCart[$product->id]['quantity'];
-                        return [
+                        return (object)[
                             'id' => $product->id,
                             'product' => $product,
                             'quantity' => $quantity,

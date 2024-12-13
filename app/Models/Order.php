@@ -27,7 +27,7 @@ class Order extends Model
         return $this->lineItems->sum('quantity');
     }
 
-    public function recalculateTotalPrice() {
+    public function calculateTotalPrice() {
         $totalPrice = $this->lineItems->sum(function($lineItem){
             return $lineItem->quantity * $lineItem->price;
         });
@@ -35,5 +35,7 @@ class Order extends Model
         $this->update([
             'total_price' => $totalPrice    
         ]);
+
+        return  number_format($totalPrice, 2);
     }
 }

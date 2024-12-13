@@ -19,15 +19,15 @@ class LineItem extends Model
     protected static function booted(){
 
         static::created(function($lineItem){
-            $lineItem->order->recalculateTotalPrice();
+            $lineItem->order->calculateTotalPrice();
         });
 
         static::updated(function($lineItem){
-            $lineItem->order->recalculateTotalPrice();
+            $lineItem->order->calculateTotalPrice();
         });
 
         static::deleted(function($lineItem){
-            $lineItem->order->recalculateTotalPrice();
+            $lineItem->order->calculateTotalPrice();
         });
     }
 
