@@ -138,7 +138,7 @@ class CartController extends Controller
         if(Auth::check()){   
             $currentOrder = Auth::user()->currentOrder()->with('lineItems')->first();
 
-            $lineItem = LineItem::where('id', $id)
+            $lineItem = LineItem::where('product_id', $id)
                 ->where('order_id', $currentOrder->id)
                 ->firstOrFail();
 
@@ -178,7 +178,7 @@ class CartController extends Controller
 
         if(request()->ajax()){
             return response()->json([
-                'lineItem_id' => $id,
+                'product_id' => $id,
                 'quantity' => $quantity,
                 'cartTotal' => number_format($cartTotal, 2),
                 'cartCount' => $cartCount  

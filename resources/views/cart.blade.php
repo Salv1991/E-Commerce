@@ -11,7 +11,7 @@
 
                 @if ($cart->isNotEmpty())
                     @foreach ($cart as $lineItem )
-                        <div id="lineItem-{{$lineItem->id}}" class="bg-white grid grid-cols-7 py-5 gap-4">
+                        <div id="product-{{$lineItem->product->id}}" data-teaser-{{$lineItem->product->id}} class="bg-white grid grid-cols-7 py-5 gap-4">
                           
                             <a href="{{route('product', $lineItem->product)}}" 
                                 class="w-full h-full overflow-hidden aspect-[.75] col-span-2 lg:col-span-1">
@@ -48,7 +48,7 @@
                                     <div class="quantity-container cursor-pointer relative border border-gray-300 rounded-md min-w-14 px-2 ">
                 
                                         <form
-                                            action="{{route('cart.quantity', $lineItem->id)}}"
+                                            action="{{route('cart.quantity', $lineItem->product->id)}}"
                                             data-action="submit->cart#quantity"
                                             method="post"  
                                             class="quantity-menu hidden absolute bottom-8 left-0 w-full max-h-28 overflow-y-auto border 

@@ -29,12 +29,16 @@ class Product extends Model
         return $this->hasOne(ProductImage::class);
     }
 
-    public function isWishlistedByUser() {
-        return Auth::user()?->wishlistedProducts()->where('id', $this->id)->exists();
-    }
+    //public function isWishlistedByUser() {
+        //return Auth::user()?->wishlistedProducts()->where('id', $this->id)->exists();
+    //}
 
     public function categories() {
         return $this->belongsToMany(Category::class, 'category_products');
     }
 
+    public function lineItem() {
+        return $this->hasOne(LineItem::class);
+    }
+    
 }

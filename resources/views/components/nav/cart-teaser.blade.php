@@ -1,4 +1,4 @@
-<li id="product-{{$product->id}}" class="grid grid-cols-4 gap-3">
+<li id="product-{{$product->id}}" data-teaser-{{$product->id}} class="grid grid-cols-4 gap-3">
     <a href="{{route('product', $product)}}" class="col-span-1 lg:col-span-1 w-full h-full overflow-hidden aspect-[.75]">
         <img 
             class="h-full w-full object-cover object-center" 

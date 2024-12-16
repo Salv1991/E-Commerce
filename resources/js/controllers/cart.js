@@ -89,9 +89,8 @@ export default class extends Controller {
                 quantityContainer.querySelector('.quantity').textContent = quantity;
 
                 buttons.forEach(button => {
-                    console.log(button.closest(`#lineItem-${data.lineItem_id}`))
                     if( quantity == 0){ 
-                        button.closest(`#lineItem-${data.lineItem_id}`).remove();   
+                        quantityButton.closest(`#product-${data.product_id}`).remove();   
                     }else if (button.value == quantity) {
                         button.classList.add('bg-primary-500', 'text-white');
                         button.classList.remove('hover:bg-gray-100', 'hover:text-black');
@@ -108,11 +107,6 @@ export default class extends Controller {
                     document.querySelector('header #cart-count').textContent = data.cartCount;
                     document.querySelector('header .cart-total').textContent = `${cartTotal}$`;    
                 }
-                
-                cartTeasersContainer.forEach(container => {
-                    const cartTeaser = container.querySelector(`#product-${data.product_id}`);
-                    if(cartTeaser) cartTeaser.remove();              
-                });
             } 
         })
         .catch(error => {
@@ -143,19 +137,18 @@ export default class extends Controller {
                  document.querySelector('header #cart-count').textContent = data.cartCount;
                 if(emptyCartMessageContainer){
                     emptyCartMessageContainer.classList.toggle('hidden', data.cartCount > 0);
-                    emptyCartMessageContainer.classList.toggle('block', data.cartCount === 0);
+                    emptyCartMessageContainer.classList.toggle('block', data.cartCount <= 0);
                 }
  
                 if(orderSummaryContainer){
                     document.querySelector('#order-summary-container .cart-total').textContent = data.cartTotal;
                     document.querySelector('#order-summary-container .cart-subtotal').textContent = data.cartTotal;
                 } else {
-                    document.querySelector('header #cart-count').textContent = data.cartCount;
                     document.querySelector('header .cart-total').textContent = `${data.cartTotal}$`;    
                 }
                 
                 cartTeasersContainer.forEach(container => {
-                    const cartTeaser = container.querySelector(`#product-${data.product_id}`);
+                    const cartTeaser = container.querySelector(`[data-teaser-${data.product_id}]`);
                     if(cartTeaser) cartTeaser.remove();              
                 });
             } 
