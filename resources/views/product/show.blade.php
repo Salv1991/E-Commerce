@@ -1,7 +1,7 @@
 <x-layout>
     <div 
         class="w-full px-5 pb-20 max-w-screen-xl m-auto" 
-        data-controller="wishlist" 
+        data-controller="wishlist cart" 
         data-filter-target="productsContainer" >
         
         {{-- BREADCRUMBS --}}
@@ -43,13 +43,18 @@
                     <div class="mt-10 flex flex-col xl:flex-row justify-center items-center gap-5 *:text-2xl *:rounded-sm *:w-full">
 
                         {{-- CART --}}
-                        <form action="{{ route('cart.add', $product->id) }}" method="post">
+                        <form action="{{ route('cart.add', $product->id) }}" data-action="submit->cart#add" method="post">
                             @csrf
-                            <button type="submit" 
-                                class="w-full px-4 py-4 bg-black border-2 border-black hover:bg-white hover:text-black 
+                            <button type="submit"
+                                @disabled($product->stock <= 0)
+                                class="w-full px-4 py-4 bg-black border-2 border-black hover:bg-white hover:text-black disabled:hover:text-white disabled:border-gray-500/10 disabled:bg-gray-500/50
                                 text-white duration-300">
-                                <span>Add to cart</span> 
-                                <x-heroicon-c-shopping-bag class="inline-block w-7 h-7 -translate-y-1"/>
+                                @if($product->stock > 0)
+                                    <span>Add to cart</span> 
+                                    <x-heroicon-c-shopping-bag class="inline-block w-7 h-7 -translate-y-1"/>
+                                @else
+                                    <span>Out of stock</span> 
+                                @endif
                             </button>
                         </form>
 

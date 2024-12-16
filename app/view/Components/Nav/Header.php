@@ -44,7 +44,7 @@ class Header extends Component
     }
 
     protected function isCartView() {
-        return Route::currentRouteName() === 'cart.index';
+        return Route::currentRouteName() === 'cart';
     }
 
     public function render()

@@ -53,7 +53,7 @@ class CartService
 
                 $cartData['cartCount'] = $cartData['cart']->sum('quantity');
                 $cartData['cartTotal'] = $cartData['cart']->sum(function ($product) {
-                    return $product['quantity'] * $product['product']->current_price;
+                    return $product->quantity * $product->price;
                 });
             }
         }

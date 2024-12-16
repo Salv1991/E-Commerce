@@ -10,19 +10,15 @@ export default class extends Controller {
     toggle(event) {
         event.preventDefault();
         const selectedWishlistForm = event.currentTarget;
-        const formData = new FormData(selectedWishlistForm);
-        const viewType = selectedWishlistForm.getAttribute('data-view-type');
         const wishlistButton = selectedWishlistForm.querySelector('button');
         const wishlistIcon = selectedWishlistForm.querySelector('.wishlist-icon');
         const wishlistText = selectedWishlistForm.querySelector('.wishlist-text');
 
         wishlistButton.disabled = true;
         
-        formData.append('viewType', viewType);
-
         fetch( selectedWishlistForm.action, {
             method: selectedWishlistForm.method,
-            body: formData,
+            body: new FormData(selectedWishlistForm),
             headers: {
                 'X-CSRF-TOKEN': this.csrfToken,
                 'X-Requested-With': 'XMLHttpRequest'
@@ -40,6 +36,7 @@ export default class extends Controller {
                 }
 
                 headerWishlistIcon.classList.add('animate');
+
                 wishlistIcon.classList.add('animate', 'fill-red-300', 'text-red-300');
             
                 setTimeout(() => {
@@ -56,7 +53,6 @@ export default class extends Controller {
         })
         .finally(() => {
             wishlistButton.disabled = false;
-
         })
         .catch(error => {
             console.log('Error:', error);

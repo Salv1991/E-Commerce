@@ -3,7 +3,7 @@
         <h1 class="text-center text-4xl font-semibold">My Wishlist</h1>
 
         <div id="wishlist-container"
-            data-controller="wishlist" 
+            data-controller="wishlist cart" 
             data-filter-target="wishlistsContainer" 
             class="mt-14 flex flex-col justify-between divide-y-2 divide-gray-100 items-center bg-gray-100 p-2">
 

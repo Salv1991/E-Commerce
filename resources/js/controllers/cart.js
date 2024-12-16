@@ -14,7 +14,7 @@ export default class extends Controller {
         console.log('added');
         console.log(event.target);
         const selectedCartForm = event.currentTarget;
-        const cartTeasersContainer = document.querySelector('#cart-teasers-container');
+        const cartTeasersContainer = document.querySelector('.cart-teasers-container');
         const emptyCartMessageContainer = document.querySelector('.empty-cart-message');
         console.log(selectedCartForm.action);
 
@@ -30,7 +30,7 @@ export default class extends Controller {
         .then(data => {
             if(!data.error){
                 document.querySelector('header #cart-count').textContent = data.cartCount;
-                document.querySelector('header #cart-total').textContent = `${data.cartTotal}$`;
+                document.querySelector('header .cart-total').textContent = `${data.cartTotal}$`;
                 if(emptyCartMessageContainer){
                     emptyCartMessageContainer.classList.toggle('hidden', data.cartCount > 0);
                     emptyCartMessageContainer.classList.toggle('block', data.cartCount === 0);
@@ -41,6 +41,78 @@ export default class extends Controller {
                     cartTeasersContainer.querySelector(`#product-${data.product_id}`).querySelector('.quantity-title').textContent = `${data.quantity} x ${data.title}`;
                     cartTeasersContainer.querySelector(`#product-${data.product_id}`).querySelector('.total').textContent = `${data.total}$`;         
                 }
+            } else {
+                const errorMessage = document.querySelector('#errorMessage');
+                errorMessage.classList.remove('hidden');
+                errorMessage.textContent = data.error;
+                
+                setTimeout(() => {
+                    errorMessage.classList.add('hidden');
+                    errorMessage.textContent = '';
+                }, 2000);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        })
+    }
+
+    quantity(event) {
+        event.preventDefault();
+        console.log("current",event.currentTarget);
+        const cartTeasersContainer = document.querySelectorAll('.cart-teasers-container');
+        const orderSummaryContainer = document.getElementById('order-summary-container');
+        const selectedCartForm = event.currentTarget;
+        const quantityButton = event.submitter;
+        const formData = new FormData(selectedCartForm);
+        formData.append(quantityButton.name, quantityButton.value);
+     
+        fetch(selectedCartForm.action, {
+            headers:{
+                'X-CSRF-TOKEN': this.csrfToken,
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: formData,
+            method: selectedCartForm.method
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(!data.error){
+                console.log(data);
+                const quantityContainer = quantityButton.closest('.quantity-container');
+                const buttons = quantityContainer.querySelectorAll('button[name="quantity"]');
+                const quantity = data.quantity;
+                const cartTotal = data.cartTotal;
+                document.querySelector('header #cart-count').textContent = data.cartCount;
+                quantityButton.textContent = quantity;
+                quantityButton.value = quantity;
+                quantityContainer.querySelector('.quantity').textContent = quantity;
+
+                buttons.forEach(button => {
+                    console.log(button.closest(`#lineItem-${data.lineItem_id}`))
+                    if( quantity == 0){ 
+                        button.closest(`#lineItem-${data.lineItem_id}`).remove();   
+                    }else if (button.value == quantity) {
+                        button.classList.add('bg-primary-500', 'text-white');
+                        button.classList.remove('hover:bg-gray-100', 'hover:text-black');
+                    } else {
+                        button.classList.remove('bg-primary-500', 'text-white');
+                        button.classList.add('hover:bg-gray-100', 'hover:text-black');
+                    }
+                });
+
+                if(orderSummaryContainer){
+                    document.querySelector('#order-summary-container .cart-total').textContent = cartTotal;
+                    document.querySelector('#order-summary-container .cart-subtotal').textContent = cartTotal;
+                } else {
+                    document.querySelector('header #cart-count').textContent = data.cartCount;
+                    document.querySelector('header .cart-total').textContent = `${cartTotal}$`;    
+                }
+                
+                cartTeasersContainer.forEach(container => {
+                    const cartTeaser = container.querySelector(`#product-${data.product_id}`);
+                    if(cartTeaser) cartTeaser.remove();              
+                });
             } 
         })
         .catch(error => {
@@ -53,7 +125,8 @@ export default class extends Controller {
         console.log('delete');
         const selectedCartForm = event.currentTarget;
         const emptyCartMessageContainer = document.querySelector('.empty-cart-message');
-        const cartTeasersContainer = document.querySelector('#cart-teasers-container');
+        const cartTeasersContainer = document.querySelectorAll('.cart-teasers-container');
+        const orderSummaryContainer = document.getElementById('order-summary-container');
         console.log(event.currentTarget);
 
         fetch(selectedCartForm.action, {
@@ -67,15 +140,24 @@ export default class extends Controller {
         .then(response => response.json())
         .then(data => {
             if(!data.error){
+                 document.querySelector('header #cart-count').textContent = data.cartCount;
                 if(emptyCartMessageContainer){
                     emptyCartMessageContainer.classList.toggle('hidden', data.cartCount > 0);
                     emptyCartMessageContainer.classList.toggle('block', data.cartCount === 0);
                 }
-                document.querySelector('header #cart-count').textContent = data.cartCount;
-                document.querySelector('header #cart-total').textContent = `${data.cartTotal}$`;
-
-                cartTeasersContainer.querySelector(`#product-${data.product_id}`).remove();
+ 
+                if(orderSummaryContainer){
+                    document.querySelector('#order-summary-container .cart-total').textContent = data.cartTotal;
+                    document.querySelector('#order-summary-container .cart-subtotal').textContent = data.cartTotal;
+                } else {
+                    document.querySelector('header #cart-count').textContent = data.cartCount;
+                    document.querySelector('header .cart-total').textContent = `${data.cartTotal}$`;    
+                }
                 
+                cartTeasersContainer.forEach(container => {
+                    const cartTeaser = container.querySelector(`#product-${data.product_id}`);
+                    if(cartTeaser) cartTeaser.remove();              
+                });
             } 
         })
         .catch(error => {

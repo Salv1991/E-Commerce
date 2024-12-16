@@ -5,7 +5,7 @@
 
     <div class="relative px-5 max-w-screen-xl m-auto flex justify-between items-center gap-2 md:gap-10">
 
-        {{-- MESSAGE --}}
+        {{-- MESSAGES --}}
         @if(session('success') || session('error'))    
             <div id='flash-message' class="z-30 rounded-lg {{session('success') ? 'bg-black' : 'bg-red-500'}} text-white p-5  absolute -bottom-20 right-5 ">
                 {{ session('success') ?? session('error') }}
@@ -22,6 +22,7 @@
             </script>
         @endif
         
+        <div id='errorMessage' class="z-30 rounded-lg bg-red-500 text-white p-5  absolute -bottom-20 right-5 hidden"></div>
         
         {{-- LOGO --}}
         <a href="/" class="min-w-[40px]" >
@@ -102,12 +103,8 @@
                 </x-nav.icon>
                 
                 {{-- CART --}}
-                <!-- <x-nav.icon numberContainerId="cart-count" href="{{ route('cart.index') }}" :number="$cartCount">
-                    <x-heroicon-o-shopping-bag class="w-6 h-6 text-gray-600 group-hover:text-primary-500"/>
-                </x-nav.icon> -->
-
                 <div class="relative group" data-controller="cart">
-                    <x-nav.icon numberContainerId="cart-count" href="{{ route('cart.index') }}" :number="$cartCount">
+                    <x-nav.icon numberContainerId="cart-count" href="{{ route('cart') }}" :number="$cartCount">
                         <x-heroicon-o-shopping-bag class="w-6 h-6 text-gray-600 group-hover:text-primary-500"/>
                     </x-nav.icon>
        
@@ -118,14 +115,14 @@
                             </div>
                         </div>
 
-                        <div class="border border-gray-200 p-4 max-h-80 overflow-y-auto">
-                            <ul id="cart-teasers-container" class="flex flex-col gap-5">
+                        <div class="border border-gray-200 p-4 h-72 overflow-y-auto">
+                            <ul id="cart-teasers-container" class="cart-teasers-container h-full flex flex-col gap-5">
                                 @if ($cart->isNotEmpty())
                                     @foreach ($cart as $lineItem)
                                         <x-nav.cart-teaser :product="$lineItem->product" :quantity="$lineItem->quantity" />
                                     @endforeach
                                 @else
-                                    <div class="empty-cart-message bg-white h-40 flex justify-center items-center">
+                                    <div class="empty-cart-message bg-white h-full flex justify-center items-center">
                                         No products in cart.
                                     </div> 
                                 @endif
@@ -135,9 +132,9 @@
                         <div class="border border-gray-200 border-t-0 p-5 pt-3">
                             <div class="flex justify-between items-center">
                                 <span class="text-lg font-bold">Total:</span>
-                                <span id="cart-total">{{$cartTotal}}$</span>
+                                <span class="cart-total">{{$cartTotal}}$</span>
                             </div>
-                            <a href="{{ route('cart.index') }}" 
+                            <a href="{{ route('cart') }}" 
                                 class="mt-2 inline-block text-center bg-black border-2 border-black hover:bg-white 
                                 hover:text-black duration-300 px-3 py-5 text-white w-full">
                                 Proceed to Cart

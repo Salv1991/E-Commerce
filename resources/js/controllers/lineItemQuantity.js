@@ -12,7 +12,6 @@ export default class extends Controller {
     }
 
     openMenu(event){
-
        event.currentTarget.closest('.quantity-container').querySelector('.quantity-menu').classList.toggle('hidden');
        event.currentTarget.closest('.quantity-container').querySelector('.closed-chevron').classList.toggle('hidden');
        event.currentTarget.closest('.quantity-container').querySelector('.open-chevron').classList.toggle('hidden');

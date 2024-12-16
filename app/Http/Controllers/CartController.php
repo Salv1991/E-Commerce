@@ -15,16 +15,15 @@ class CartController extends Controller
 
     public function index(){
         $wishlistedProductsIds = collect();
-        $user = Auth::user();
 
         if(Auth::check()) {
-            $wishlistedProductsIds = $user->wishlistedProductsIds();
+            $wishlistedProductsIds = Auth::user()->wishlistedProductsIds();
         };
 
         $cartData = $this->cart->getCartData();
         $cartTotal = $cartData['cartTotal'];
         $cart = $cartData['cart'];
-        return view('cart.index', compact(['cart', 'cartTotal','wishlistedProductsIds']));
+        return view('cart', compact(['cart', 'cartTotal', 'wishlistedProductsIds']));
     }
 
     public function add($id){
@@ -59,6 +58,10 @@ class CartController extends Controller
                 $lineItem->increment('quantity');
                 $lineItemExists = true;
             } else {
+                 if($product->stock <= 0){
+                    return response()->json(['error' => 'Not enough stock available']);
+                }; 
+                
                 $lineItem = LineItem::create([
                     'order_id' => $currentOrder->id,
                     'product_id' => $id,
@@ -101,6 +104,7 @@ class CartController extends Controller
             $quantity = $lineItem->quantity ?? $cart[$id]['quantity'];
 
             $data = [
+                'message' => 'Product added to cart',
                 'product_id' => $product->id,
                 'cartTotal' => number_format($cartTotal, 2),
                 'cartCount' => $cartCount,
@@ -121,43 +125,64 @@ class CartController extends Controller
         return redirect()->back();
     }
 
+    //replace lineItem id with product id? 
     public function quantity(Request $request, $id){
         $request->validate([
-            'quantity' => 'integer|min:0|required'
+            'quantity' => 'required|integer|min:0'
         ]);
 
+        $cartTotal = 0;
+        $cartCount = 0;
+        $quantity = 0;
+
         if(Auth::check()){   
+            $currentOrder = Auth::user()->currentOrder()->with('lineItems')->first();
+
             $lineItem = LineItem::where('id', $id)
-                ->where('order_id', Auth::user()->currentOrder->id)
+                ->where('order_id', $currentOrder->id)
                 ->firstOrFail();
+
+            $quantity = min($request->quantity, $lineItem->product->stock);
           
             if($request->quantity <= 0) {
                 $lineItem->delete();
             } else {          
-                $lineItem->update([
-                    'quantity' => min($request->quantity, $lineItem->product->stock)    
-                ]); 
+                $lineItem->update(['quantity' => $quantity]); 
             }
+
+            $currentOrder = $currentOrder->refresh();
+            $cartCount = $currentOrder->lineItems->sum('quantity'); 
+            $cartTotal = $currentOrder->total_price; 
 
         } else {
             $cart = session()->get('cart', []);
             $product = Product::find($id);
 
             if($product && isset($cart[$id])){
-                if($request->quantity > $product->stock){
-                    return redirect()->route('cart.index')->with('error', 'Not enough stock available');
-                }
-                
-                if($request->quantity > 0){
-                    $cart[$id]['quantity'] = $request->quantity;
-                }
-                
-                if($request->quantity == 0){
-                    unset($cart[$id]);
-                }
-            }
+                $quantity = min($request->quantity, $product->stock);
 
-            session()->put('cart', $cart);
+                if($quantity <= 0){
+                    unset($cart[$id]);
+                } else {
+                    $cart[$id]['quantity'] = $quantity;
+                }
+                      
+                session()->put('cart', $cart);
+                
+                $cartCount = array_sum(array_column($cart, 'quantity'));
+                $cartTotal = array_reduce($cart, function($total, $product){
+                    return $total + ($product['quantity'] * $product['price']);
+                }, 0);
+            }
+        }
+
+        if(request()->ajax()){
+            return response()->json([
+                'lineItem_id' => $id,
+                'quantity' => $quantity,
+                'cartTotal' => number_format($cartTotal, 2),
+                'cartCount' => $cartCount  
+            ]);
         }
 
         return redirect()->back()->with('success', 'Cart updated successfully');
@@ -191,12 +216,12 @@ class CartController extends Controller
                 $cartTotal = array_reduce($cart, function($total, $product){
                     return $total + ($product['quantity'] * $product['price']);
                 }, 0);
-
             }
         }
 
         if(request()->ajax()){
             return response()->json([
+                'message' => 'Product removed from cart.',
                 'product_id' => $id,
                 'cartTotal' => number_format($cartTotal, 2),
                 'cartCount' => $cartCount,
@@ -205,5 +230,5 @@ class CartController extends Controller
 
         return redirect()->back();
     }
-
+   
 }

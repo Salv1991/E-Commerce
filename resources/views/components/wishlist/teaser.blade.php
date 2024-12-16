@@ -51,7 +51,7 @@
         </div>
 
         <div class="col-span-full lg:col-span-2 lg:m-auto">
-            <form action="{{ route('cart.add', $product) }}" method="post">
+            <form action="{{ route('cart.add', $product) }}" data-action="submit->cart#add" method="post">
                 @csrf
                 <button type="submit" class="px-4 py-3 bg-black border-2 border-black hover:bg-white hover:text-black  text-white duration-300">
                     Add to cart 
@@ -61,5 +61,4 @@
 
         </div>
     </div>
-
 </div>

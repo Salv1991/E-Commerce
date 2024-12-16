@@ -40,12 +40,10 @@ class WishlistController extends Controller
             $wishlistCount = Auth::user()->wishlistedProducts()->count();
 
             return response()->json([
+                'productId' => $id,
                 'status' => $status,
                 'updatedWishlistCount' => $wishlistCount,
-                'productId' => $id,
-                'formHtml' => '',
                 'isWishlisted' =>  $isWishlisted,
-                'viewType' => request('viewType'),
             ]);
         }
     }
