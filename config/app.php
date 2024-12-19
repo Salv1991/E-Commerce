@@ -122,4 +122,11 @@ return [
         'driver' => env('APP_MAINTENANCE_DRIVER', 'file'),
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
+
+    'vat_rate' => 0.24,
+
+    'free_shipping_min_subtotal' => 200,
+
+    'shipping_fee' => number_format(3.40, 2),
+
 ];

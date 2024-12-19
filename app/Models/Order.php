@@ -12,7 +12,13 @@ class Order extends Model
     protected $fillable = [
         'user_id',
         'status',
-        'total_price'    
+        'subtotal',    
+        'total_price',
+        'shipping_method',
+        'shipping_fee',
+        'payment_method',
+        'payment_fee',
+        'paid'    
     ];
 
     public function lineItems() {
@@ -27,15 +33,23 @@ class Order extends Model
         return $this->lineItems->sum('quantity');
     }
 
-    public function calculateTotalPrice() {
-        $totalPrice = $this->lineItems->sum(function($lineItem){
+    public function calculateSubtotal() {
+        $subtotal = $this->lineItems->sum(function($lineItem){
             return $lineItem->quantity * $lineItem->price;
         });
 
+            if($subtotal == 0 || $subtotal > config('app.free_shipping_min_subtotal')) {
+                $shipping_fee = 0;
+            } else {
+                $shipping_fee = config('app.shipping_fee');
+            }
+
         $this->update([
-            'total_price' => $totalPrice    
+            'shipping_fee' => $shipping_fee,
+            'subtotal' => $subtotal,
+            'total_price' => $subtotal + $shipping_fee
         ]);
 
-        return  number_format($totalPrice, 2);
+        return number_format($subtotal, 2);
     }
 }

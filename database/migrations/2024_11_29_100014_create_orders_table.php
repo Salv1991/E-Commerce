@@ -16,6 +16,13 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->string('status')->default('pending');
             $table->decimal('total_price', 10, 2);
+            $table->decimal('subtotal', 10, 2);
+            $table->integer('discount')->nullable();
+            $table->string('payment_method')->nullable();
+            $table->decimal('payment_fee', 10, 2)->default(0);
+            $table->string('shipping_method')->nullable();
+            $table->decimal('shipping_fee', 10, 2)->default(0);
+            $table->boolean('paid')->default(false);
             $table->json('adress')->nullable();
             $table->timestamps();
         });

@@ -3,7 +3,7 @@
 
         <h1 class="text-center text-4xl font-semibold">My Cart</h1>
 
-        <div class=" mt-14 grid grid-cols-6 items-start gap-8 bg-gray-100">
+        <div class="mt-14 grid grid-cols-6 items-start gap-8 bg-gray-100">
             <div 
                 data-controller="wishlist cart lineItemQuantity" 
                 data-filter-target="productsContainer" 
@@ -11,7 +11,9 @@
 
                 @if ($cart->isNotEmpty())
                     @foreach ($cart as $lineItem )
-                        <div id="product-{{$lineItem->product->id}}" data-teaser-{{$lineItem->product->id}} class="bg-white grid grid-cols-7 py-5 gap-4">
+                        <div id="product-{{$lineItem->product->id}}" 
+                            data-teaser-{{$lineItem->product->id}} 
+                            class="bg-white grid grid-cols-7 py-5 gap-4">
                           
                             <a href="{{route('product', $lineItem->product)}}" 
                                 class="w-full h-full overflow-hidden aspect-[.75] col-span-2 lg:col-span-1">
@@ -99,27 +101,33 @@
                             </div>
                         </div>
                     @endforeach
-                @else
-                    <div class="bg-white h-96 px-5 py-5 flex justify-center items-center">
-                        <span class="text-gray-500"> Your Cart is empty. </span>
-                    </div>
                 @endif
+                <div class="{{$cart->isNotEmpty() ? 'hidden' : 'flex'}} empty-cart-message bg-white h-96 px-5 py-5 flex justify-center items-center text-gray-500">
+                    Your Cart is empty.
+                </div>
             </div>
             <div id="order-summary-container" class="col-span-full lg:col-span-2 bg-white p-5">
                 <div class="flex flex-col justify-center items-start gap-2 *:w-full">
-                    <h2 class="text-lg font-bold">Order Summary</h2>
+                    <h2 class="text-xl font-semibold mb-5">Order Summary</h2>
                     
                     <div class="flex justify-between items-center">
                         <span>Subtotal (VAT included):</span>
-                        <span class="cart-subtotal">{{$cartTotal}}$</span>
+                        <span class="cart-subtotal">{{number_format($cartSubtotal, 2)}}$</span>
                     </div>
                     <div class="flex justify-between items-center">
                         <span>Shipping Fee:</span>
-                        <span>3,40$</span>
+                        <span id="shipping-fee">{{$shippingFee > 0 ? number_format($shippingFee , 2) . '$' : 'Free'}}</span>
                     </div>
-                    <div class="flex justify-between items-center mt-4">
-                        <span class="text-lg font-bold">Total:</span>
-                        <span class="cart-total">{{$cartTotal}}$</span>
+                    <div class="mt-4">
+                        <div class="flex justify-between items-center">
+                            <span class="text-lg font-bold">Total:</span>
+                            <span class="cart-total font-bold">{{number_format($cartSubtotal, 2)}}$</span>
+                        </div>  
+                        
+                        <div class="flex justify-between items-center *:text-xs *:text-gray-600">
+                            <span>VAT included {{ config('app.vat_rate') * 100 }}%</span>
+                            <span id="vat-price">{{number_format($cartSubtotal * config('app.vat_rate'), 2)}}$</span>
+                        </div> 
                     </div>
                     <button class="w-full mt-2 px-4 py-4 bg-black border-2 border-black hover:bg-white 
                         hover:text-black  text-white duration-300">

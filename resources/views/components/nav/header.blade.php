@@ -121,18 +121,18 @@
                                     @foreach ($cart as $lineItem)
                                         <x-nav.cart-teaser :product="$lineItem->product" :quantity="$lineItem->quantity" />
                                     @endforeach
-                                @else
-                                    <div class="empty-cart-message bg-white h-full flex justify-center items-center">
-                                        No products in cart.
-                                    </div> 
                                 @endif
+
+                                <div class="{{$cart->isNotEmpty() ? 'hidden' : 'flex'}} empty-cart-message bg-white h-full flex justify-center items-center">
+                                    No products in cart.
+                                </div> 
                             </ul>
                         </div>
                         
                         <div class="border border-gray-200 border-t-0 p-5 pt-3">
                             <div class="flex justify-between items-center">
                                 <span class="text-lg font-bold">Total:</span>
-                                <span class="cart-total">{{$cartTotal}}$</span>
+                                <span class="cart-total">{{number_format($cartSubtotal, 2)}}$</span>
                             </div>
                             <a href="{{ route('cart') }}" 
                                 class="mt-2 inline-block text-center bg-black border-2 border-black hover:bg-white 

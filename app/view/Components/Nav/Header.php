@@ -17,6 +17,7 @@ class Header extends Component
     public $cartCount;
     public $cartTotal;
     public $isCartView;
+    public $cartSubtotal;
 
     public function __construct( protected CartService $cartService)
     {       
@@ -37,7 +38,7 @@ class Header extends Component
             $cartData = $this->cartService->getCartData();
             $this->cart = $cartData['cart'] ?? collect();
             $this->cartCount = $cartData['cartCount'] ?? 0;
-            $this->cartTotal = $cartData['cartTotal'] ?? 0;
+            $this->cartSubtotal = $cartData['cartSubtotal'] ?? 0;
         } else {
             $this->cartCount = $this->cartService->getCartCount();
         }
