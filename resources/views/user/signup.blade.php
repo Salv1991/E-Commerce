@@ -7,19 +7,14 @@
                 <h1 class="text-3xl font-semibold">Sign Up</h1>
                 <form action="{{route('signup.create')}}" method="POST" class="mt-10">
                     @csrf
-                    
                     <x-form.input label="Name" name="name" placeholder="Name" />
                     
                     <x-form.input label="E-mail" name="email" placeholder="E-mail" />
                        
                     <x-form.input label="Password" name="password" placeholder="Password" />
+                    
                     <x-form.input label="Confirm Password" name="password_confirmation" placeholder="Confirm Password" />
-
-                    <!-- @if ($errors->any())
-                        <div class="text-red-500">
-                            {{ $errors->first('login') }}
-                        </div>
-                    @endif -->
+                 
                     <button type="submit" class="font-semibold mt-5 rounded-full px-5 py-4 w-full text-white text-base bg-gradient-to-br from-red-500 to-pink-500">
                         Sign Up
                     </button>
@@ -32,7 +27,7 @@
                     <h2 class="text-4xl font-bold">Welcome!</h2>
                     <h3 class="text-lg">You already have an account?</h3>
                     <a href="{{route('login')}}" class="font-semibold border border-white rounded-full px-4 py-2 inline-block hover:bg-white hover:text-primary-500 duration-150">
-                        Log In
+                        Login
                     </a>
                 </div>
             </div>

@@ -8,6 +8,7 @@ export default class extends Controller {
         this.csrfToken = document.querySelector('meta[name="csrf-token"]').content;
         this.cartCount = document.getElementById('cart-count');
         this.vatPrice = document.getElementById('vat-price');
+        this.checkoutButton = document.getElementById('checkout-button');
         this.shippingFee = document.getElementById('shipping-fee');
         this.cartSubtotalContainer = document.querySelector('#order-summary-container .cart-subtotal');
         this.headerCartTotal = document.querySelector('header .cart-total');
@@ -42,6 +43,12 @@ export default class extends Controller {
             this.cartTotalContainer.textContent = `${data.cartTotal}$`;
             this.cartSubtotalContainer.textContent = `${data.cartSubtotal}$`;
             this.vatPrice.textContent = `${data.vatPrice}$`;
+
+            if(data.cartTotal == 0) {
+                this.checkoutButton.setAttribute('disabled', true);
+            } else {
+                this.checkoutButton.removeAttribute('disabled');
+            }
 
             if(data.shippingFee == 0){
                 this.shippingFee.textContent = 'Free';

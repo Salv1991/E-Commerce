@@ -187,7 +187,7 @@
                 </div>
                 
                 {{-- HIDDEN CONTAINER --}}
-                <x-nav.mobile.responsive-menu  :$categories/>
+                <x-nav.mobile.responsive-menu :$categories/>
 
             </div> 
         </div>     

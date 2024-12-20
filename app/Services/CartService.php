@@ -6,11 +6,11 @@ use App\Models\LineItem;
 use App\Models\Order;
 use App\Models\Product;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Session;
 
 class CartService
 {
+    //check if product stock is 0 and if yes  then use reject on the collection(removedProducts);
     public function getCartData()
     {
         $cartData = [
@@ -21,8 +21,9 @@ class CartService
         ];
 
         if (Auth::check()) {
-            $user = Auth::user();
-            $currentOrder = $user->currentOrder()->with('lineItems.product.images')->first();
+            $currentOrder = Auth::user()->currentOrder()
+                ->with('lineItems.product.images')
+                ->first();
 
             if ($currentOrder) {
                 $cartData['cart'] = $currentOrder->lineItems->map(function ($lineItem) {
@@ -30,9 +31,11 @@ class CartService
                         'id' => $lineItem->id,
                         'product' => $lineItem->product,
                         'quantity' => $lineItem->quantity,
-                        'price' => $lineItem->quantity * $lineItem->product->current_price,    
+                        'price' => $lineItem->quantity * $lineItem->product->current_price,
+                        'availability' => $lineItem->product->stock  > 0 ? 'In stock' : 'Out of stock',   
                     ];
                 });
+
                 $cartData['cartCount'] = $currentOrder->lineItemsQuantity();
                 $cartData['cartSubtotal'] = $currentOrder->subtotal;
                 $cartData['shippingFee'] = $currentOrder->shipping_fee;
@@ -52,7 +55,8 @@ class CartService
                             'id' => $product->id,
                             'product' => $product,
                             'quantity' => $quantity,
-                            'price' => $quantity * $product->current_price,    
+                            'price' => $quantity * $product->current_price,
+                            'availability' => $product->stock  > 0 ? 'In stock' : 'Out of stock',   
                         ];
                     }
                 })->filter();
@@ -204,8 +208,8 @@ class CartService
             }
 
             $currentOrder = $currentOrder->refresh();
+            $orderSummary = $this->calculateOrderSummaryForUser($currentOrder);        
 
-            $orderSummary = $this->calculateOrderSummaryForUser($currentOrder);         
         } else {
             $cart = session()->get('cart', []);
             $product = Product::find($id);
@@ -316,4 +320,50 @@ class CartService
             'cartTotal' => number_format($cartSubtotal + $shippingFee, 2),
         ];
     }  
+
+    public function mergeCarts($guestCart) {
+        $user = Auth::user();
+        $currentOrder = $user->currentOrder()->first();
+
+        if(!$currentOrder){
+            $currentOrder = Order::create([
+                'user_id' => $user->id,
+                'status' => 'pending',
+                'subtotal' => 0,
+                'total_price' => 0,
+                'adress' => null,
+            ]);
+        }
+        
+        $productIds = array_column($guestCart, 'product_id');
+        $products = Product::whereIn('id', $productIds)->get()->keyBy('id');
+
+        foreach($guestCart as $lineItem){
+            $product = $products->get($lineItem['product_id']);
+
+            if(!$product || $product->stock <= 0){
+                continue;
+            }
+
+            $existingLineItem = LineItem::where('order_id', $currentOrder->id)
+                ->where('product_id', $lineItem['product_id'])
+                ->first();
+
+            if($existingLineItem){
+                $existingLineItem->update([
+                    'quantity' => min($existingLineItem->quantity + $lineItem['quantity'], $product->stock)    
+                ]);
+            } else {
+                LineItem::create([
+                    'order_id' => $currentOrder->id,
+                    'product_id' => $lineItem['product_id'],
+                    'quantity' => min($lineItem['quantity'], $product->stock),
+                    'price' => $lineItem['price']
+                ]);
+            }
+        }
+
+        session()->forget('cart');
+    }
+
 }

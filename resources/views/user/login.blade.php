@@ -4,7 +4,7 @@
         <div class="w-full max-w-screen-xl m-auto grid grid-cols-2 shadow-lg">
             {{-- LEFT --}}
             <div class="col-span-full order-2 md:order-1 md:col-span-1 py-14 px-10 bg-white">
-                <h1 class="text-3xl font-semibold">Log In</h1>
+                <h1 class="text-3xl font-semibold">Login</h1>
                 <form action="/login" method="POST" class="mt-10">
                     @csrf
 
@@ -18,7 +18,7 @@
                         </div>
                     @endif
                     <button type="submit" class="font-semibold mt-5 rounded-full px-5 py-4 w-full text-white text-base bg-gradient-to-br from-red-500 to-pink-500">
-                        Log In
+                        Login
                     </button>
                     <div class="mt-5 flex justify-between items-center">
                         <div class="text-sm has-[:checked]:text-red-600">

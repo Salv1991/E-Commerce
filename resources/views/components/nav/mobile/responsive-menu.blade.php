@@ -29,21 +29,7 @@
 
                 <nav class="w-full flex flex-col justify-center items-center gap-5">
                     <ul class="w-full *:block *:w-full">
-                        <!-- <x-nav.link href="/categories" :active="request()->is('categories')" >Categories</x-nav.link>
-                        <x-nav.link href="/contact" :active="request()->is('contact')" >Contact</x-nav.link>
-                        @guest                    
-                            <x-nav.link href="{{route('login.show')}}" >Login</x-nav.link>
-                            <x-nav.link href="{{route('signup')}}" >Sign up</x-nav.link>
-                        @endguest
-                        @auth 
-                            <li class="p-3">
-                                <form method="POST" action="{{ route('logout') }}">
-                                    @csrf
-                                    <button type="submit" class="hover:text-primary-500">Log out</button>
-                                </form>
-                            </li>
-                        @endauth -->
-
+                
                         {{-- MOBILE CATEGORIES --}}
                         @foreach ($categories as $category)    
                             <li class="mobile-category flex flex-col justify-between items-center">

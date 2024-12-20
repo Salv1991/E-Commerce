@@ -12,7 +12,9 @@
 
     </head>
     <body class="font-sans antialiased bg-stone-100 dark:bg-black dark:text-white/50">
-        <x-nav.header />
+        @if(!($hideHeader ?? false))
+            <x-nav.header />
+        @endif
             {{ $slot }}
         <x-nav.footer />
     </body>

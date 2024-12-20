@@ -36,7 +36,8 @@ Route::post('/cart/{id}', [CartController::class, 'add'])->name('cart.add');
 Route::patch('/cart/{id}', [CartController::class, 'quantity'])->name('cart.quantity');
 Route::delete('/cart/{id}', [CartController::class, 'delete'])->name('cart.delete');
 
-Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
+Route::get('/checkout/login', [CheckoutController::class, 'login'])->name('checkout.login');
+Route::get('/checkout/customer-information', [CheckoutController::class, 'customer'])->name('checkout.customer');
 
 Route::get('/contact', function(){
     return view('contact');

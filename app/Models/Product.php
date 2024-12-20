@@ -20,7 +20,17 @@ class Product extends Model
         'price',
         'discounted_price',
     ];
-   
+    
+    //protected static function booted() {
+        //static::updated(function ($product) {
+           // if ($product->isDirty('current_price')) { 
+                //foreach ($product->lineItems as $lineItem) {
+                    //$lineItem->price = $product->current_price;
+                   // $lineItem->save();
+               // }
+           // }
+        //});
+   // }
     public function images() {
         return $this->hasMany(ProductImage::class);
     }
@@ -28,10 +38,6 @@ class Product extends Model
     public function image() {
         return $this->hasOne(ProductImage::class);
     }
-
-    //public function isWishlistedByUser() {
-        //return Auth::user()?->wishlistedProducts()->where('id', $this->id)->exists();
-    //}
 
     public function categories() {
         return $this->belongsToMany(Category::class, 'category_products');
@@ -41,4 +47,7 @@ class Product extends Model
         return $this->hasOne(LineItem::class);
     }
     
+    public function lineItems() {
+        return $this->hasMany(LineItem::class);
+    }
 }

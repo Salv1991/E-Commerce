@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\LineItem;
-use App\Models\Order;
-use App\Models\Product;
+use App\Services\CartService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
 {
+    public function __construct(protected CartService $cartService){}
+
     public function show() {
         return view('user.login');
     }
@@ -24,9 +24,9 @@ class LoginController extends Controller
         if (Auth::attempt($credentials)) {
             $guestCart = session()->get('cart', []);
 
-           if(!empty($guestCart)){
-                $this->mergeCarts($guestCart);
-           }
+            if(!empty($guestCart)){
+                $this->cartService->mergeCarts($guestCart);
+            }
 
             $request->session()->regenerate();
 
@@ -48,49 +48,5 @@ class LoginController extends Controller
         $request->session()->regenerateToken();
 
         return redirect('/')->with('success', 'You logged out successfully!');  
-    }
-
-    protected function mergeCarts($guestCart) {
-        $user = Auth::user();
-        $currentOrder = $user->currentOrder()->first();
-
-        if(!$currentOrder){
-            $currentOrder = Order::create([
-                'user_id' => $user->id,
-                'status' => 'pending',
-                'total_price' => 0,
-                'adress' => null,
-            ]);
-        }
-        
-        $productIds = array_column($guestCart, 'product_id');
-        $products = Product::whereIn('id', $productIds)->get()->keyBy('id');
-
-        foreach($guestCart as $lineItem){
-            $product = $products->get($lineItem['product_id']);
-
-            $existingLineItem = LineItem::where('order_id', $currentOrder->id)
-                ->where('product_id', $lineItem['product_id'])
-                ->first();
-
-            if(!$product || $product->stock <= 0){
-                continue;
-            }
-
-            if($existingLineItem){
-                $existingLineItem->update([
-                    'quantity' => min($existingLineItem->quantity + $lineItem['quantity'], $product->stock)    
-                ]);
-            } else {
-                LineItem::create([
-                    'order_id' => $currentOrder->id,
-                    'product_id' => $lineItem['product_id'],
-                    'quantity' => min($lineItem['quantity'], $product->stock),
-                    'price' => $lineItem['price']
-                ]);
-            }
-        }
-
-        session()->forget('cart');
     }
 }

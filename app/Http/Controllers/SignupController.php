@@ -3,13 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Services\CartService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
 
 class SignupController extends Controller
 {
+    public function __construct(protected CartService $cartService){}
+
     public function show() {
         return view('user.signup');
     }
@@ -32,8 +34,15 @@ class SignupController extends Controller
 
         Auth::login($user);
 
+        $guestCart = session()->get('cart', []);
+
+        if(!empty($guestCart)){
+            $this->cartService->mergeCarts($guestCart);
+        }
+
         session()->flash('success', 'Registration successful! Welcome, ' . $user->name . '!');
 
-        return redirect('/');
+        return redirect()->back();
     }
+
 }

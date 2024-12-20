@@ -15,6 +15,11 @@ li{
     fill: rgb(249, 139, 139);
     color:rgb(249, 139, 139);
 }
+
+#checkout-button[disabled] a {
+    pointer-events: none;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

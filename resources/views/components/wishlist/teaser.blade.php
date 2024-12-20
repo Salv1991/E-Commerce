@@ -16,14 +16,6 @@
             </button>
         </form>
 
-        <!-- <a href="{{route('product', $product)}}" class="col-span-2 lg:col-span-1 w-full h-full overflow-hidden aspect-square">
-            <img 
-                class="h-full w-full object-cover object-center" 
-                src="{{ asset('storage/' . ($product->images->isNotEmpty() 
-                    ? $product->images->first()->image_path 
-                    : 'products/placeholder.jpg') )}}" 
-                alt="Product Image">  
-        </a> -->
         <a href="{{route('product', $product)}}" 
             class="w-full h-full overflow-hidden aspect-[.9]  lg:aspect-[.75] col-span-2 lg:col-span-1">
             <img 
@@ -45,18 +37,23 @@
                 <x-product.price :$product />
             </div>
 
-            <div class="col-span-full lg:col-span-1 font-semibold text-green-500">
-                <span>In stock</span>
+            <div class="col-span-full lg:col-span-1 font-semibold">
+                @if ($product->stock > 0)
+                    <span class="text-green-500">In stock</span>
+                @else
+                    <span class="text-red-500">Out of stock</span>
+                @endif
             </div>
         </div>
 
         <div class="col-span-full lg:col-span-2 lg:m-auto">
             <form action="{{ route('cart.add', $product) }}" data-action="submit->cart#add" method="post">
                 @csrf
-                <button type="submit" class="px-4 py-3 bg-black border-2 border-black hover:bg-white hover:text-black  text-white duration-300">
+                <button @disabled($product->stock <= 0) type="submit" class="px-4 py-3 bg-black border-2 border-black hover:bg-white hover:text-black disabled:bg-black/40 disabled:border-none disabled:hover:bg-black/40 text-white duration-300 disabled:text-white">
                     Add to cart 
                     <x-heroicon-c-shopping-bag class="inline-block w-5 h-5 -translate-y-1 ml-1"/>
                 </button>
+
             </form>
 
         </div>

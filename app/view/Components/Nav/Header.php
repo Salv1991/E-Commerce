@@ -19,7 +19,7 @@ class Header extends Component
     public $isCartView;
     public $cartSubtotal;
 
-    public function __construct( protected CartService $cartService)
+    public function __construct(protected CartService $cartService)
     {       
         $this->cart = collect();
         $this->cartCount = 0;
