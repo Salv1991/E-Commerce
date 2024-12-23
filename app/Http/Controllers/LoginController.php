@@ -26,6 +26,7 @@ class LoginController extends Controller
 
             if(!empty($guestCart)){
                 $this->cartService->mergeCarts($guestCart);
+                session()->forget('cart');
             }
 
             $request->session()->regenerate();

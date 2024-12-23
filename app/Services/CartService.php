@@ -361,9 +361,7 @@ class CartService
                     'price' => $lineItem['price']
                 ]);
             }
-        }
-
-        session()->forget('cart');
+        }     
     }
 
 }

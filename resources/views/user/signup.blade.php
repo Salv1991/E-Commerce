@@ -7,13 +7,13 @@
                 <h1 class="text-3xl font-semibold">Sign Up</h1>
                 <form action="{{route('signup.create')}}" method="POST" class="mt-10">
                     @csrf
-                    <x-form.input label="Name" name="name" placeholder="Name" />
+                    <x-form.input required label="Name" name="name" placeholder="Name" />
                     
-                    <x-form.input label="E-mail" name="email" placeholder="E-mail" />
+                    <x-form.input required label="E-mail" name="email" placeholder="E-mail" />
                        
-                    <x-form.input label="Password" name="password" placeholder="Password" />
+                    <x-form.input required label="Password" name="password" placeholder="Password" />
                     
-                    <x-form.input label="Confirm Password" name="password_confirmation" placeholder="Confirm Password" />
+                    <x-form.input required label="Confirm Password" name="password_confirmation" placeholder="Confirm Password" />
                  
                     <button type="submit" class="font-semibold mt-5 rounded-full px-5 py-4 w-full text-white text-base bg-gradient-to-br from-red-500 to-pink-500">
                         Sign Up

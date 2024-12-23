@@ -38,11 +38,12 @@ class SignupController extends Controller
 
         if(!empty($guestCart)){
             $this->cartService->mergeCarts($guestCart);
+            session()->forget('cart');
         }
 
         session()->flash('success', 'Registration successful! Welcome, ' . $user->name . '!');
 
-        return redirect()->back();
+        return redirect('/');
     }
 
 }

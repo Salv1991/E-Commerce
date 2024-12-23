@@ -129,9 +129,9 @@
                             <span id="vat-price">{{number_format($cartSubtotal * config('app.vat_rate'), 2)}}$</span>
                         </div> 
                     </div>
-                    <button id="checkout-button" @disabled($cart->count() <= 0) class="w-full mt-2 px-4 py-4 bg-black disabled:bg-black/40 border-2 border-black disabled:border-none disabled:hover:bg-black/40 hover:bg-white 
+                    <button id="checkout-button" @disabled($cart->count() <= 0) class="w-full mt-2 bg-black disabled:bg-black/40 border-2 border-black disabled:border-none disabled:hover:bg-black/40 hover:bg-white 
                         hover:text-black disabled:text-white text-white duration-300">
-                        <a href="{{ route('checkout.login') }}" class="text-center">Proceed to Checkout</a> 
+                        <a href="{{ route('checkout.login') }}" class="text-center block w-full h-full px-4 py-4">Proceed to Checkout</a> 
                     </button>                
                 </div>
             </div>

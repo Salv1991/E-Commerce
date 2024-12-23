@@ -8,9 +8,9 @@
                 <form action="/login" method="POST" class="mt-10">
                     @csrf
 
-                    <x-form.input label="E-mail" name="email" placeholder="E-mail"/>
+                    <x-form.input required label="E-mail" name="email" placeholder="E-mail"/>
 
-                    <x-form.input label="Password" name="password" placeholder="Password" />
+                    <x-form.input required label="Password" name="password" placeholder="Password" />
                                  
                     @if ($errors->any())
                         <div class="text-red-500">

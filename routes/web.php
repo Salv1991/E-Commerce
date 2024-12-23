@@ -38,6 +38,7 @@ Route::delete('/cart/{id}', [CartController::class, 'delete'])->name('cart.delet
 
 Route::get('/checkout/login', [CheckoutController::class, 'login'])->name('checkout.login');
 Route::get('/checkout/customer-information', [CheckoutController::class, 'customer'])->name('checkout.customer');
+Route::post('/checkout/customer-information', [CheckoutController::class, 'storeCustomerInformation'])->name('checkout.customer.submit');
 
 Route::get('/contact', function(){
     return view('contact');
