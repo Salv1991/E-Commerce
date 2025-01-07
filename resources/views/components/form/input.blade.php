@@ -9,10 +9,16 @@
         type="text" 
         placeholder="{{ $placeholder }}" 
         name="{{ $name }}"
-        value="{{ old($name) }}"
-        @if($attributes->has('required'))
-         required
+        value="{{ $value }}"
+
+        @if($attributes->has('required')) 
+            required 
         @endif
+
+        @if($attributes->has('readonly')) 
+            readonly 
+        @endif
+        
         class="w-full mt-2 px-5 py-4 rounded-full bg-gray-50 focus:outline-none focus:ring-1 focus:ring-red-300 focus:border-red-300">
         @if ($errors->any())
             <span class="pl-2 text-sm text-red-500">

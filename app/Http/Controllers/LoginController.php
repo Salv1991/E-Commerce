@@ -32,7 +32,11 @@ class LoginController extends Controller
             $request->session()->regenerate();
 
             session()->flash('success', 'Welcome back, ' . Auth::user()->name . '!');
-
+            
+            if (url()->previous() == route('checkout.login')) {
+                return redirect()->route('checkout.customer');
+            }
+            
             return redirect('/');
         }
 

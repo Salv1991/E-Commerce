@@ -44,6 +44,10 @@ class User extends Authenticatable
         ];
     }
 
+    public function customerInformation() {
+        return $this->hasOne(CustomerInformation::class);    
+    }
+
     public function orders() {
         return $this->hasMany(Order::class);
     }
@@ -67,4 +71,20 @@ class User extends Authenticatable
     public function cartQuantity() {
         return $this->currentOrder()->sum('quantity');
     } 
+
+    public function getCustomerData() {
+        $customerInformation = $this->customerInformation()->first();
+        
+        return [
+            'name' => $this->name,
+            'email' => $this->email,
+            'address' => $customerInformation->address ?? '',
+            'postal_code' =>$customerInformation->postal_code  ?? '',
+            'floor' => $customerInformation->floor ?? '',
+            'country' => $customerInformation->country ?? '',
+            'city' => $customerInformation->city ?? '',
+            'mobile' => $customerInformation->mobile ?? '',
+            'alternative_phone' => $customerInformation->alternative_phone ?? '',
+        ];
+    }
 }

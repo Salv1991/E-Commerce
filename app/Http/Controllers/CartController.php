@@ -12,16 +12,20 @@ class CartController extends Controller
 
     public function index(){
         $wishlistedProductsIds = collect();
+        $cartData = $this->cartService->getCartData();
 
         if(Auth::check()) {
             $wishlistedProductsIds = Auth::user()->wishlistedProductsIds();
         };
-
-        $cartData = $this->cartService->getCartData();
-        $cartSubtotal = $cartData['cartSubtotal'];
-        $cart = $cartData['cart'];
-        $shippingFee = $cartData['shippingFee'];
-        return view('cart', compact(['cart', 'shippingFee', 'cartSubtotal', 'wishlistedProductsIds']));
+ 
+        return view('cart', [
+            'cart' => $cartData['cart'],
+            'shippingFee' => $cartData['shipping_fee'],
+            'paymentFee' => $cartData['payment_fee'],
+            'cartSubtotal' => $cartData['cartSubtotal'],
+            'cartTotal' => $cartData['cartTotal'],
+            'wishlistedProductsIds' => $wishlistedProductsIds,
+        ]);     
     }
 
     public function add($id){

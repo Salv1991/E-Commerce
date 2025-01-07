@@ -6,7 +6,6 @@ use App\Models\LineItem;
 use App\Models\Order;
 use App\Models\Product;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Session;
 
 class CartService
 {
@@ -14,10 +13,7 @@ class CartService
     public function getCartData()
     {
         $cartData = [
-            'cart' => collect(),
-            'cartCount' => 0,
-            'cartSubtotal' => 0,
-            'shippingFee' => 0
+            
         ];
 
         if (Auth::check()) {
@@ -38,12 +34,16 @@ class CartService
 
                 $cartData['cartCount'] = $currentOrder->lineItemsQuantity();
                 $cartData['cartSubtotal'] = $currentOrder->subtotal;
-                $cartData['shippingFee'] = $currentOrder->shipping_fee;
+                $cartData['cartTotal'] = $currentOrder->total_price;
+                $cartData['shipping_method'] = $currentOrder->shipping_method;
+                $cartData['shipping_fee'] = $currentOrder->shipping_fee;
+                $cartData['payment_method'] = $currentOrder->payment_method;
+                $cartData['payment_fee'] = $currentOrder->payment_fee;
             }
 
         } else {
-            $guestCart = collect(Session::get('cart', []));
-
+            $guestCart = collect(session()->get('cart', []));
+            
             if ($guestCart->isNotEmpty()) {
                 $productIds = $guestCart->pluck('product_id')->unique();
                 $products = Product::with('images')->whereIn('id', $productIds)->get();
@@ -55,7 +55,7 @@ class CartService
                             'id' => $product->id,
                             'product' => $product,
                             'quantity' => $quantity,
-                            'price' => $quantity * $product->current_price,
+                            'price' => $product->current_price,
                             'availability' => $product->stock  > 0 ? 'In stock' : 'Out of stock',   
                         ];
                     }
@@ -66,11 +66,21 @@ class CartService
                     return $product->quantity * $product->price;
                 });
 
-                if($cartData['cartSubtotal'] == 0 || $cartData['cartSubtotal'] > config('app.free_shipping_min_subtotal')) {
-                    $cartData['shippingFee'] = 0;
-                } else {
-                    $cartData['shippingFee'] = number_format(config('app.shipping_fee'), 2);
+                $selectedShippingMethod = session('guest_shipping_method');
+                $cartData['shipping_method'] = $selectedShippingMethod['shipping_method'];
+                $cartData['shipping_fee'] = 0;
+                
+                $selectedPaymentMethod = session('guest_payment_method');
+                $cartData['payment_method'] = $selectedPaymentMethod['payment_method'];
+                $cartData['payment_fee'] = $selectedPaymentMethod['extra_cost'] ;
+
+                if ($cartData['cartSubtotal'] > 0 && $cartData['cartSubtotal'] <= config('app.free_shipping_min_subtotal')) {
+                    $shippingMethods = config('app.shipping_methods');
+                    $selectedMethod = $selectedShippingMethod['shipping_method'] ?? array_key_first($shippingMethods);
+                    $cartData['shipping_fee'] = number_format($shippingMethods[$selectedMethod]['extra_cost'] ?? 0, 2);
                 }
+
+                $cartData['cartTotal'] = $cartData['cartSubtotal'] + $cartData['shipping_fee'] + $cartData['payment_fee'];
             }
         }
 
@@ -143,6 +153,20 @@ class CartService
                 ];
             }
 
+            if(!session()->has('guest_shipping_method')){
+                session()->put('guest_shipping_method', [
+                    'shipping_method' => 'elta',
+                    'extra_cost' => number_format(config('app.shipping_methods.elta.extra_cost'), 2),
+                ]);
+            }
+
+            if(!session()->has('guest_payment_method')){
+                session()->put('guest_payment_method', [
+                    'payment_method' => '',
+                    'extra_cost' => 0,
+                ]);
+            }
+
             session()->put('cart', $cart);
             $orderSummary = $this->calculateOrderSummaryForGuest($cart);         
         }
@@ -181,7 +205,7 @@ class CartService
                 $cartCount = $currentOrder->lineItemsQuantity();
             }
         } else {
-            $guestCart = collect(Session::get('cart', []));
+            $guestCart = collect(session()->get('cart', []));
 
             if ($guestCart->isNotEmpty()) {
                 $cartCount = $guestCart->sum('quantity');
@@ -284,30 +308,36 @@ class CartService
         ];
     }
 
-    protected function calculateOrderSummaryForUser($order) {
+    public function calculateOrderSummaryForUser($order) {
         $cartCount = $order->lineItems->sum('quantity'); 
         $cartSubtotal = $order->subtotal; 
+        $cartTotal = $order->total_price; 
         $shippingFee = $order->shipping_fee;
+        $paymentFee = $order->payment_fee;
         $vatPrice = $cartSubtotal * config('app.vat_rate');
 
         return [
             'cartCount' => $cartCount,
             'cartSubtotal' => number_format($cartSubtotal, 2),
             'vatPrice' => number_format($vatPrice, 2),
-            'shippingFee' =>$shippingFee,
-            'cartTotal' => number_format($cartSubtotal + $shippingFee, 2),
+            'shippingFee' =>number_format($shippingFee, 2),
+            'paymentFee' =>number_format($paymentFee, 2),
+            'cartTotal' => number_format($cartTotal, 2),
         ];
     }  
 
-    protected function calculateOrderSummaryForGuest($cart) {
+    public function calculateOrderSummaryForGuest($cart) {
         $shippingFee = 0;
         $cartCount = array_sum(array_column($cart, 'quantity'));
         $cartSubtotal = array_reduce($cart, function($total, $product){
             return $total + ($product['quantity'] * $product['price']);
         }, 0);
+        $selectedShippingMethod = session()->get('guest_shipping_method');
+        $selectedPaymentMethod = session()->get('guest_payment_method');
+        $paymentFee = $selectedPaymentMethod['extra_cost'];
 
-        if ($cartSubtotal > 0 && $cartSubtotal <= config('app.free_shipping_min_subtotal')) {
-            $shippingFee = config('app.shipping_fee');
+        if ($cartSubtotal > 0 && $cartSubtotal < config('app.free_shipping_min_subtotal')) {
+            $shippingFee = $selectedShippingMethod['extra_cost'];        
         }
 
         $vatPrice = $cartSubtotal * config('app.vat_rate');
@@ -316,8 +346,9 @@ class CartService
             'cartCount' => $cartCount,
             'cartSubtotal' => number_format($cartSubtotal, 2),
             'vatPrice' => number_format($vatPrice, 2),
-            'shippingFee' =>$shippingFee,
-            'cartTotal' => number_format($cartSubtotal + $shippingFee, 2),
+            'shippingFee' =>number_format($shippingFee, 2),
+            'paymentFee' =>number_format($paymentFee, 2),
+            'cartTotal' => number_format($cartSubtotal + $shippingFee + $paymentFee, 2),
         ];
     }  
 

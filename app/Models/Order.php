@@ -39,17 +39,25 @@ class Order extends Model
         });
 
             if($subtotal == 0 || $subtotal > config('app.free_shipping_min_subtotal')) {
-                $shipping_fee = 0;
+                $shipping_fee = 0;    
             } else {
-                $shipping_fee = config('app.shipping_fee');
+                $shippingMethods = config('app.shipping_methods');
+
+                $selectedShippingMethod = $this->shipping_method;
+
+                if($selectedShippingMethod){
+                    $shipping_fee = $shippingMethods[$selectedShippingMethod]['extra_cost'];
+                } else {
+                    $defaultShippingMethod = $shippingMethods[array_key_first($shippingMethods)];
+                    $shipping_fee = $defaultShippingMethod['extra_cost'];
+                }
             }
 
         $this->update([
             'shipping_fee' => $shipping_fee,
             'subtotal' => $subtotal,
-            'total_price' => $subtotal + $shipping_fee
+            'total_price' => $subtotal + $shipping_fee + $this->payment_fee
         ]);
-
-        return number_format($subtotal, 2);
     }
+
 }

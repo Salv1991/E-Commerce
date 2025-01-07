@@ -22,6 +22,8 @@ class ProductImageFactory extends Factory
             'products/product2.jpg',
             'products/product3.jpg',
             'products/product4.jpg',
+            'products/product5.jpg',
+            'products/product6.jpg',
         ];
 
         return [

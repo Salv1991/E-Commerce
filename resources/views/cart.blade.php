@@ -118,10 +118,14 @@
                         <span>Shipping Fee:</span>
                         <span id="shipping-fee">{{$shippingFee > 0 ? number_format($shippingFee , 2) . '$' : 'Free'}}</span>
                     </div>
+                    <div class="flex justify-between items-center">
+                        <span>Payment Fee:</span>
+                        <span id="payment-fee">{{number_format($paymentFee , 2) . '$'}}</span>
+                    </div>
                     <div class="mt-4">
                         <div class="flex justify-between items-center">
                             <span class="text-lg font-bold">Total:</span>
-                            <span class="cart-total font-bold">{{number_format($cartSubtotal, 2)}}$</span>
+                            <span class="cart-total font-bold">{{number_format($cartTotal, 2)}}$</span>
                         </div>  
                         
                         <div class="flex justify-between items-center *:text-xs *:text-gray-600">

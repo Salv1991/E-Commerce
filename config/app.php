@@ -127,6 +127,39 @@ return [
 
     'free_shipping_min_subtotal' => 200,
 
-    'shipping_fee' => number_format(3.40, 2),
+    'shipping_fee' => 3.40,
 
+    'shipping_methods' => [
+        'elta' => [
+            'title' => 'Elta',
+            'extra_cost' => 3.40,
+        ],
+        'fedex' => [
+            'title' => 'Fedex',
+            'extra_cost' => 5.00,
+        ],
+        'dhl' => [
+            'title' => 'DHL',
+            'extra_cost' => 7.50,
+        ],
+        'usps' => [
+            'title' => 'USPS',
+            'extra_cost' => 0.00,
+        ],
+    ],
+
+    'payment_methods' => [
+        'credit_card' => [
+            'title' => 'Credit Card',
+            'extra_cost' => 5.00,
+        ],
+        'paypal' => [
+            'title' => 'PayPal',
+            'extra_cost' => 7.50,
+        ],
+        'bank_transfer' => [
+            'title' => 'Bank Transfer',
+            'extra_cost' => 0.00,
+        ],
+    ],
 ];

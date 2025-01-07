@@ -39,6 +39,10 @@ Route::delete('/cart/{id}', [CartController::class, 'delete'])->name('cart.delet
 Route::get('/checkout/login', [CheckoutController::class, 'login'])->name('checkout.login');
 Route::get('/checkout/customer-information', [CheckoutController::class, 'customer'])->name('checkout.customer');
 Route::post('/checkout/customer-information', [CheckoutController::class, 'storeCustomerInformation'])->name('checkout.customer.submit');
+Route::get('/checkout/order-information', [CheckoutController::class, 'order'])->name('checkout.order');
+Route::post('/checkout/payment-method', [CheckoutController::class, 'updatePaymentMethod'])->name('checkout.order.payment');
+Route::post('/checkout/shipping-method', [CheckoutController::class, 'updateShippingMethod'])->name('checkout.order.shipping');
+Route::post('/checkout/order-complete', [CheckoutController::class, 'completeOrder'])->name('checkout.order.complete');
 
 Route::get('/contact', function(){
     return view('contact');

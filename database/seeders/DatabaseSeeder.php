@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Category;
+use App\Models\CustomerInformation;
 use App\Models\User;
 use App\Models\ProductImage;
 use Illuminate\Database\Seeder;
@@ -14,15 +15,26 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        //Creates users and admin user.
-        User::factory()->create([
+        //Creates user
+        $user = User::factory()->create([
             'name' => 'user',
             'email' => 'user@user.com',
             'password' => 'user1234',
             'admin' => false,
         ]);
         
-        User::factory(10)->create();
+        $user->customerInformation()->create([
+            'address' => 'Test Street 20',
+            'postal_code' => '12345',
+            'floor' => '1',
+            'country' => 'USA',
+            'city' => 'New York',
+            'mobile' => '6900000000',
+            'alternative_phone' => null,
+        ]);
+
+        //Creates 10 users with information.
+        CustomerInformation::factory(10)->create();
 
         //Creates Products with Images.
         $productsWithImages = ProductImage::factory(50)->create();
@@ -48,11 +60,10 @@ class DatabaseSeeder extends Seeder
         //Creates 2nd depth Categories.
         $childrenCategories = collect();
         foreach ($firstDepthCategories as $firstDepthCategory) {
-            $secondDepthCategories = Category::factory(4)->sequence(
+            $secondDepthCategories = Category::factory(3)->sequence(
                 ['parent_id' => $firstDepthCategory->id, 'depth' => 2, 'weight' => 0],
                 ['parent_id' => $firstDepthCategory->id, 'depth' => 2, 'weight' => 1],
                 ['parent_id' => $firstDepthCategory->id, 'depth' => 2, 'weight' => 2],
-                ['parent_id' => $firstDepthCategory->id, 'depth' => 2, 'weight' => 3]
             )->create();
 
             $childrenCategories = $childrenCategories->concat($secondDepthCategories);

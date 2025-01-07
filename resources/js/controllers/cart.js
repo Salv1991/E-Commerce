@@ -38,13 +38,12 @@ export default class extends Controller {
 
     updateCartUi(data) {
         this.cartCount.textContent = data.cartCount;
-
         if(this.orderSummaryContainer) {
             this.cartTotalContainer.textContent = `${data.cartTotal}$`;
             this.cartSubtotalContainer.textContent = `${data.cartSubtotal}$`;
             this.vatPrice.textContent = `${data.vatPrice}$`;
 
-            if(data.cartTotal == 0) {
+            if(data.cartSubtotal == 0) {
                 this.checkoutButton.setAttribute('disabled', true);
             } else {
                 this.checkoutButton.removeAttribute('disabled');
@@ -53,7 +52,7 @@ export default class extends Controller {
             if(data.shippingFee == 0){
                 this.shippingFee.textContent = 'Free';
             } else {
-                this.shippingFee.textContent = `${data.shippingFee.toFixed(2)}$`;
+                this.shippingFee.textContent = `${data.shippingFee}$`;
             }
             
         } else {
@@ -110,6 +109,7 @@ export default class extends Controller {
         this.fetchData(selectedCartForm, formData)
         .then(data => {
             if(!data.error){
+                console.log(data);
                 const quantityContainer = quantityButton.closest('.quantity-container');
                 const buttons = quantityContainer.querySelectorAll('button[name="quantity"]');
                 const quantity = data.quantity;
@@ -120,6 +120,7 @@ export default class extends Controller {
 
                 this.updateCartUi(data);
                 this.toggleEmptyCartMessage(data.cartCount);
+                console.log(data);
 
                 buttons.forEach(button => {
                     if(quantity == 0) { 

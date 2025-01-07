@@ -5,6 +5,7 @@ import MyCarousel from "./controllers/myCarousel";
 import Filter from "./controllers/filter";
 import Cart from "./controllers/cart";
 import lineItemQuantity from "./controllers/lineItemQuantity";
+import Order from "./controllers/order";
 
 const application = Application.start();
 application.register("responsive-nav-menu", ResponsiveNavMenu);
@@ -13,3 +14,4 @@ application.register("cart", Cart);
 // application.register("my-carousel", MyCarousel);
 application.register("filter", Filter);
 application.register("lineItemQuantity", lineItemQuantity);
+application.register("order", Order);
