@@ -144,7 +144,7 @@ return [
         ],
         'usps' => [
             'title' => 'USPS',
-            'extra_cost' => 0.00,
+            'extra_cost' => 10.00,
         ],
     ],
 
@@ -159,7 +159,7 @@ return [
         ],
         'bank_transfer' => [
             'title' => 'Bank Transfer',
-            'extra_cost' => 0.00,
+            'extra_cost' => 2.00,
         ],
     ],
 ];

@@ -1,5 +1,5 @@
 <x-layout :hideHeader="true">
-    <div class="bg-white">
+    <div class="bg-white min-h-[100vh]">
         <div class="mb-10 max-w-screen-xl m-auto px-5 pt-20 relative" data-controller="order">
             <a href="/" class="block w-fit m-auto" >
                 <img src="{{ asset('svg/logo.svg') }}" alt="Logo" class="w-20 h-20">
@@ -63,7 +63,7 @@
                                         </div>
                                     </label>
                                 @endforeach
-                                
+
                                 @if ($errors->has('payment_method'))
                                     <span class="pl-2 text-sm text-red-500">
                                         {{ $errors->first('payment_method') }}

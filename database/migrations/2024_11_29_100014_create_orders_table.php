@@ -20,7 +20,7 @@ return new class extends Migration
             $table->integer('discount')->nullable();
             $table->string('payment_method')->nullable();
             $table->decimal('payment_fee', 10, 2)->default(0);
-            $table->string('shipping_method')->nullable();
+            $table->string('shipping_method')->nullable()->default('elta');
             $table->decimal('shipping_fee', 10, 2)->default(0);
             $table->boolean('paid')->default(false);
             $table->json('adress')->nullable();

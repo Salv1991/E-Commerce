@@ -13,7 +13,14 @@ class CartService
     public function getCartData()
     {
         $cartData = [
-            
+            'cart' => collect(),
+            'cartCount' => 0,
+            'cartSubtotal' => 0,
+            'cartTotal' => 0,
+            'shipping_method' => null,
+            'shipping_fee' => 0,
+            'payment_method' => null,
+            'payment_fee' => 0,
         ];
 
         if (Auth::check()) {
@@ -66,20 +73,36 @@ class CartService
                     return $product->quantity * $product->price;
                 });
 
-                $selectedShippingMethod = session('guest_shipping_method');
-                $cartData['shipping_method'] = $selectedShippingMethod['shipping_method'];
-                $cartData['shipping_fee'] = 0;
-                
-                $selectedPaymentMethod = session('guest_payment_method');
-                $cartData['payment_method'] = $selectedPaymentMethod['payment_method'];
-                $cartData['payment_fee'] = $selectedPaymentMethod['extra_cost'] ;
+                $guestShippingMethod = session('guest_shipping_method');           
+                $guestPaymentMethod = session('guest_payment_method');
 
-                if ($cartData['cartSubtotal'] > 0 && $cartData['cartSubtotal'] <= config('app.free_shipping_min_subtotal')) {
-                    $shippingMethods = config('app.shipping_methods');
-                    $selectedMethod = $selectedShippingMethod['shipping_method'] ?? array_key_first($shippingMethods);
-                    $cartData['shipping_fee'] = number_format($shippingMethods[$selectedMethod]['extra_cost'] ?? 0, 2);
+                $availableShippingMethods = config('app.shipping_methods'); 
+
+                if( isset($availableShippingMethods[$guestShippingMethod['shipping_method']]) ){
+                    $selectedMethod = $guestShippingMethod['shipping_method'];
+                } else {
+                    $selectedMethod = array_key_first($availableShippingMethods);
+                }
+          
+                $cartData['shipping_method'] = $selectedMethod;
+
+                if($cartData['cartSubtotal'] > 0 && $cartData['cartSubtotal'] <= config('app.free_shipping_min_subtotal')) {                
+                    $cartData['shipping_fee'] = number_format($availableShippingMethods[$selectedMethod]['extra_cost'], 2);
+                } else {
+                    $cartData['shipping_fee'] = 0;
                 }
 
+                $availablePaymentMethods = config('app.payment_methods');     
+
+                if(isset($availablePaymentMethods[$guestPaymentMethod['payment_method']])){
+                    $selectedPaymentMethod = $guestPaymentMethod['payment_method'];
+                } else {
+                    $selectedPaymentMethod = array_key_first($availablePaymentMethods);
+                }
+
+                $cartData['payment_method'] = $selectedPaymentMethod ; 
+                $cartData['payment_fee'] = number_format($availablePaymentMethods[$selectedPaymentMethod]['extra_cost'], 2);
+                
                 $cartData['cartTotal'] = $cartData['cartSubtotal'] + $cartData['shipping_fee'] + $cartData['payment_fee'];
             }
         }
@@ -87,7 +110,7 @@ class CartService
         return $cartData;
     }
 
-    public function addProductToCart($id){
+    public function addProductToCart($id) {
         $product = Product::find($id);
         $cartSubtotal = 0;
         $cartCount = 0;
@@ -98,9 +121,9 @@ class CartService
         }
 
         if(Auth::check()){
-            $user = Auth::user();
-            $currentOrder = $user->currentOrder()->with('lineItems')->first();
-            
+            $user = Auth::user()->load('currentOrder.lineItems');
+            $currentOrder = $user->currentOrder;
+
             if(!$currentOrder){
                 $currentOrder = Order::create([
                     'user_id' => $user->id,
@@ -198,8 +221,8 @@ class CartService
         $cartCount = 0;
 
         if (Auth::check()) {
-            $user = Auth::user();
-            $currentOrder = $user->currentOrder()->first();
+            $user = Auth::user()->load('currentOrder');
+            $currentOrder = $user->currentOrder;
 
             if ($currentOrder) {
                 $cartCount = $currentOrder->lineItemsQuantity();
@@ -353,8 +376,8 @@ class CartService
     }  
 
     public function mergeCarts($guestCart) {
-        $user = Auth::user();
-        $currentOrder = $user->currentOrder()->first();
+        $user = Auth::user()->load('currentOrder');
+        $currentOrder = $user->currentOrder;
 
         if(!$currentOrder){
             $currentOrder = Order::create([

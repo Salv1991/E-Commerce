@@ -2,9 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\LineItem;
+use App\Models\Order;
+use App\Models\User;
 use App\Services\CartService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class CheckoutController extends Controller
 {
@@ -41,6 +45,11 @@ class CheckoutController extends Controller
     public function customer(CartService $cartService) {
         $currentStep = 3;
         $cartData = $cartService->getCartData();
+        
+        if($cartData['cart']->isEmpty()){
+            abort(400, 'Empty cart.');
+        }
+        
         $customerData = [];
 
         if(Auth::check()){
@@ -72,13 +81,13 @@ class CheckoutController extends Controller
         ]);
 
         if(Auth::check()) {
-            $user = Auth::user();
+            $user = Auth::user()->load('customerInformation');
 
             if ($validatedData['email'] !== $user->email) {
                 abort(403, "Email mismatch.");
             }
 
-            $user->customerInformation()->updateOrCreate(
+            $user->customerInformation->updateOrCreate(
                 ['user_id' => $user->id],
                 $validatedData
             );
@@ -91,6 +100,10 @@ class CheckoutController extends Controller
        
     public function order(CartService $cartService){
         $cartData = $cartService->getCartData();
+
+        if($cartData['cart']->isEmpty()){
+            abort(400, 'Empty cart.');
+        }
 
         $customerData = [];
 
@@ -201,16 +214,78 @@ class CheckoutController extends Controller
     }
 
     public function completeOrder(CartService $cartService, Request $request) {
-        $cartData = $cartService->getCartData();
-
         $availableShippingMethods = implode( ',', array_keys( config('app.shipping_methods') ));
         $availablePaymentMethods = implode( ',', array_keys( config('app.payment_methods') ));
         
-        $validatedData = $request->validate([
+        $request->validate([
             'payment_method' =>  'required|in:' . $availablePaymentMethods,
             'shipping_method' => 'required|in:' . $availableShippingMethods, 
         ]);
 
-        dd($request->all());
+        $cartData = $cartService->getCartData();
+        
+        if($cartData['cart']->isEmpty()){
+            abort(400, 'Empty cart.');
+        }
+
+        if(Auth::check()) {
+            $currentOrder = Auth::user()->currentOrder()->first();
+            
+            $currentOrder->update([
+                'status' => 'completed'
+            ]) ;
+
+        } else {
+            $guestCustomerInformation = session('guest_customer_information');
+
+            if (!isset($guestCustomerInformation['name'], $guestCustomerInformation['email'], $guestCustomerInformation['adress'])) {
+                abort(400, 'Incomplete customer information.');
+            }
+
+            DB::transaction(function () use ($cartData, $guestCustomerInformation){  
+                $user = User::firstOrCreate(
+                    ['email' => $guestCustomerInformation['email']],
+                    [
+                        'name' => $guestCustomerInformation['name'],
+                        'password' => 123213,
+                        'is_guest' => true
+                    ]
+                );
+
+                if(!$user) {
+                    return redirect('/')->with(['error' => 'Something went wrong with the completion of order']);
+                }
+
+                $order = Order::create([
+                    'user_id' => $user->id,
+                    'status' => 'completed',
+                    'total_price' => $cartData['cartTotal'],    
+                    'subtotal' => $cartData['cartSubtotal'],    
+                    'discount' => 0,    
+                    'payment_method' => $cartData['payment_method'],    
+                    'payment_fee' => $cartData['payment_fee'],
+                    'shipping_method' => $cartData['shipping_method'],    
+                    'shipping_fee' => $cartData['shipping_fee'],  
+                    'paid' => false,  
+                    'adress' => $guestCustomerInformation['cartTotal'],  
+                ]);
+
+                $lineItemsToInsert = [];
+                foreach($cartData['cart'] as $item) {
+                    $lineItemsToInsert[] = [
+                        'order_id' => $order->id,
+                        'product_id' => $item->product->id,
+                        'quantity' => $item->quantity ,
+                        'price' => $item->price,
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ];
+                }
+
+                LineItem::insert($lineItemsToInsert);
+            });
+        }
+
+        return redirect('/');
     }
 }
