@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Client\Request;
+use Illuminate\Support\Facades\Auth;
 
 class Order extends Model
 {
@@ -20,6 +22,10 @@ class Order extends Model
         'payment_fee',
         'paid'    
     ];
+
+    protected static function booted(){      
+       
+    }
 
     public function lineItems() {
         return $this->hasMany(LineItem::class);
@@ -39,7 +45,7 @@ class Order extends Model
         });
         $shippingMethods = config('app.shipping_methods');
 
-            if($subtotal == 0 || $subtotal > config('app.free_shipping_min_subtotal')) {
+            if($subtotal == 0 || $subtotal >= config('app.free_shipping_min_subtotal')) {
                 $shipping_fee = 0;    
                 $selectedShippingMethod = array_key_first($shippingMethods);
             } else {
@@ -60,6 +66,16 @@ class Order extends Model
             'subtotal' => $subtotal,
             'total_price' => $subtotal + $shipping_fee + $this->payment_fee
         ]);
+    }
+
+    public function calculateFeesAndPrices() {
+
+        $currentOrder = Auth::user()->currentOrder()->first();
+
+        $currentOrder->update([
+            'total_price' => $currentOrder->subtotal + $currentOrder->payment_fee + $currentOrder->shipping_fee,
+        ]);
+        
     }
 
 }

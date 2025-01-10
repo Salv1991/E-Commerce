@@ -1,7 +1,7 @@
 <x-layout>
     <div class="mt-16 max-w-screen-xl m-auto p-6">
 
-        <h1 class="text-center text-4xl font-semibold">My Cart</h1>
+        <h1 class="text-center text-4xl font-semibold">Cart</h1>
 
         <div class="mt-14 grid grid-cols-6 items-start gap-8 bg-gray-100">
             <div 

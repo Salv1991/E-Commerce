@@ -130,6 +130,7 @@ class CartService
                     'status' => 'pending',
                     'subtotal' => 0,
                     'total_price' => 0,
+                    
                 ]);
             }
             

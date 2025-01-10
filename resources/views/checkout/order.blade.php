@@ -148,11 +148,11 @@
                         </span>
                     </div>
                     <div class="grid grid-cols-2 gap-4 mt-6 ">
-                        <a href="{{ route('checkout.customer') }}" class="block bg-transparent border border-black text-center text-sm py-3 px-5">BACK</a>         
+                        <a href="{{ route('checkout.customer') }}" class="block bg-transparent border hover:underline border-black text-center text-sm py-3 px-5">BACK</a>         
                         <button
                             onclick="document.getElementById('shipping-payment-form').submit();" 
                             type="submit" 
-                            class="bg-black border border-black text-white text-center text-sm py-3 px-5">
+                            class="bg-black border border-black hover:underline text-white text-center text-sm py-3 px-5">
                             COMPLETE ORDER
                         </button>
                     </div>

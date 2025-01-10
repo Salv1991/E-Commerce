@@ -19,6 +19,9 @@ class Product extends Model
         'mpn',
         'price',
         'discounted_price',
+        'current_price',
+        'discount',
+        'original_price'
     ];
     
     //protected static function booted() {
