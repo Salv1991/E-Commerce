@@ -22,10 +22,10 @@ class LoginController extends Controller
         ]);
 
         if (Auth::attempt($credentials)) {
-            $guestCart = session()->get('cart', []);
+            $guest = session()->get('guest', []);
 
-            if(!empty($guestCart)){
-                $this->cartService->mergeCarts($guestCart);
+            if(!empty($guest['cart'])){
+                $this->cartService->mergeCarts($guest['cart']);
                 session()->forget('cart');
             }
 

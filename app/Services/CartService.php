@@ -49,8 +49,9 @@ class CartService
             }
 
         } else {
-            $guestCart = collect(session()->get('cart', []));
-            
+            $guest = collect(session()->get('guest', []));
+            $guestCart = collect($guest->get('cart', []));
+
             if ($guestCart->isNotEmpty()) {
                 $productIds = $guestCart->pluck('product_id')->unique();
                 $products = Product::with('images')->whereIn('id', $productIds)->get();
@@ -67,42 +68,46 @@ class CartService
                         ];
                     }
                 })->filter();
-
+                
+                // Cart quantity.
                 $cartData['cartCount'] = $cartData['cart']->sum('quantity');
+
+                // Cart subtotal.
                 $cartData['cartSubtotal'] = $cartData['cart']->sum(function ($product) {
                     return $product->quantity * $product->price;
                 });
 
-                $guestShippingMethod = session('guest_shipping_method');           
-                $guestPaymentMethod = session('guest_payment_method');
-
+                // Shipping method.
                 $availableShippingMethods = config('app.shipping_methods'); 
 
-                if( isset($availableShippingMethods[$guestShippingMethod['shipping_method']]) ){
-                    $selectedMethod = $guestShippingMethod['shipping_method'];
+                if($guest->has('shipping_method') && isset($availableShippingMethods[$guest['shipping_method']['value']])){
+                    $selectedShippingMethod = $guest['shipping_method']['value'];
                 } else {
-                    $selectedMethod = array_key_first($availableShippingMethods);
+                    $selectedShippingMethod = array_key_first($availableShippingMethods);
                 }
-          
-                $cartData['shipping_method'] = $selectedMethod;
 
                 if($cartData['cartSubtotal'] > 0 && $cartData['cartSubtotal'] <= config('app.free_shipping_min_subtotal')) {                
-                    $cartData['shipping_fee'] = number_format($availableShippingMethods[$selectedMethod]['extra_cost'], 2);
+                    $cartData['shipping_fee'] = number_format($availableShippingMethods[$selectedShippingMethod]['extra_cost'], 2);
                 } else {
                     $cartData['shipping_fee'] = 0;
                 }
 
+                $cartData['shipping_method'] = $selectedShippingMethod;
+
+                // Payment method.
                 $availablePaymentMethods = config('app.payment_methods');     
 
-                if(isset($availablePaymentMethods[$guestPaymentMethod['payment_method']])){
-                    $selectedPaymentMethod = $guestPaymentMethod['payment_method'];
+                if($guest->has('payment_method') && isset($availablePaymentMethods[$guest['payment_method']['value']])){
+                    $selectedPaymentMethod = $guest['payment_method']['value'];
+                    $cartData['payment_fee'] = number_format($availablePaymentMethods[$selectedPaymentMethod]['extra_cost'], 2);
                 } else {
-                    $selectedPaymentMethod = array_key_first($availablePaymentMethods);
+                    $selectedPaymentMethod = '';
+                    $cartData['payment_fee'] = 0;
                 }
 
                 $cartData['payment_method'] = $selectedPaymentMethod ; 
-                $cartData['payment_fee'] = number_format($availablePaymentMethods[$selectedPaymentMethod]['extra_cost'], 2);
                 
+                // Cart total.
                 $cartData['cartTotal'] = $cartData['cartSubtotal'] + $cartData['shipping_fee'] + $cartData['payment_fee'];
             }
         }
@@ -116,8 +121,8 @@ class CartService
         $cartCount = 0;
         $lineItemExists = false;
 
-        if(!$product){
-            return ['error' => 'Product not found.'];
+        if(!$product || $product->stock <= 0){
+            return ['error' => 'Product not available.'];
         }
 
         if(Auth::check()){
@@ -143,11 +148,8 @@ class CartService
 
                 $lineItem->increment('quantity');
                 $lineItemExists = true;
+
             } else {
-                 if($product->stock <= 0){
-                    return ['error' => 'Not enough stock available'];
-                }; 
-                
                 $lineItem = LineItem::create([
                     'order_id' => $currentOrder->id,
                     'product_id' => $id,
@@ -160,42 +162,46 @@ class CartService
             $currentOrder = $currentOrder->refresh();
             $orderSummary = $this->calculateOrderSummaryForUser($currentOrder);         
         } else {
-            $cart = session()->get('cart', []);
+            $guest = session()->get('guest', []);
+            $shippingMethod = $guest['shipping_method'] ?? [];
+            $paymentMethod = $guest['payment_method'] ?? [];
 
-            if(isset($cart[$id])){
-                if($cart[$id]['quantity'] >= $product->stock){
+
+            if(isset($guest['cart'][$id])){
+                if($guest['cart'][$id]['quantity'] >= $product->stock){
                     return ['error' => 'Not enough stock available'];
                 } 
 
-                $cart[$id]['quantity']++;
+                $guest['cart'][$id]['quantity']++;
                 $lineItemExists = true;
             }else{
-                $cart[$id] = [
+                $guest['cart'][$id] = [
                     'product_id' => $id,
                     'quantity' => 1,
                     'price' => $product->current_price,    
                 ];
             }
 
-            if(!session()->has('guest_shipping_method')){
-                session()->put('guest_shipping_method', [
-                    'shipping_method' => 'elta',
+            if(empty($shippingMethod)){
+                $guest['shipping_method'] = [
+                    'value' => 'elta',
                     'extra_cost' => number_format(config('app.shipping_methods.elta.extra_cost'), 2),
-                ]);
+                ];
             }
 
-            if(!session()->has('guest_payment_method')){
-                session()->put('guest_payment_method', [
-                    'payment_method' => '',
+            if(empty($paymentMethod)){
+                $guest['payment_method'] = [
+                    'value' => '',
                     'extra_cost' => 0,
-                ]);
+                ];
             }
+            
+            session()->put('guest', $guest);
 
-            session()->put('cart', $cart);
-            $orderSummary = $this->calculateOrderSummaryForGuest($cart);         
+            $orderSummary = $this->calculateOrderSummaryForGuest($guest);         
         }
 
-        $quantity = $lineItem->quantity ?? $cart[$id]['quantity'];
+        $quantity = $lineItem->quantity ?? $guest['cart'][$id]['quantity'];
 
         $data = [
             'message' => 'Product added to cart',
@@ -229,8 +235,9 @@ class CartService
                 $cartCount = $currentOrder->lineItemsQuantity();
             }
         } else {
-            $guestCart = collect(session()->get('cart', []));
-
+            $guest = collect(session()->get('guest', []));
+            $guestCart = collect($guest->get('cart', []));
+            
             if ($guestCart->isNotEmpty()) {
                 $cartCount = $guestCart->sum('quantity');
             }
@@ -259,24 +266,25 @@ class CartService
             $orderSummary = $this->calculateOrderSummaryForUser($currentOrder);        
 
         } else {
-            $cart = session()->get('cart', []);
+            $guest = session()->get('guest', []);
+
             $product = Product::find($id);
 
-            if(!$product || !isset($cart[$id])){
+            if(!$product || !isset($guest['cart'][$id])){
                 return ['error' => 'Product not found.'];
             }
 
             $quantity = min($requestQuantity, $product->stock);
 
             if($quantity <= 0){
-                unset($cart[$id]);
+                unset($guest['cart'][$id]);
             } else {
-                $cart[$id]['quantity'] = $quantity;
+                $guest['cart'][$id]['quantity'] = $quantity;
             }
                     
-            session()->put('cart', $cart);
+            session()->put('guest', $guest);
             
-            $orderSummary = $this->calculateOrderSummaryForGuest($cart);
+            $orderSummary = $this->calculateOrderSummaryForGuest($guest);
          
         }
 
@@ -309,16 +317,16 @@ class CartService
                 return ['error' => 'Product not found.'];
             }
         } else {
-            $cart = session()->get('cart', []);
+            $guest = session()->get('guest', []);
 
-            if(!isset($cart[$id])){
+            if(!isset($guest['cart'][$id])){
                 return ['error' => 'Product not found.'];          
             }
         
-            unset($cart[$id]);         
-            session()->put('cart', $cart);
+            unset($guest['cart'][$id]);         
+            session()->put('guest', $guest);
 
-            $orderSummary = $this->calculateOrderSummaryForGuest($cart);           
+            $orderSummary = $this->calculateOrderSummaryForGuest($guest);           
         }
 
         return [
@@ -350,14 +358,14 @@ class CartService
         ];
     }  
 
-    public function calculateOrderSummaryForGuest($cart) {
+    public function calculateOrderSummaryForGuest($guest) {
         $shippingFee = 0;
-        $cartCount = array_sum(array_column($cart, 'quantity'));
-        $cartSubtotal = array_reduce($cart, function($total, $product){
+        $cartCount = array_sum(array_column($guest['cart'], 'quantity'));
+        $cartSubtotal = array_reduce($guest['cart'], function($total, $product){
             return $total + ($product['quantity'] * $product['price']);
         }, 0);
-        $selectedShippingMethod = session()->get('guest_shipping_method');
-        $selectedPaymentMethod = session()->get('guest_payment_method');
+        $selectedShippingMethod = $guest['shipping_method'];
+        $selectedPaymentMethod = $guest['payment_method'];
         $paymentFee = $selectedPaymentMethod['extra_cost'];
 
         if ($cartSubtotal > 0 && $cartSubtotal < config('app.free_shipping_min_subtotal')) {
@@ -377,7 +385,7 @@ class CartService
     }  
 
     public function mergeCarts($guestCart) {
-        $user = Auth::user()->load('currentOrder');
+        $user = Auth::user()->load('currentOrder.lineItems');
         $currentOrder = $user->currentOrder;
 
         if(!$currentOrder){
@@ -392,6 +400,7 @@ class CartService
         
         $productIds = array_column($guestCart, 'product_id');
         $products = Product::whereIn('id', $productIds)->get()->keyBy('id');
+        $upsertData = [];
 
         foreach($guestCart as $lineItem){
             $product = $products->get($lineItem['product_id']);
@@ -400,23 +409,29 @@ class CartService
                 continue;
             }
 
-            $existingLineItem = LineItem::where('order_id', $currentOrder->id)
-                ->where('product_id', $lineItem['product_id'])
-                ->first();
+            $existingLineItem = $currentOrder->lineItems->firstWhere('product_id', $lineItem['product_id']);
 
             if($existingLineItem){
-                $existingLineItem->update([
-                    'quantity' => min($existingLineItem->quantity + $lineItem['quantity'], $product->stock)    
-                ]);
+                $quantity = min($existingLineItem->quantity + $lineItem['quantity'], $product->stock);    
             } else {
-                LineItem::create([
-                    'order_id' => $currentOrder->id,
-                    'product_id' => $lineItem['product_id'],
-                    'quantity' => min($lineItem['quantity'], $product->stock),
-                    'price' => $lineItem['price']
-                ]);
+                $quantity = min($lineItem['quantity'], $product->stock);
             }
-        }     
+
+            $upsertData[] = [
+                'order_id' => $currentOrder->id,
+                'product_id' => $lineItem['product_id'],
+                'quantity' => $quantity,
+                'price' => $lineItem['price']
+            ];
+        } 
+
+        if (!empty($upsertData)){
+            LineItem::upsert(
+                $upsertData,
+                uniqueBy: ['order_id', 'product_id'],
+                update: ['quantity', 'price'],
+            );
+        }
     }
 
 }

@@ -87,4 +87,62 @@ class CartTest extends TestCase
         $response->assertSeeHtml('<span id="shipping-fee">3.40$</span>');
     }
 
+    public function test_cart_order_summary_for_guest_user() {
+        $product = Product::create(['title' => 'bar', 'current_price' => 20, 'stock' => 22]);
+        $product2 = Product::create(['title' => 'foobar', 'current_price' => 10, 'stock' => 12]);
+        
+        $this->withSession([
+            'guest' => [
+                'cart' => [
+                    $product->id => [
+                        'product_id' => $product->id,
+                        'quantity' => 3,
+                        'price' => $product->price,
+                    ]
+                ],
+                'shipping_method' => [
+                    'value' => 'elta',
+                    'extra_cost' => 3.40,   
+                ],
+                'payment_method' => [
+                    'value' => '',
+                    'extra_cost' => 0,   
+                ],
+            ]
+        ]);
+      
+        $response = $this->get(route('cart'));
+
+        $response->assertStatus(200);
+        
+        $response->assertSee($product->title);
+
+        $response->assertDontSee($product2->title);
+
+        $response->assertSeeHtml('<span class="cart-subtotal">60.00$</span>');
+        $response->assertSeeHtml('<span class="cart-total font-bold">63.40$</span>');
+        
+        $session = session()->get('guest');
+
+        $session['cart'][$product2->id] = [
+            'product_id' => $product2->id,
+            'quantity' => 2,
+            'price' => $product2->price,   
+        ]; 
+
+        $session['payment_method'] = [
+            'value' => 'bank_transfer',
+            'extra_cost' => 0,   
+        ];
+    
+        session()->put('guest', $session);
+
+        $response = $this->get(route('cart'));
+    
+        $response->assertSeeHtml('<span id="shipping-fee">3.40$</span>');
+        $response->assertSeeHtml('<span id="payment-fee">2.00$</span>');
+        $response->assertSeeHtml('<span class="cart-subtotal">80.00$</span>');
+        $response->assertSeeHtml('<span class="cart-total font-bold">85.40$</span>');
+        
+    }
 }

@@ -137,7 +137,7 @@ class CheckoutController extends Controller
             }
 
             if(Auth::check()) {
-                $currentOrder = Auth::user()->currentOrder()->first();
+                $currentOrder = Auth::user()->currentOrder()->firstOrFail();
 
                 $shippingFee = $currentOrder->subtotal < config('app.free_shipping_min_subtotal') 
                     ? $shippingMethods[$selectedShippingMethod]['extra_cost']
@@ -151,13 +151,19 @@ class CheckoutController extends Controller
 
                 $orderSummary = $cartService->calculateOrderSummaryForUser($currentOrder);
     
-            } else {                    
-                session()->put('guest_shipping_method', [
-                    'shipping_method' => $selectedShippingMethod,
-                    'extra_cost' => $shippingMethods[$selectedShippingMethod]['extra_cost']    
-                ]);
+            } else { 
+                $guest = session()->get('guest', []);
+
+                if(isset($guest['shipping_method'])){
+                    $guest['shipping_method'] = [
+                        'value' => $selectedShippingMethod,
+                        'extra_cost' => $shippingMethods[$selectedShippingMethod]['extra_cost']    
+                    ];
+                }
                 
-                $orderSummary = $cartService->calculateOrderSummaryForGuest(session()->get('cart', []));
+                session()->put('guest', $guest);
+
+                $orderSummary = $cartService->calculateOrderSummaryForGuest($guest);
             }
 
             return response()->json([
@@ -194,13 +200,20 @@ class CheckoutController extends Controller
                 
                 $orderSummary = $cartService->calculateOrderSummaryForUser($currentOrder);
     
-            } else {                    
-                session()->put('guest_payment_method', [
-                    'payment_method' => $selectedPaymentMethod,
-                    'extra_cost' => $paymentMethods[$selectedPaymentMethod]['extra_cost']    
-                ]);
+            } else { 
                 
-                $orderSummary = $cartService->calculateOrderSummaryForGuest(session()->get('cart', []));
+                $guest = session()->get('guest', []);
+
+                if(!empty($guest['cart'])){
+                    $guest['payment_method'] = [
+                        'value' => $selectedPaymentMethod,
+                        'extra_cost' => $paymentMethods[$selectedPaymentMethod]['extra_cost']    
+                    ];
+                }
+
+                session()->put('guest', $guest);
+                
+                $orderSummary = $cartService->calculateOrderSummaryForGuest($guest);
             }
 
             return response()->json([

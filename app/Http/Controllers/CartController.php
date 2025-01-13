@@ -24,6 +24,7 @@ class CartController extends Controller
             'paymentFee' => $cartData['payment_fee'],
             'cartSubtotal' => $cartData['cartSubtotal'],
             'cartTotal' => $cartData['cartTotal'],
+            'cartCount' => $cartData['cartCount'],
             'wishlistedProductsIds' => $wishlistedProductsIds,
         ]);     
     }
