@@ -10,6 +10,7 @@ export default class extends Controller {
         this.vatPrice = document.getElementById('vat-price');
         this.checkoutButton = document.getElementById('checkout-button');
         this.shippingFee = document.getElementById('shipping-fee');
+        this.paymentFee = document.getElementById('payment-fee');
         this.cartSubtotalContainer = document.querySelector('#order-summary-container .cart-subtotal');
         this.headerCartTotal = document.querySelector('header .cart-total');
         this.cartTotalContainer = document.querySelector('#order-summary-container .cart-total');
@@ -53,6 +54,13 @@ export default class extends Controller {
                 this.shippingFee.textContent = 'Free';
             } else {
                 this.shippingFee.textContent = `${data.shippingFee}$`;
+            }
+
+            console.log(data);
+            if(data.paymentFee == 0){
+                this.paymentFee.textContent = 'Free';
+            } else {
+                this.paymentFee.textContent = `${data.paymentFee}$`;
             }
             
         } else {

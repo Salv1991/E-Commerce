@@ -23,7 +23,6 @@ return new class extends Migration
             $table->string('shipping_method')->nullable()->default('elta');
             $table->decimal('shipping_fee', 10, 2)->default(0);
             $table->boolean('paid')->default(false);
-            $table->json('adress')->nullable();
             $table->timestamps();
         });
     }

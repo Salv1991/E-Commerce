@@ -30,6 +30,7 @@ class SignupController extends Controller
             'email' => $validatedData['email'],
             'password' => Hash::make($validatedData['password']),
             'admin' => false,
+            'is_guest' => false,
         ]);
 
         Auth::login($user);

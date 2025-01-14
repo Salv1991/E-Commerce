@@ -88,5 +88,167 @@ class OrderTest extends TestCase
         $this->assertEquals(100, $order->subtotal);
         $this->assertEquals(3.40, $order->shipping_fee);
         $this->assertEquals(5, $order->payment_fee);
-        }
+    }
+
+    public function test_complete_order_successfully() {
+        $user = User::create([
+            'name' => 'Test Name',    
+            'email' => 'test1234@example.com',
+            'password' => '12341312'
+        ]);   
+
+        $this->actingAs($user);
+
+        $product1 = Product::create(['title' => 'bar', 'current_price' => 20, 'stock' => 3]);
+        $product2 = Product::create(['title' => 'foobar', 'current_price' => 10, 'stock' => 5]);
+        
+        $order = Order::create([
+            'user_id' => $user->id,
+            'status' => 'pending',
+            'total_price' => 85.4,
+            'subtotal' => 80,
+            'payment_method' => 'bank_transfer',
+            'payment_fee' => 2.00,
+            'shipping_method' => 'elta',
+            'shipping_fee' => 3.40,
+        ]);
+
+        $lineItem1 = LineItem::create([
+            'order_id' => $order->id,
+            'product_id' => $product1->id,
+            'quantity' => 2,
+            'price' => 20, 
+        ]);
+        
+        $lineItem2 = LineItem::create([
+            'order_id' => $order->id,
+            'product_id' => $product2->id,
+            'quantity' => 4,
+            'price' => 10, 
+        ]);
+
+        $response = $this->get(route('cart'));
+
+        $response->assertStatus(200);
+
+        $response = $this->get(route('checkout.login'));
+
+        $response->assertRedirect(route('checkout.customer'));
+
+        $response->assertStatus(302);
+
+        $response = $this->get(route('checkout.order'));
+
+        $response->assertStatus(200);
+        
+        $response = $this->post(route('checkout.order.complete'), [
+            'payment_method' => 'bank_transfer',
+            'shipping_method' => 'elta'    
+        ]);
+
+        $response->assertRedirect('/');
+        
+        $this->assertEquals($order->refresh()->status, 'completed');
+    }
+
+    public function test_complete_order_with_nonexistent_payment_and_shipping_methods() {
+        $user = User::create([
+            'name' => 'Test Name',    
+            'email' => 'test1234@example.com',
+            'password' => '12341312'
+        ]);   
+
+        $this->actingAs($user);
+
+        $product1 = Product::create(['title' => 'bar', 'current_price' => 20, 'stock' => 3]);
+        $product2 = Product::create(['title' => 'foobar', 'current_price' => 10, 'stock' => 5]);
+        
+        $order = Order::create([
+            'user_id' => $user->id,
+            'status' => 'pending',
+            'total_price' => 85.4,
+            'subtotal' => 80,
+            'payment_method' => 'bank_transfer',
+            'payment_fee' => 2.00,
+            'shipping_method' => 'elta',
+            'shipping_fee' => 3.40,
+        ]);
+
+        $lineItem1 = LineItem::create([
+            'order_id' => $order->id,
+            'product_id' => $product1->id,
+            'quantity' => 2,
+            'price' => 20, 
+        ]);
+        
+        $lineItem2 = LineItem::create([
+            'order_id' => $order->id,
+            'product_id' => $product2->id,
+            'quantity' => 4,
+            'price' => 10, 
+        ]);
+
+        $response = $this->get(route('cart'));
+
+        $response->assertStatus(200);
+
+        $response = $this->get(route('checkout.login'));
+
+        $response->assertRedirect(route('checkout.customer'));
+
+        $response->assertStatus(302);
+
+        $response = $this->get(route('checkout.order'));
+
+        $response->assertStatus(200);
+        
+        $response = $this->post(route('checkout.order.complete'), [
+            'payment_method' => 'test_method',
+            'shipping_method' => 'elta'    
+        ]);
+
+        $response->assertRedirect(route('checkout.order'));
+
+        $response->assertSessionHasErrors(['payment_method']);
+    }
+
+    public function test_order_payment_method_with_additional_fees()
+    {
+        $product = Product::create(['current_price' => 100, 'stock' => 22]);
+        
+        $user = User::create(['name' => 'test', 'email' => 'test@test.com', 'password' => '123123123']);
+        
+        $this->actingAs($user);    
+        
+        $order = Order::create([
+            'user_id' => $user->id,  
+            'status' => 'pending', 
+            'subtotal' => 100,
+            'total_price' => 103.40,
+            'payment_method' => 'credit_card',
+            'payment_fee' => 5,
+            'shipping_method' => 'elta',
+            'shipping_fee' => 3.40,
+        ]);
+
+        $lineItem = LineItem::create([
+            'order_id' => $order->id,
+            'product_id' => $product->id,
+            'quantity' => 1,
+            'price' => 100,
+        ]);
+
+        $order->update(['shipping_method' => 'usps']);
+        $order->refresh();
+        $user->currentOrder->calculateSubtotal();
+
+        $response = $this->post(route('checkout.order.complete'), [
+            'payment_method' => 'paypal', 
+            'shipping_method' => 'elta',
+        ]);
+
+        $user->currentOrder->refresh();
+        $this->assertEquals(117.5, $order->total_price); 
+        //order on update event and withNoEvents on checkoutcontroller methods?
+    }
 }

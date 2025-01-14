@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CustomerInformation;
 use App\Models\LineItem;
 use App\Models\Order;
 use App\Models\User;
@@ -9,6 +10,7 @@ use App\Services\CartService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class CheckoutController extends Controller
 {
@@ -50,14 +52,9 @@ class CheckoutController extends Controller
             abort(400, 'Empty cart.');
         }
         
-        $customerData = [];
-
-        if(Auth::check()){
-            $customerData = Auth::user()->getCustomerData();
-
-        } else if (session()->has('guest_customer_information')){
-            $customerData = session()->get('guest_customer_information');
-        }
+        $customerData = Auth::check() 
+            ? Auth::user()->getCustomerData() 
+            : session('guest_customer_information', []);
 
         return view('checkout.customer', [
             'currentStep' => $currentStep,
@@ -69,15 +66,15 @@ class CheckoutController extends Controller
 
     public function storeCustomerInformation (Request $request){
         $validatedData = $request->validate([
-            'email' => ['required', 'email', 'max:255'],
-            'name' => ['required', 'string', 'max:255'],
-            'address' => ['required', 'string'],
-            'postal_code' => 'required|string',
-            'floor' => 'nullable|string',
-            'country' => ['required', 'string'],
-            'city' => ['required', 'string'],
-            'mobile' => ['required', 'string'],
-            'alternative_phone' => 'nullable|string',
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'address' => 'required|string|max:255',
+            'postal_code' => 'required|string|max:20',
+            'floor' => 'nullable|string|max:100',
+            'country' => 'required|string|max:100',
+            'city' => 'required|string|max:100',
+            'mobile' => 'required|string|max:20',
+            'alternative_phone' => 'nullable|string|max:20',
         ]);
 
         if(Auth::check()) {
@@ -229,45 +226,76 @@ class CheckoutController extends Controller
     public function completeOrder(CartService $cartService, Request $request) {
         $availableShippingMethods = implode( ',', array_keys( config('app.shipping_methods') ));
         $availablePaymentMethods = implode( ',', array_keys( config('app.payment_methods') ));
-        
+
         $request->validate([
             'payment_method' =>  'required|in:' . $availablePaymentMethods,
             'shipping_method' => 'required|in:' . $availableShippingMethods, 
         ]);
 
         $cartData = $cartService->getCartData();
-        
         if($cartData['cart']->isEmpty()){
             abort(400, 'Empty cart.');
         }
 
         if(Auth::check()) {
-            $currentOrder = Auth::user()->currentOrder()->first();
-            
-            $currentOrder->update([
-                'status' => 'completed'
-            ]) ;
+            $currentOrder = Auth::user()->currentOrder()->firstOrFail();
+
+            DB::transaction(function () use ($currentOrder) {
+                foreach($currentOrder->lineItems as $lineItem) {
+                    $product = $lineItem->product;
+
+                    if($product->stock <= 0 || $product->stock < $lineItem->quantity) {
+                        throw new \Exception('Insufficient stock for product: ' . $product->id);
+                    }
+
+                    $product->decrement('stock', $lineItem->quantity);
+                }
+            });
+
+            $currentOrder->update(['status' => 'completed']);
 
         } else {
             $guestCustomerInformation = session('guest_customer_information');
 
-            if (!isset($guestCustomerInformation['name'], $guestCustomerInformation['email'], $guestCustomerInformation['adress'])) {
-                abort(400, 'Incomplete customer information.');
-            }
+            $validatedCustomerData = $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|max:255',
+                'address' => 'required|string|max:255',
+                'postal_code' => 'required|string|max:20',
+                'floor' => 'nullable|string|max:100',
+                'country' => 'required|string|max:100',
+                'city' => 'required|string|max:100',
+                'mobile' => 'required|string|max:20',
+                'alternative_phone' => 'nullable|string|max:20',
+            ]);
 
-            DB::transaction(function () use ($cartData, $guestCustomerInformation){  
+            DB::transaction(function () use ($cartData, $guestCustomerInformation, $validatedCustomerData){  
                 $user = User::firstOrCreate(
                     ['email' => $guestCustomerInformation['email']],
                     [
                         'name' => $guestCustomerInformation['name'],
                         'password' => 123213,
-                        'is_guest' => true
+                        'is_guest' => true,
+                        'admin' => false,
                     ]
                 );
 
                 if(!$user) {
                     return redirect('/')->with(['error' => 'Something went wrong with the completion of order']);
                 }
+
+               CustomerInformation::updateOrCreate(
+                    ['user_id' => $user->id],                    
+                    [
+                        'address' => $validatedCustomerData['address'],
+                        'postal_code' => $validatedCustomerData['postal_code'],
+                        'floor' => $validatedCustomerData['floor'] ?? '',
+                        'country' => $validatedCustomerData['country'],
+                        'city' => $validatedCustomerData['city'],
+                        'mobile' => $validatedCustomerData['mobile'],
+                        'alternative_phone' => $validatedCustomerData['alternative_phone'] ?? '',
+                    ]
+                );
 
                 $order = Order::create([
                     'user_id' => $user->id,
@@ -280,11 +308,21 @@ class CheckoutController extends Controller
                     'shipping_method' => $cartData['shipping_method'],    
                     'shipping_fee' => $cartData['shipping_fee'],  
                     'paid' => false,  
-                    'adress' => $guestCustomerInformation['cartTotal'],  
                 ]);
+
 
                 $lineItemsToInsert = [];
                 foreach($cartData['cart'] as $item) {
+                    $product = $item->product;
+
+                    if($item->quantity <= 0){
+                        throw new \Exception('Insufficient quantity for product: ' . $product->id);
+                    }
+
+                    if($product->stock < $item->quantity){
+                        throw new \Exception('Insufficient stock for product: ' . $product->id);
+                    }
+                    
                     $lineItemsToInsert[] = [
                         'order_id' => $order->id,
                         'product_id' => $item->product->id,
@@ -293,6 +331,8 @@ class CheckoutController extends Controller
                         'created_at' => now(),
                         'updated_at' => now()
                     ];
+
+                    $product->decrement('stock', $item->quantity);
                 }
 
                 LineItem::insert($lineItemsToInsert);

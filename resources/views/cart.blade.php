@@ -120,7 +120,7 @@
                     </div>
                     <div class="flex justify-between items-center">
                         <span>Payment Fee:</span>
-                        <span id="payment-fee">{{number_format($paymentFee , 2) . '$'}}</span>
+                        <span id="payment-fee">{{$paymentFee > 0 ? number_format($paymentFee , 2) . '$' : 'Free'}}</span>
                     </div>
                     <div class="mt-4">
                         <div class="flex justify-between items-center">

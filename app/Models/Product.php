@@ -17,11 +17,11 @@ class Product extends Model
     protected $fillable = [
         'title',
         'mpn',
-        'price',
         'discounted_price',
         'current_price',
         'discount',
-        'original_price'
+        'original_price',
+        'stock'
     ];
     
     //protected static function booted() {

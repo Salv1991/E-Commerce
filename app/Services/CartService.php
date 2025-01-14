@@ -35,7 +35,6 @@ class CartService
                         'product' => $lineItem->product,
                         'quantity' => $lineItem->quantity,
                         'price' => $lineItem->quantity * $lineItem->product->current_price,
-                        'availability' => $lineItem->product->stock  > 0 ? 'In stock' : 'Out of stock',   
                     ];
                 });
 
@@ -47,7 +46,6 @@ class CartService
                 $cartData['payment_method'] = $currentOrder->payment_method;
                 $cartData['payment_fee'] = $currentOrder->payment_fee;
             }
-
         } else {
             $guest = collect(session()->get('guest', []));
             $guestCart = collect($guest->get('cart', []));
@@ -64,7 +62,6 @@ class CartService
                             'product' => $product,
                             'quantity' => $quantity,
                             'price' => $product->current_price,
-                            'availability' => $product->stock  > 0 ? 'In stock' : 'Out of stock',   
                         ];
                     }
                 })->filter();
@@ -111,7 +108,6 @@ class CartService
                 $cartData['cartTotal'] = $cartData['cartSubtotal'] + $cartData['shipping_fee'] + $cartData['payment_fee'];
             }
         }
-
         return $cartData;
     }
 
@@ -160,7 +156,7 @@ class CartService
             }
 
             $currentOrder = $currentOrder->refresh();
-            $orderSummary = $this->calculateOrderSummaryForUser($currentOrder);         
+            $orderData = $this->calculateOrderSummaryForUser($currentOrder);         
         } else {
             $guest = session()->get('guest', []);
             $shippingMethod = $guest['shipping_method'] ?? [];
@@ -198,30 +194,24 @@ class CartService
             
             session()->put('guest', $guest);
 
-            $orderSummary = $this->calculateOrderSummaryForGuest($guest);         
+            $orderData = $this->calculateOrderSummaryForGuest($guest);         
         }
 
         $quantity = $lineItem->quantity ?? $guest['cart'][$id]['quantity'];
 
-        $data = [
-            'message' => 'Product added to cart',
-            'product_id' => $product->id,
-            'lineItemExists' => $lineItemExists,
-            'cartCount' => $orderSummary['cartCount'],
-            'vatPrice' => $orderSummary['vatPrice'],
-            'cartSubtotal' => $orderSummary['cartSubtotal'],
-            'cartTotal' => $orderSummary['cartTotal'],
-        ];
+        $orderData['message'] = 'Product added to cart';
+        $orderData['product_id'] = $product->id;
+        $orderData['lineItemExists'] = $lineItemExists;
 
         if(!$lineItemExists){
-            $data['view'] = view('components.nav.cart-teaser', compact(['product', 'quantity']))->render();           
+            $orderData['view'] = view('components.nav.cart-teaser', compact(['product', 'quantity']))->render();           
         } else {
-            $data['title'] = $product->title;
-            $data['quantity'] = $quantity;
-            $data['total'] = number_format($product->current_price * $quantity, 2);
+            $orderData['title'] = $product->title;
+            $orderData['quantity'] = $quantity;
+            $orderData['total'] = number_format($product->current_price * $quantity, 2);
         }
 
-        return $data;
+        return $orderData;
     }
 
     public function getCartCount() {
@@ -263,7 +253,7 @@ class CartService
             }
 
             $currentOrder = $currentOrder->refresh();
-            $orderSummary = $this->calculateOrderSummaryForUser($currentOrder);        
+            $orderData = $this->calculateOrderSummaryForUser($currentOrder);        
 
         } else {
             $guest = session()->get('guest', []);
@@ -284,19 +274,13 @@ class CartService
                     
             session()->put('guest', $guest);
             
-            $orderSummary = $this->calculateOrderSummaryForGuest($guest);
-         
+            $orderData = $this->calculateOrderSummaryForGuest($guest);
         }
 
-        return [
-            'product_id' => $id,
-            'quantity' => $quantity,
-            'cartCount' => $orderSummary['cartCount'],
-            'vatPrice' => $orderSummary['vatPrice'],
-            'shippingFee' => $orderSummary['shippingFee'],
-            'cartSubtotal' => $orderSummary['cartSubtotal'],
-            'cartTotal' => $orderSummary['cartTotal'],
-        ];
+        $orderData['quantity'] = $quantity;
+        $orderData['product_id'] = $id;
+
+        return $orderData;
     }
 
 
@@ -312,7 +296,7 @@ class CartService
                 }
 
                 $currentOrder = $currentOrder->refresh();
-                $orderSummary = $this->calculateOrderSummaryForUser($currentOrder);         
+                $orderData = $this->calculateOrderSummaryForUser($currentOrder);         
             } else {
                 return ['error' => 'Product not found.'];
             }
@@ -326,18 +310,13 @@ class CartService
             unset($guest['cart'][$id]);         
             session()->put('guest', $guest);
 
-            $orderSummary = $this->calculateOrderSummaryForGuest($guest);           
+            $orderData = $this->calculateOrderSummaryForGuest($guest);           
         }
 
-        return [
-            'message' => 'Product removed from cart.',
-            'product_id' => $id,
-            'cartCount' => $orderSummary['cartCount'],
-            'vatPrice' => $orderSummary['vatPrice'],
-            'shippingFee' => $orderSummary['shippingFee'],
-            'cartSubtotal' => $orderSummary['cartSubtotal'],
-            'cartTotal' => $orderSummary['cartTotal'],
-        ];
+        $orderData['message'] ='Product removed from cart.';
+        $orderData['product_id'] = $id;
+
+        return $orderData;
     }
 
     public function calculateOrderSummaryForUser($order) {
@@ -359,21 +338,27 @@ class CartService
     }  
 
     public function calculateOrderSummaryForGuest($guest) {
-        $shippingFee = 0;
+       
         $cartCount = array_sum(array_column($guest['cart'], 'quantity'));
+
         $cartSubtotal = array_reduce($guest['cart'], function($total, $product){
             return $total + ($product['quantity'] * $product['price']);
         }, 0);
-        $selectedShippingMethod = $guest['shipping_method'];
-        $selectedPaymentMethod = $guest['payment_method'];
-        $paymentFee = $selectedPaymentMethod['extra_cost'];
-
-        if ($cartSubtotal > 0 && $cartSubtotal < config('app.free_shipping_min_subtotal')) {
-            $shippingFee = $selectedShippingMethod['extra_cost'];        
-        }
 
         $vatPrice = $cartSubtotal * config('app.vat_rate');
 
+        $selectedShippingMethod = $guest['shipping_method'];
+
+        $selectedPaymentMethod = $guest['payment_method'];
+        
+        $shippingFee = $cartSubtotal > 0 && $cartSubtotal < config('app.free_shipping_min_subtotal')
+            ? $selectedShippingMethod['extra_cost']
+            : 0;
+     
+        $paymentFee = $cartSubtotal > 0
+            ? $selectedPaymentMethod['extra_cost']
+            : 0;
+       
         return [
             'cartCount' => $cartCount,
             'cartSubtotal' => number_format($cartSubtotal, 2),
@@ -394,7 +379,6 @@ class CartService
                 'status' => 'pending',
                 'subtotal' => 0,
                 'total_price' => 0,
-                'adress' => null,
             ]);
         }
         
@@ -404,7 +388,6 @@ class CartService
 
         foreach($guestCart as $lineItem){
             $product = $products->get($lineItem['product_id']);
-
             if(!$product || $product->stock <= 0){
                 continue;
             }
@@ -431,6 +414,8 @@ class CartService
                 uniqueBy: ['order_id', 'product_id'],
                 update: ['quantity', 'price'],
             );
+
+            $currentOrder->refresh()->calculateSubtotal();
         }
     }
 
