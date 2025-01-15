@@ -7,103 +7,157 @@
             <div 
                 data-controller="wishlist cart lineItemQuantity" 
                 data-filter-target="productsContainer" 
-                class="cart-teasers-container col-span-full lg:col-span-4 divide-y-2 bg-white px-5">
+                class="cart-teasers-container col-span-full lg:col-span-4 p-5">
 
-                @if ($cart->isNotEmpty())
-                    @foreach ($cart as $lineItem )
-                        <div id="product-{{$lineItem->product->id}}" 
-                            data-teaser-{{$lineItem->product->id}} 
-                            class="bg-white grid grid-cols-7 py-5 gap-4">
-                          
-                            <a href="{{route('product', $lineItem->product)}}" 
-                                class="w-full h-full overflow-hidden aspect-[.75] col-span-2 lg:col-span-1">
-                                <img 
-                                    class="h-full w-full object-cover object-center" 
-                                    src="{{ asset('storage/' . ($lineItem->product->images->isNotEmpty() 
-                                        ? $lineItem->product->images->first()->image_path 
-                                        : 'products/placeholder.jpg') )}}" 
-                                    alt="Product Image">  
-                            </a>
-
-                            <div class="col-span-5 lg:col-span-6 flex flex-col justify-between gap-4 lg:grid grid-cols-1 lg:grid-cols-3 ">
+                
+                @if (session('productsWithoutStock') || !empty($productsWithoutStock))    
+                    <div class="mb-5">
+                        <p class="bg-red-700 text-white font-semibold p-5">Some out-of-stock products have been removed from your cart.</p>
+                        <div class="divide-y-2">
+                            @foreach (session('productsWithoutStock') ?? $productsWithoutStock  as $lineItem )
+                                <div id="product-{{$lineItem->product->id}}" 
+                                    data-teaser-{{$lineItem->product->id}} 
+                                    class="px-5 {{$lineItem->product->stock <= 0 ? 'bg-red-100' : 'bg-white'}} grid grid-cols-7 py-5 gap-4">
                                 
-                                <div class="flex flex-col lg:grid grid-cols-2 col-span-2 gap-3">
-                                    
-                                    {{-- TITLE --}}
-                                    <div class="">
-                                        <a  href="{{route('product', $lineItem->product)}}" 
-                                            class="text-xl font-bold hover:text-primary-500">
-                                            {{ $lineItem->product->title }}
-                                        </a>
-                                        <p class="text-gray-400 line-clamp-3">{{ $lineItem->product->description }}</p>
-                                    </div>
+                                    <a href="{{route('product', $lineItem->product)}}" 
+                                        class="w-full h-full overflow-hidden aspect-[.75] col-span-2 lg:col-span-1">
+                                        <img 
+                                            class="h-full w-full object-cover object-center" 
+                                            src="{{ asset('storage/' . ($lineItem->product->images->isNotEmpty() 
+                                                ? $lineItem->product->images->first()->image_path 
+                                                : 'products/placeholder.jpg') )}}" 
+                                            alt="Product Image">  
+                                    </a>
 
-                                    {{-- PRICE --}}
-                                    <div class="flex justify-start lg:justify-center items-center gap-2">
-                                        <x-product.price :product="$lineItem->product" />
+                                    <div class="col-span-5 lg:col-span-6 flex flex-col justify-between gap-4 lg:grid grid-cols-1 lg:grid-cols-3 ">
+                                        
+                                        <div class="flex flex-col lg:grid grid-cols-2 col-span-2 gap-3">
+                                            
+                                            {{-- TITLE --}}
+                                            <div class="">
+                                                <a  href="{{route('product', $lineItem->product)}}" 
+                                                    class="text-xl font-bold hover:text-primary-500">
+                                                    {{ $lineItem->product->title }}
+                                                </a>
+                                                <p class="text-gray-400 line-clamp-3">{{ $lineItem->product->description }}</p>
+                                            </div>
+
+                                            {{-- PRICE --}}
+                                            <div class="flex justify-start lg:justify-center items-center gap-2">
+                                                <x-product.price :product="$lineItem->product" />
+                                            </div>
+                                        </div>
+
+                                        <div class="flex justify-start lg:justify-end items-center gap-3">                              
+                                            <span class="text-red-500 font-bold">Out of stock</span>                                                             
+                                        </div>  
                                     </div>
                                 </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
 
-                                <div class="flex justify-start lg:justify-end items-center gap-3">
+                <div class="divide-y-2">
+                    @if ($cart->isNotEmpty())
+                        @foreach ($cart as $lineItem )
+                            <div id="product-{{$lineItem->product->id}}" 
+                                data-teaser-{{$lineItem->product->id}} 
+                                class="px-5 {{$lineItem->product->stock <= 0 ? 'bg-red-100' : 'bg-white'}} grid grid-cols-7 py-5 gap-4">
+                            
+                                <a href="{{route('product', $lineItem->product)}}" 
+                                    class="w-full h-full overflow-hidden aspect-[.75] col-span-2 lg:col-span-1">
+                                    <img 
+                                        class="h-full w-full object-cover object-center" 
+                                        src="{{ asset('storage/' . ($lineItem->product->images->isNotEmpty() 
+                                            ? $lineItem->product->images->first()->image_path 
+                                            : 'products/placeholder.jpg') )}}" 
+                                        alt="Product Image">  
+                                </a>
+
+                                <div class="col-span-5 lg:col-span-6 flex flex-col justify-between gap-4 lg:grid grid-cols-1 lg:grid-cols-3 ">
                                     
-                                    {{-- QUANTITY --}}
-                                    <div class="quantity-container cursor-pointer relative border border-gray-300 rounded-md min-w-14 px-2 ">
-                
-                                        <form
-                                            action="{{route('cart.quantity', $lineItem->product->id)}}"
-                                            data-action="submit->cart#quantity"
-                                            method="post"  
-                                            class="quantity-menu hidden absolute bottom-8 left-0 w-full max-h-28 overflow-y-auto border 
-                                            border-gray-200 bg-white rounded-md">
-                                            @csrf
-                                            @method('PATCH')
-                                            @for ($i =0; $i <= $lineItem->product->stock; $i++)
-                                                <button class="w-full text-lg {{ $lineItem->quantity == $i 
-                                                    ? 'bg-primary-500 text-white' 
-                                                    : 'hover:bg-gray-100 hover:text-black'}}"
-                                                    type="submit"
-                                                    name="quantity"
-                                                    value="{{ $i }}">
-                                                    {{ $i }}
-                                                </button>
-                                            @endfor
-                                        </form>
+                                    <div class="flex flex-col lg:grid grid-cols-2 col-span-2 gap-3">
+                                        
+                                        {{-- TITLE --}}
+                                        <div class="">
+                                            <a  href="{{route('product', $lineItem->product)}}" 
+                                                class="text-xl font-bold hover:text-primary-500">
+                                                {{ $lineItem->product->title }}
+                                            </a>
+                                            <p class="text-gray-400 line-clamp-3">{{ $lineItem->product->description }}</p>
+                                        </div>
 
-                                        <div class="flex justify-end items-center gap-2" data-action="click->lineItemQuantity#openMenu">
-                                            <div class="quantity text-xl">
-                                                {{$lineItem->quantity}}
-                                            </div>
-                                            <div>
-                                                <x-heroicon-o-chevron-down class="closed-chevron inline-block w-4 h-4"/>
-                                                <x-heroicon-o-chevron-up class="open-chevron inline-block w-4 h-4 hidden"/>
-                                            </div>
+                                        {{-- PRICE --}}
+                                        <div class="flex justify-start lg:justify-center items-center gap-2">
+                                            <x-product.price :product="$lineItem->product" />
                                         </div>
                                     </div>
 
-                                    {{-- WISHLIST TOGGLE BUTTON --}}
-                                    @auth   
-                                        <x-form.wishlist-toggle 
-                                            :product="$lineItem->product" 
-                                            :isWishlisted="$wishlistedProductsIds->contains($lineItem->product->id)"/>
-                                    @endauth
-                                    
-                                    {{-- REMOVE FROM CART BUTTON --}}
-                                    <div>
-                                        <form class="w-full" method='post' data-action="submit->cart#delete" action="{{ route('cart.delete', $lineItem->product->id) }}">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit">
-                                                <x-heroicon-o-trash class="inline-block w-7 h-7 text-gray-500"/>
-                                            </button>
-                                        </form>
-                                    </div>
-                                </div>  
+                                    <div class="flex justify-start lg:justify-end items-center gap-3">
+                                        
+                                        {{-- QUANTITY --}}
+                                        @if ($lineItem->product->stock > 0)       
+                                        <div class="quantity-container cursor-pointer relative border border-gray-300 rounded-md min-w-14 px-2 ">                                 
+                                            <form
+                                                action="{{route('cart.quantity', $lineItem->product->id)}}"
+                                                data-action="submit->cart#quantity"
+                                                method="post"  
+                                                class="quantity-menu hidden absolute bottom-8 left-0 w-full max-h-28 overflow-y-auto border 
+                                                border-gray-200 bg-white rounded-md">
+                                                @csrf
+                                                @method('PATCH')
+                                                @for ($i =0; $i <= $lineItem->product->stock; $i++)
+                                                    <button class="w-full text-lg {{ $lineItem->quantity == $i 
+                                                        ? 'bg-primary-500 text-white' 
+                                                        : 'hover:bg-gray-100 hover:text-black'}}"
+                                                        type="submit"
+                                                        name="quantity"
+                                                        value="{{ $i }}">
+                                                        {{ $i }}
+                                                    </button>
+                                                @endfor
+                                            </form>
+                                        
+                                            <div class="flex justify-end items-center gap-2" data-action="click->lineItemQuantity#openMenu">
+                                                <div class="quantity text-xl">
+                                                    {{$lineItem->quantity}}
+                                                </div>
+                                                <div>
+                                                    <x-heroicon-o-chevron-down class="closed-chevron inline-block w-4 h-4"/>
+                                                    <x-heroicon-o-chevron-up class="open-chevron inline-block w-4 h-4 hidden"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        @else
+                                            <span class="text-red-500 font-bold">Out of stock</span>
+                                        @endif
+
+                                        {{-- WISHLIST TOGGLE BUTTON --}}
+                                        @auth   
+                                            <x-form.wishlist-toggle 
+                                                :product="$lineItem->product" 
+                                                :isWishlisted="$wishlistedProductsIds->contains($lineItem->product->id)"/>
+                                        @endauth
+                                        
+                                        {{-- REMOVE FROM CART BUTTON --}}
+                                        <div>
+                                            <form class="w-full" method='post' data-action="submit->cart#delete" action="{{ route('cart.delete', $lineItem->product->id) }}">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit">
+                                                    <x-heroicon-o-trash class="inline-block w-7 h-7 text-gray-500"/>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>  
+                                </div>
                             </div>
-                        </div>
-                    @endforeach
-                @endif
-                <div class="{{$cart->isNotEmpty() ? 'hidden' : 'flex'}} empty-cart-message bg-white h-96 px-5 py-5 flex justify-center items-center text-gray-500">
-                    Your Cart is empty.
+                        @endforeach
+                    @endif
+                    <div class="{{$cart->isNotEmpty() ? 'hidden' : 'flex'}} empty-cart-message bg-white h-96 px-5 py-5 flex justify-center items-center text-gray-500">
+                        Your Cart is empty.
+                    </div>
                 </div>
             </div>
             <div id="order-summary-container" class="col-span-full lg:col-span-2 bg-white p-5">

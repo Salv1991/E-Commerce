@@ -80,7 +80,7 @@ class OrderTest extends TestCase
 
         $order->update(['payment_method' => 'credit_card', 'payment_fee' => 5.00]);
 
-        $user->currentOrder()->first()->calculateFeesAndPrices();
+        $user->currentOrder()->first()->calculateSubtotal();
 
         $order->refresh();
 
@@ -146,7 +146,7 @@ class OrderTest extends TestCase
             'shipping_method' => 'elta'    
         ]);
 
-        $response->assertRedirect('/');
+        $response->assertRedirect(route('order.success'));
         
         $this->assertEquals($order->refresh()->status, 'completed');
     }
@@ -204,12 +204,12 @@ class OrderTest extends TestCase
         
         $response = $this->post(route('checkout.order.complete'), [
             'payment_method' => 'test_method',
-            'shipping_method' => 'elta'    
+            'shipping_method' => 'test_method_2'    
         ]);
 
         $response->assertRedirect(route('checkout.order'));
 
-        $response->assertSessionHasErrors(['payment_method']);
+        $response->assertSessionHasErrors(['payment_method', 'shipping_method']);
     }
 
     public function test_order_payment_method_with_additional_fees()
@@ -224,7 +224,7 @@ class OrderTest extends TestCase
             'user_id' => $user->id,  
             'status' => 'pending', 
             'subtotal' => 100,
-            'total_price' => 103.40,
+            'total_price' => 108.40,
             'payment_method' => 'credit_card',
             'payment_fee' => 5,
             'shipping_method' => 'elta',
@@ -238,17 +238,58 @@ class OrderTest extends TestCase
             'price' => 100,
         ]);
 
-        $order->update(['shipping_method' => 'usps']);
-        $order->refresh();
-        $user->currentOrder->calculateSubtotal();
+        $order->update([
+            'shipping_method' => 'usps',
+            'shipping_fee' => 10.00,
+            'payment_method' => 'paypal',
+            'payment_fee' => 7.50
+        ]);
 
-        $response = $this->post(route('checkout.order.complete'), [
+        $order->calculateSubtotal();
+
+        $order->refresh();
+
+        $this->post(route('checkout.order.complete'), [
             'payment_method' => 'paypal', 
             'shipping_method' => 'elta',
         ]);
 
-        $user->currentOrder->refresh();
         $this->assertEquals(117.5, $order->total_price); 
-        //order on update event and withNoEvents on checkoutcontroller methods?
     }
+
+    public function test_cart_page_order_summary_for_guest_user() {
+  
+        $product = Product::create(['title' => 'foo', 'current_price' => 150]);
+
+        $product2 = Product::create(['title' => 'bar', 'current_price' => 50]);
+
+        $this->withSession([
+            'guest' => [
+                'cart' => [
+                    $product->id => [
+                        'product_id' => $product->id,
+                        'quantity' => 3,
+                        'price' => $product->current_price,
+                    ],
+                    $product2->id => [
+                        'product_id' => $product2->id,
+                        'quantity' => 1,
+                        'price' => $product2->current_price   
+                    ]
+                ],
+                'shipping_method' => [
+                    'value' => 'elta',
+                    'extra_cost' => 3.40,   
+                ],
+                'payment_method' => [
+                    'value' => '',
+                    'extra_cost' => 0,   
+                ],
+            ]
+        ]);
+
+
+
+        }
+
 }

@@ -20,6 +20,7 @@ class CartController extends Controller
  
         return view('cart', [
             'cart' => $cartData['cart'],
+            'productsWithoutStock' => session('productsWithoutStock') ?: $cartData['productsWithoutStock'],
             'shippingFee' => $cartData['shipping_fee'],
             'paymentFee' => $cartData['payment_fee'],
             'cartSubtotal' => $cartData['cartSubtotal'],

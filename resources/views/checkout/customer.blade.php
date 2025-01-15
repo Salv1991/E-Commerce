@@ -84,6 +84,7 @@
                                                 </a>
                                                 <div class="flex flex-col justify-start items-start mt-2 *:text-sm *:text-gray-500">
                                                     <span>Quantity: {{ $lineItem->quantity }}</span>        
+                                                    <span>Stock: {{ $lineItem->product->stock }}</span>        
                                                     <span>MPN: {{ $lineItem->product->mpn }}</span>
                                                 </div>
                                             </div>

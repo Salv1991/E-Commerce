@@ -49,12 +49,19 @@ class CheckoutController extends Controller
         $cartData = $cartService->getCartData();
         
         if($cartData['cart']->isEmpty()){
-            abort(400, 'Empty cart.');
+            return redirect()->route('cart')->with('error', 'Your cart is empty.');
         }
         
+        if(!empty($cartData['productsWithoutStock'])){
+            return redirect()->route('cart')->with([
+                'error' => 'Some out-of-stock products have been removed from your cart.',
+                'productsWithoutStock' => $cartData['productsWithoutStock']
+            ]);        
+        }
+
         $customerData = Auth::check() 
             ? Auth::user()->getCustomerData() 
-            : session('guest_customer_information', []);
+            : session('guest.customer_information', []);
 
         return view('checkout.customer', [
             'currentStep' => $currentStep,
@@ -89,7 +96,7 @@ class CheckoutController extends Controller
                 $validatedData
             );
         } else {
-            session()->put('guest_customer_information', $validatedData);
+            session()->put('guest.customer_information', $validatedData);
         }
         
         return redirect()->route('checkout.order');
@@ -99,16 +106,22 @@ class CheckoutController extends Controller
         $cartData = $cartService->getCartData();
 
         if($cartData['cart']->isEmpty()){
-            abort(400, 'Empty cart.');
+            return redirect()->route('cart')->with('error', 'Your cart is empty.');
+        }
+
+        if(!empty($cartData['productsWithoutStock'])){
+            return redirect()->route('cart')->with([
+                'error' => 'Some out-of-stock products have been removed from your cart.',
+                'productsWithoutStock' => $cartData['productsWithoutStock']
+            ]);        
         }
 
         $customerData = [];
 
         if(Auth::check()){
             $customerData = Auth::user()->getCustomerData();
-
-        } else if (session()->has('guest_customer_information')){
-            $customerData = session()->get('guest_customer_information');
+        } else {
+            $customerData = session()->get('guest.customer_information', []);
         }
 
         return view('checkout.order', [
@@ -234,111 +247,122 @@ class CheckoutController extends Controller
 
         $cartData = $cartService->getCartData();
         if($cartData['cart']->isEmpty()){
-            abort(400, 'Empty cart.');
+            return redirect()->route('cart')->with('error', 'Your cart is empty.');
+        }
+        try {
+            if(Auth::check()) {
+                $currentOrder = Auth::user()->currentOrder()->firstOrFail();
+
+                DB::transaction(function () use ($currentOrder) {
+                    foreach($currentOrder->lineItems as $lineItem) {
+                        $product = $lineItem->product;
+
+                        if($product->stock <= 0 || $product->stock < $lineItem->quantity) {
+                            throw new \Exception('Insufficient stock for product: ' . $product->id);
+                        }
+
+                        $product->decrement('stock', $lineItem->quantity);
+                    }
+                });
+
+                $currentOrder->update(['status' => 'completed']);
+
+            } else {
+                $guestCustomerInformation = session('guest.customer_information');
+
+                $validatedCustomerData = Validator::make($guestCustomerInformation, [
+                    'name' => 'required|string|max:255',
+                    'email' => 'required|email|max:255',
+                    'address' => 'required|string|max:255',
+                    'postal_code' => 'required|string|max:20',
+                    'floor' => 'nullable|string|max:100',
+                    'country' => 'required|string|max:100',
+                    'city' => 'required|string|max:100',
+                    'mobile' => 'required|string|max:20',
+                    'alternative_phone' => 'nullable|string|max:20',
+                ])->validate();
+
+                DB::transaction(function () use ($cartData, $guestCustomerInformation, $validatedCustomerData){  
+                    $user = User::firstOrCreate(
+                        ['email' => $guestCustomerInformation['email']],
+                        [
+                            'name' => $guestCustomerInformation['name'],
+                            'password' => 123213,
+                            'is_guest' => true,
+                            'admin' => false,
+                        ]
+                    );
+
+                    if(!$user) {
+                        return redirect('/')->with(['error' => 'Something went wrong with the completion of order']);
+                    }
+
+                    CustomerInformation::updateOrCreate(
+                        ['user_id' => $user->id],                    
+                        [
+                            'address' => $validatedCustomerData['address'],
+                            'postal_code' => $validatedCustomerData['postal_code'],
+                            'floor' => $validatedCustomerData['floor'] ?? '',
+                            'country' => $validatedCustomerData['country'],
+                            'city' => $validatedCustomerData['city'],
+                            'mobile' => $validatedCustomerData['mobile'],
+                            'alternative_phone' => $validatedCustomerData['alternative_phone'] ?? '',
+                        ]
+                    );
+
+                    $order = Order::create([
+                        'user_id' => $user->id,
+                        'status' => 'completed',
+                        'total_price' => $cartData['cartTotal'],    
+                        'subtotal' => $cartData['cartSubtotal'],    
+                        'discount' => 0,    
+                        'payment_method' => $cartData['payment_method'],    
+                        'payment_fee' => $cartData['payment_fee'],
+                        'shipping_method' => $cartData['shipping_method'],    
+                        'shipping_fee' => $cartData['shipping_fee'],  
+                        'paid' => false,  
+                    ]);
+
+
+                    $lineItemsToInsert = [];
+                    foreach($cartData['cart'] as $item) {
+                        $product = $item->product;
+
+                        if($item->quantity <= 0){
+                            throw new \Exception('Insufficient quantity for product: ' . $product->title);
+                        }
+
+                        if($product->stock < $item->quantity){
+                            throw new \Exception('Insufficient stock for product: ' . $product->title);
+                        }
+                        
+                        $lineItemsToInsert[] = [
+                            'order_id' => $order->id,
+                            'product_id' => $item->product->id,
+                            'quantity' => $item->quantity ,
+                            'price' => $item->price,
+                            'created_at' => now(),
+                            'updated_at' => now()
+                        ];
+
+                        $product->decrement('stock', $item->quantity);
+                    }
+
+                    LineItem::insert($lineItemsToInsert);
+                });
+            }
+
+        return redirect(route('order.success'));
+
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Order completion error: ' . $e->getMessage());
+
+            return redirect()->route('checkout.cart')->with('error', $e->getMessage());
         }
 
-        if(Auth::check()) {
-            $currentOrder = Auth::user()->currentOrder()->firstOrFail();
+    }
 
-            DB::transaction(function () use ($currentOrder) {
-                foreach($currentOrder->lineItems as $lineItem) {
-                    $product = $lineItem->product;
-
-                    if($product->stock <= 0 || $product->stock < $lineItem->quantity) {
-                        throw new \Exception('Insufficient stock for product: ' . $product->id);
-                    }
-
-                    $product->decrement('stock', $lineItem->quantity);
-                }
-            });
-
-            $currentOrder->update(['status' => 'completed']);
-
-        } else {
-            $guestCustomerInformation = session('guest_customer_information');
-
-            $validatedCustomerData = $request->validate([
-                'name' => 'required|string|max:255',
-                'email' => 'required|email|max:255',
-                'address' => 'required|string|max:255',
-                'postal_code' => 'required|string|max:20',
-                'floor' => 'nullable|string|max:100',
-                'country' => 'required|string|max:100',
-                'city' => 'required|string|max:100',
-                'mobile' => 'required|string|max:20',
-                'alternative_phone' => 'nullable|string|max:20',
-            ]);
-
-            DB::transaction(function () use ($cartData, $guestCustomerInformation, $validatedCustomerData){  
-                $user = User::firstOrCreate(
-                    ['email' => $guestCustomerInformation['email']],
-                    [
-                        'name' => $guestCustomerInformation['name'],
-                        'password' => 123213,
-                        'is_guest' => true,
-                        'admin' => false,
-                    ]
-                );
-
-                if(!$user) {
-                    return redirect('/')->with(['error' => 'Something went wrong with the completion of order']);
-                }
-
-               CustomerInformation::updateOrCreate(
-                    ['user_id' => $user->id],                    
-                    [
-                        'address' => $validatedCustomerData['address'],
-                        'postal_code' => $validatedCustomerData['postal_code'],
-                        'floor' => $validatedCustomerData['floor'] ?? '',
-                        'country' => $validatedCustomerData['country'],
-                        'city' => $validatedCustomerData['city'],
-                        'mobile' => $validatedCustomerData['mobile'],
-                        'alternative_phone' => $validatedCustomerData['alternative_phone'] ?? '',
-                    ]
-                );
-
-                $order = Order::create([
-                    'user_id' => $user->id,
-                    'status' => 'completed',
-                    'total_price' => $cartData['cartTotal'],    
-                    'subtotal' => $cartData['cartSubtotal'],    
-                    'discount' => 0,    
-                    'payment_method' => $cartData['payment_method'],    
-                    'payment_fee' => $cartData['payment_fee'],
-                    'shipping_method' => $cartData['shipping_method'],    
-                    'shipping_fee' => $cartData['shipping_fee'],  
-                    'paid' => false,  
-                ]);
-
-
-                $lineItemsToInsert = [];
-                foreach($cartData['cart'] as $item) {
-                    $product = $item->product;
-
-                    if($item->quantity <= 0){
-                        throw new \Exception('Insufficient quantity for product: ' . $product->id);
-                    }
-
-                    if($product->stock < $item->quantity){
-                        throw new \Exception('Insufficient stock for product: ' . $product->id);
-                    }
-                    
-                    $lineItemsToInsert[] = [
-                        'order_id' => $order->id,
-                        'product_id' => $item->product->id,
-                        'quantity' => $item->quantity ,
-                        'price' => $item->price,
-                        'created_at' => now(),
-                        'updated_at' => now()
-                    ];
-
-                    $product->decrement('stock', $item->quantity);
-                }
-
-                LineItem::insert($lineItemsToInsert);
-            });
-        }
-
-        return redirect('/');
+    public function orderSuccess() {
+        return view('checkout.order-success');
     }
 }

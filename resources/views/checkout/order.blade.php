@@ -1,5 +1,23 @@
 <x-layout :hideHeader="true">
+{{-- MESSAGES --}}
+        
     <div class="bg-white min-h-[100vh]">
+        @if(session('success') || session('error'))    
+            <div id='flash-message' class="z-30 rounded-lg {{session('success') ? 'bg-black' : 'bg-red-500'}} text-white p-5  ">
+                {{ session('success') ?? session('error') }}
+            </div>
+
+            <script>
+                const flashMessage = document.getElementById('flash-message');
+
+                if (flashMessage) {
+                    setTimeout( () => {
+                        flashMessage.style.display = 'none';
+                    }, 3000);
+                }
+            </script>
+        @endif
+
         <div class="mb-10 max-w-screen-xl m-auto px-5 pt-20 relative" data-controller="order">
             <a href="/" class="block w-fit m-auto" >
                 <img src="{{ asset('svg/logo.svg') }}" alt="Logo" class="w-20 h-20">
@@ -108,6 +126,7 @@
                                                 </a>
                                                 <div class="flex flex-col justify-start items-start mt-2 *:text-sm *:text-gray-500">
                                                     <span>Quantity: {{ $lineItem->quantity }}</span>        
+                                                    <span>Stock: {{ $lineItem->product->stock }}</span>        
                                                     <span>MPN: {{ $lineItem->product->mpn }}</span>
                                                 </div>
                                             </div>

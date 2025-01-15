@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('home');
-});
+})->name('home');
 
 Route::get('/search', [SearchController::class, 'show'])->name('search.show');
 
@@ -43,6 +43,7 @@ Route::get('/checkout/order-information', [CheckoutController::class, 'order'])-
 Route::post('/checkout/payment-method', [CheckoutController::class, 'updatePaymentMethod'])->name('checkout.order.payment');
 Route::post('/checkout/shipping-method', [CheckoutController::class, 'updateShippingMethod'])->name('checkout.order.shipping');
 Route::post('/checkout/order-complete', [CheckoutController::class, 'completeOrder'])->name('checkout.order.complete');
+Route::get('/checkout/order-success', [CheckoutController::class, 'orderSuccess'])->name('order.success');
 
 Route::get('/contact', function(){
     return view('contact');

@@ -21,7 +21,10 @@ class CartService
             'shipping_fee' => 0,
             'payment_method' => null,
             'payment_fee' => 0,
+            'productsWithoutStock' => [],
         ];
+
+        $productsWithoutStock = [];
 
         if (Auth::check()) {
             $currentOrder = Auth::user()->currentOrder()
@@ -29,14 +32,32 @@ class CartService
                 ->first();
 
             if ($currentOrder) {
-                $cartData['cart'] = $currentOrder->lineItems->map(function ($lineItem) {
+                $cartData['cart'] = $currentOrder->lineItems->map(function ($lineItem) use(&$productsWithoutStock){
+                    if($lineItem->product->stock <= 0) {
+                        $productsWithoutStock[] = (object)[
+                            'id' => $lineItem->product->id,
+                            'product' => $lineItem->product,
+                            'price' => $lineItem->product->current_price,
+                        ];
+
+                        $lineItem->delete();
+                        
+                        return null;
+                    }
+
                     return (object)[
                         'id' => $lineItem->id,
                         'product' => $lineItem->product,
                         'quantity' => $lineItem->quantity,
                         'price' => $lineItem->quantity * $lineItem->product->current_price,
                     ];
-                });
+                })->filter();
+
+                //bulk delete lineitems!
+
+                if(!empty($productsWithoutStock)) {
+                    $cartData['productsWithoutStock'] = $productsWithoutStock;
+                }
 
                 $cartData['cartCount'] = $currentOrder->lineItemsQuantity();
                 $cartData['cartSubtotal'] = $currentOrder->subtotal;
@@ -45,6 +66,7 @@ class CartService
                 $cartData['shipping_fee'] = $currentOrder->shipping_fee;
                 $cartData['payment_method'] = $currentOrder->payment_method;
                 $cartData['payment_fee'] = $currentOrder->payment_fee;
+                
             }
         } else {
             $guest = collect(session()->get('guest', []));
@@ -54,9 +76,21 @@ class CartService
                 $productIds = $guestCart->pluck('product_id')->unique();
                 $products = Product::with('images')->whereIn('id', $productIds)->get();
 
-                $cartData['cart'] = $products->map(function ($product) use ($guestCart) {
-                    if (isset($guestCart[$product->id])) {
-                        $quantity = $guestCart[$product->id]['quantity'];
+                $cartData['cart'] = $products->map(function ($product) use ($guestCart, &$productsWithoutStock) {
+                    if ($guestCart->has($product->id)) {
+                        if ($product->stock <= 0 ){
+                            $productsWithoutStock[] = (object)[
+                                'id' => $product->id,
+                                'product' => $product,
+                                'price' => $product->current_price,
+                            ];
+
+                           $guestCart->forget($product->id);
+
+                           return null;
+                        }
+
+                        $quantity = $guestCart->get($product->id)['quantity'];
                         return (object)[
                             'id' => $product->id,
                             'product' => $product,
@@ -65,7 +99,12 @@ class CartService
                         ];
                     }
                 })->filter();
-                
+
+                if(!empty($productsWithoutStock)){
+                    $cartData['productsWithoutStock'] = $productsWithoutStock;
+                    session()->put('guest.cart', $guestCart->toArray());
+                }
+
                 // Cart quantity.
                 $cartData['cartCount'] = $cartData['cart']->sum('quantity');
 
