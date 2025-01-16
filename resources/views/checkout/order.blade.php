@@ -1,22 +1,12 @@
 <x-layout :hideHeader="true">
 {{-- MESSAGES --}}
         
-    <div class="bg-white min-h-[100vh]">
-        @if(session('success') || session('error'))    
-            <div id='flash-message' class="z-30 rounded-lg {{session('success') ? 'bg-black' : 'bg-red-500'}} text-white p-5  ">
-                {{ session('success') ?? session('error') }}
-            </div>
+    <div class="bg-white min-h-[100vh] relative">
 
-            <script>
-                const flashMessage = document.getElementById('flash-message');
-
-                if (flashMessage) {
-                    setTimeout( () => {
-                        flashMessage.style.display = 'none';
-                    }, 3000);
-                }
-            </script>
-        @endif
+        {{-- ERROR MESSAGE --}}
+        <div class="absolute top-5 right-5">
+            <x-error-message />
+        </div>
 
         <div class="mb-10 max-w-screen-xl m-auto px-5 pt-20 relative" data-controller="order">
             <a href="/" class="block w-fit m-auto" >

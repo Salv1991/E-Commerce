@@ -1,5 +1,11 @@
 <x-layout :hideHeader="true">
-    <div class="bg-white">
+    <div class="bg-white relative">
+
+        {{-- ERROR MESSAGE --}}
+        <div class="absolute top-5 right-5">
+            <x-error-message />
+        </div>
+
         <div class="mb-10 max-w-screen-xl m-auto px-5 pt-20 relative">
             <a href="/" class="block w-fit m-auto" >
                 <img src="{{ asset('svg/logo.svg') }}" alt="Logo" class="w-20 h-20">

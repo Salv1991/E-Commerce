@@ -124,6 +124,10 @@ class CheckoutController extends Controller
             $customerData = session()->get('guest.customer_information', []);
         }
 
+        if(empty($customerData)) {
+            return redirect()->route('checkout.customer')->with('error', 'Please fill your contact and billing information.');
+        }
+        
         return view('checkout.order', [
             'currentStep' => 4,
             'steps' => $this->steps,
@@ -239,16 +243,23 @@ class CheckoutController extends Controller
     public function completeOrder(CartService $cartService, Request $request) {
         $availableShippingMethods = implode( ',', array_keys( config('app.shipping_methods') ));
         $availablePaymentMethods = implode( ',', array_keys( config('app.payment_methods') ));
+        
+        $valitatedMethods = $request->validate([
+            'payment_method' => ['required','string','filled','in:' . $availablePaymentMethods],
 
-        $request->validate([
-            'payment_method' =>  'required|in:' . $availablePaymentMethods,
-            'shipping_method' => 'required|in:' . $availableShippingMethods, 
+            'shipping_method' => ['required','string','filled','in:' . $availableShippingMethods],
         ]);
 
         $cartData = $cartService->getCartData();
+
+        
         if($cartData['cart']->isEmpty()){
             return redirect()->route('cart')->with('error', 'Your cart is empty.');
         }
+        if($cartData['shipping_method'] !== $valitatedMethods['shipping_method'] || $cartData['payment_method'] !== $valitatedMethods['payment_method']){
+            return redirect()->route('cart')->with('error', 'Invalid shipping/payment method');
+        }
+
         try {
             if(Auth::check()) {
                 $currentOrder = Auth::user()->currentOrder()->firstOrFail();
@@ -350,14 +361,15 @@ class CheckoutController extends Controller
 
                     LineItem::insert($lineItemsToInsert);
                 });
+
+                session()->forget(['guest.cart', 'guest.shipping_method', 'guest.payment_method']);
             }
 
         return redirect(route('order.success'));
 
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Order completion error: ' . $e->getMessage());
-
-            return redirect()->route('checkout.cart')->with('error', $e->getMessage());
+            return redirect()->route('cart')->with('error', $e->getMessage());
         }
 
     }

@@ -131,8 +131,8 @@ class CartService
                 $cartData['shipping_method'] = $selectedShippingMethod;
 
                 // Payment method.
-                $availablePaymentMethods = config('app.payment_methods');     
-
+                $availablePaymentMethods = config('app.payment_methods');   
+                  
                 if($guest->has('payment_method') && isset($availablePaymentMethods[$guest['payment_method']['value']])){
                     $selectedPaymentMethod = $guest['payment_method']['value'];
                     $cartData['payment_fee'] = number_format($availablePaymentMethods[$selectedPaymentMethod]['extra_cost'], 2);
@@ -147,6 +147,7 @@ class CartService
                 $cartData['cartTotal'] = $cartData['cartSubtotal'] + $cartData['shipping_fee'] + $cartData['payment_fee'];
             }
         }
+        
         return $cartData;
     }
 

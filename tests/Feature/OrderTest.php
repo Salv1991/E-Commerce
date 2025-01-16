@@ -90,7 +90,7 @@ class OrderTest extends TestCase
         $this->assertEquals(5, $order->payment_fee);
     }
 
-    public function test_complete_order_successfully() {
+    public function test_complete_order_successfully_for_user() {
         $user = User::create([
             'name' => 'Test Name',    
             'email' => 'test1234@example.com',
@@ -257,11 +257,62 @@ class OrderTest extends TestCase
         $this->assertEquals(117.5, $order->total_price); 
     }
 
-    public function test_cart_page_order_summary_for_guest_user() {
+    public function test_when_guest_goes_to_checkout_pages_with_empty_cart_redirects_to_cart() {
   
-        $product = Product::create(['title' => 'foo', 'current_price' => 150]);
+        $this->withSession([
+            'guest' => [
+                'cart' => [
+                
+                ],
+                'shipping_method' => [
+                    'value' => 'elta',
+                    'extra_cost' => 3.40,   
+                ],
+                'payment_method' => [
+                    'value' => '',
+                    'extra_cost' => 0,   
+                ],
+                "customer_information" => [
+                "name" => "Michael Scott",
+                "email" => "MichaelScott@hotmail.com",
+                "address" => "Scranton the electric city",
+                "postal_code" => "11111",
+                "floor" => '1',
+                "country" => "USA",
+                "city" => "Scranton",
+                "mobile" => "6900000000",
+                "alternative_phone" => null,
+                ],
+            ]
+        ]);
 
-        $product2 = Product::create(['title' => 'bar', 'current_price' => 50]);
+        $response = $this->get(route('cart'));
+
+        $response->assertStatus(200);
+
+        $response = $this->get(route('checkout.login'));
+
+        $response->assertStatus(200);
+
+        $response = $this->get(route('checkout.customer'));
+
+        $response->assertStatus(302);
+
+        $response->assertRedirect(route('cart'));
+
+        $response = $this->get(route('checkout.order'));
+
+        $response->assertStatus(302);
+
+        $response->assertRedirect(route('cart'));
+        
+    }
+
+    public function test_when_guest_goes_to_checkout_pages_with_empty_customer_information_redirects_to_customer_page() {
+        
+        $product = Product::create(['title' => 'foo', 'current_price' => 150, 'stock' => 23]);
+
+        $product2 = Product::create(['title' => 'bar', 'current_price' => 50, 'stock' => 13]);
 
         $this->withSession([
             'guest' => [
@@ -285,11 +336,168 @@ class OrderTest extends TestCase
                     'value' => '',
                     'extra_cost' => 0,   
                 ],
+                "customer_information" => [],
             ]
         ]);
 
+        $response = $this->get(route('checkout.order'));
 
+        $response->assertRedirect(route('checkout.customer'));
+        
+    }
 
-        }
+    public function test_complete_order_successfully_for_new_guest_user() {
+  
+        $product = Product::create(['title' => 'foo', 'current_price' => 150, 'stock' => 23]);
+
+        $product2 = Product::create(['title' => 'bar', 'current_price' => 50, 'stock' => 13]);
+
+        $this->withSession([
+            'guest' => [
+                'cart' => [
+                    $product->id => [
+                        'product_id' => $product->id,
+                        'quantity' => 3,
+                        'price' => $product->current_price,
+                    ],
+                    $product2->id => [
+                        'product_id' => $product2->id,
+                        'quantity' => 1,
+                        'price' => $product2->current_price   
+                    ]
+                ],
+                'shipping_method' => [
+                    'value' => 'elta',
+                    'extra_cost' => 3.40,   
+                ],
+                'payment_method' => [
+                    'value' => '',
+                    'extra_cost' => 0,   
+                ],
+                "customer_information" => [
+                "name" => "Michael Scott",
+                "email" => "MichaelScott@hotmail.com",
+                "address" => "Scranton the electric city",
+                "postal_code" => "11111",
+                "floor" => '1',
+                "country" => "USA",
+                "city" => "Scranton",
+                "mobile" => "6900000000",
+                "alternative_phone" => null,
+                ],
+            ]
+        ]);
+
+        $response = $this->get(route('checkout.order'));
+
+        $response->assertStatus(200);
+
+        session()->put('guest.payment_method', [
+            'value' => 'bank_transfer',
+            'extra_cost' => 2.00,   
+        ]);
+
+        $response = $this->post(route('checkout.order.complete'), [
+            'payment_method' => 'bank_transfer',
+            'shipping_method' => 'elta'    
+        ]);
+        
+        $response->assertRedirect(route('order.success'));
+
+        $user = User::where('is_guest', true)
+            ->where('email', 'MichaelScott@hotmail.com')
+            ->first();
+        
+        $order = Order::where('user_id', $user->id)->with('lineItems.product')->first();
+
+        $this->assertEquals('Michael Scott', $user->name);
+        $this->assertEquals('completed', $order->status);
+        $this->assertEquals(502, $order->total_price);
+        $this->assertEquals(500, $order->subtotal);
+        $this->assertEquals('bank_transfer', $order->payment_method);
+        $this->assertEquals(2, $order->payment_fee);
+        $this->assertEquals('elta', $order->shipping_method);
+        $this->assertEquals(0, $order->shipping_fee);
+
+        $lineItemProductTitles = $order->lineItems->pluck('product.title');
+        $this->assertTrue($lineItemProductTitles->contains($product->title));
+        $this->assertTrue($lineItemProductTitles->contains($product2->title));
+        
+    }
+
+    public function test_complete_order_successfully_for_existing_guest_user() {   
+        $user = User::create([ 'name' => 'Michael Scott', 'email' => 'MichaelScott@hotmail.com', 'password' => '12341234', 'is_guest' => true]);
+        
+        $order = Order::create([
+            'user_id' => $user->id,
+            'status' => 'completed',
+            'total_price' => 502,
+            'subtotal' => 500,
+            'payment_method' => 'bank_transfer',
+            'payment_fee' => 2,
+            'shipping_method' => 'elta',
+            'shipping_fee' => 3.40,
+        ]);        
+        
+        $product = Product::create(['title' => 'foo', 'current_price' => 150, 'stock' => 23]);
+
+        $product2 = Product::create(['title' => 'bar', 'current_price' => 50, 'stock' => 13]);
+
+        $this->withSession([
+            'guest' => [
+                'cart' => [
+                    $product->id => [
+                        'product_id' => $product->id,
+                        'quantity' => 3,
+                        'price' => $product->current_price,
+                    ],
+                    $product2->id => [
+                        'product_id' => $product2->id,
+                        'quantity' => 1,
+                        'price' => $product2->current_price   
+                    ]
+                ],
+                'shipping_method' => [
+                    'value' => 'elta',
+                    'extra_cost' => 3.40,   
+                ],
+                'payment_method' => [
+                    'value' => '',
+                    'extra_cost' => 0,   
+                ],
+                "customer_information" => [
+                "name" => "Michael Scott",
+                "email" => "MichaelScott@hotmail.com",
+                "address" => "Scranton the electric city",
+                "postal_code" => "11111",
+                "floor" => '1',
+                "country" => "USA",
+                "city" => "Scranton",
+                "mobile" => "6900000000",
+                "alternative_phone" => null,
+                ],
+            ]
+        ]);
+
+        $response = $this->get(route('checkout.order'));
+
+        $response->assertStatus(200);
+
+        session()->put('guest.payment_method', [
+            'value' => 'bank_transfer',
+            'extra_cost' => 2.00,   
+        ]);
+
+        $response = $this->post(route('checkout.order.complete'), [
+            'payment_method' => 'bank_transfer',
+            'shipping_method' => 'elta'    
+        ]);
+        
+        $response->assertRedirect(route('order.success'));
+        
+        $order = Order::where('user_id', $user->id)->with('lineItems.product')->count();
+
+        $this->assertEquals(2, $order);
+    }
 
 }

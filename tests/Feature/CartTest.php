@@ -24,12 +24,14 @@ class CartTest extends TestCase
 
         $product = Product::create([
             'title' => 'foo',
-            'current_price' => 150,    
+            'current_price' => 150, 
+            'stock' => 10  
         ]);
 
         $product2 = Product::create([
             'title' => 'bar',
             'current_price' => 50,    
+            'stock' => 10  
         ]);
 
         $order = Order::create([
