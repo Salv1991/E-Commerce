@@ -18,10 +18,13 @@ class CategoryFactory extends Factory
     public function definition(): array
     {   
         $images = [
-            'products/image1.jpg',
-            'products/image2.jpg',
-            'products/image3.jpg',
             'products/image4.jpg',
+            'products/image5.jpg',
+            'products/image6.jpg',
+            'products/image7.jpg',
+            'products/image8.jpg',
+            'products/image9.jpg',
+            'products/image10.jpg',
         ];
 
         $title = fake()->unique()->word(); 

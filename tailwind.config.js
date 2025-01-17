@@ -10,6 +10,9 @@ export default {
         colors: {
           'primary-500': '#f56565',
         },
+        screens: {
+          'xs' : '520px',
+        }
       },
   },
   plugins: [],

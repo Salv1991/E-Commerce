@@ -73,7 +73,7 @@
                                                 {{-- IMAGE --}}
                                                 <a href="{{ route('category', $category)}}" class="block aspect-[360/416] max-h-[600px] h-full">  
                                                     <img 
-                                                        src="{{ asset('storage/' . ($category->image_path ? $category->image_path : 'products/placeholder.jpg') )}}" 
+                                                        src="{{ asset('storage/' . ( $category->image_path ?: 'products/placeholder.jpg') )}}" 
                                                         alt="Product Image" 
                                                         class="w-full h-full object-cover" 
                                                         loading="lazy"/>
