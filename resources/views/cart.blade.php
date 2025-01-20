@@ -1,5 +1,5 @@
 <x-layout>
-    <div class="mt-16 max-w-screen-xl m-auto p-6">
+    <div class="mt-10 max-w-screen-xl m-auto p-6">
 
         <h1 class="text-center text-4xl font-semibold">Cart</h1>
 
@@ -7,9 +7,8 @@
             <div 
                 data-controller="wishlist cart lineItemQuantity" 
                 data-filter-target="productsContainer" 
-                class="cart-teasers-container col-span-full lg:col-span-4 p-5">
-
-                
+                class="cart-teasers-container col-span-full lg:col-span-4 ">
+ 
                 @if (session('productsWithoutStock') || !empty($productsWithoutStock))    
                     <div class="mb-5">
                         <p class="bg-red-700 text-white font-semibold p-5">Some out-of-stock products have been removed from your cart.</p>

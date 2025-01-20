@@ -2,14 +2,21 @@
 <a href="{{ route('product', $product) }}" class="col-span-1 relative" >
 
     {{-- IMAGE CONTAINER --}}
-    <div class="aspect-[308/416] relative">
+    <div class="aspect-[350/416] relative">
         <img 
             src="{{ asset('storage/' . ($product->images->isNotEmpty() ? $product->images->first()->image_path : 'products/placeholder.jpg') )}}" 
             alt="Product Image" 
             class="w-full h-full object-cover rounded-md" />
+            
+            @if ($product->stock <= 0)                
+                <div class="flex justify-center items-center absolute top-0 bottom-0 right-0 left-0 bg-black/50">
+                    <span class="text-white">Out of stock</span>
+                </div>
+            @endif
+
         {{-- WISHLIST BUTTON --}}
         @auth   
-        <div class="absolute top-5 lg:top-3 right-7 lg:right-3">
+        <div class="absolute top-3 right-3">
             <x-form.wishlist-toggle :product='$product' :$isWishlisted/>
         </div>
         @endauth

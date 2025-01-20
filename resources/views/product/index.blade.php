@@ -1,10 +1,10 @@
 <x-layout> 
-    <div class="w-full px-5 pb-20 max-w-screen-xl m-auto" data-controller="filter" >
+    <div class="w-full px-5 pb-5 max-w-screen-xl m-auto" data-controller="filter" >
         
         {{-- BREADCRUMBS --}}
         <x-nav.breadcrumbs :$category />
 
-        <h1 class="font-semibold text-3xl text-center mt-16 uppercase text-gray-700">{{ $category->title }}</h1>
+        <h1 class="font-semibold text-3xl text-center mt-10 uppercase text-gray-700">{{ $category->title }}</h1>
 
         <p class="text-center mt-6 text-gray-500">{{ $category->description}}</p>
 
@@ -34,7 +34,7 @@
                 <div 
                     data-controller="wishlist cart" 
                     data-filter-target="productsContainer" 
-                    class="col-span-4 lg:col-span-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 ">
+                    class="col-span-4 lg:col-span-3 grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 gap-10 ">
                     @if ($products->isNotEmpty())            
                         @foreach ($products as $product)
                             <x-product.teaser 

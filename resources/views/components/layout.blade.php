@@ -9,11 +9,17 @@
 
 
     </head>
-    <body class="font-sans antialiased bg-stone-100 dark:bg-black dark:text-white/50">
+    <body class="font-sans antialiased bg-stone-100 dark:bg-black dark:text-white/50 wrapper">
         @if(!($hideHeader ?? false))
             <x-nav.header />
         @endif
+        
+        <main>
             {{ $slot }}
-        <x-nav.footer />
+        </main>
+
+        @if(!($hideFooter ?? false))
+            <x-nav.footer />
+        @endif
     </body>
 </html>

@@ -1,4 +1,4 @@
-<x-layout :hideHeader="true">
+<x-layout :hideHeader="true" :hideFooter="true">
     <div class="bg-white relative">
 
         {{-- ERROR MESSAGE --}}

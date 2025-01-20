@@ -1,5 +1,5 @@
 <x-layout>
-    <div class="mt-16 max-w-screen-xl m-auto p-6">
+    <div class="mt-10 max-w-screen-xl m-auto p-6">
         <h1 class="text-center text-4xl font-semibold">My Wishlist</h1>
 
         <div id="wishlist-container"

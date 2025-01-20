@@ -5,8 +5,6 @@ namespace Tests\Feature;
 use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class CategoryPageTest extends TestCase
@@ -24,14 +22,14 @@ class CategoryPageTest extends TestCase
         ]);
 
         $product1 = Product::create([
-            'title' => 'illo',
+            'title' => 'illo_ya',
             'current_price' => 100,   
             'original_price' => 200,
             'discount' => 50,  
         ]);
 
         $product2 = Product::create([
-            'title' => 'yin',
+            'title' => 'yin_ya',
             'current_price' => 500,   
             'original_price' => 100,
             'discount' => 50,  
@@ -80,51 +78,64 @@ class CategoryPageTest extends TestCase
 
         ]);
 
-        $product1->categories()->attach($category->id);
-        $product2->categories()->attach($category->id);
-        $product3->categories()->attach($category->id);
+        $category->products()->attach([$product1->id, $product2->id, $product3->id]);
 
         $response = $this->get('categories/' . $category->id . '?price=asc');
 
         $response->assertStatus(200);
      
-        $response->assertSeeInOrder([$product3->title, $product1->title, $product2->title]);
+        $response->assertSeeHtmlInOrder([
+            '<h2 class="text-lg font-bold text-start">' . $product3->title . '</h2>',
+            '<h2 class="text-lg font-bold text-start">' . $product1->title . '</h2>',
+            '<h2 class="text-lg font-bold text-start">' . $product2->title . '</h2>'
+        ]);
 
         $response = $this->get('categories/' . $category->id . '?price=desc');
 
-        $response->assertSeeInOrder([$product2->title, $product1->title, $product3->title]);
+        $response->assertSeeHtmlInOrder([
+            '<h2 class="text-lg font-bold text-start">' . $product2->title . '</h2>',
+            '<h2 class="text-lg font-bold text-start">' . $product1->title . '</h2>',
+            '<h2 class="text-lg font-bold text-start">' . $product3->title . '</h2>'
+        ]);
 
         $response = $this->get('categories/' . $category->id . '?sort=asc');
 
-        $response->assertSeeInOrder([$product1->title, $product3->title, $product2->title]);
-
+        $response->assertSeeHtmlInOrder([
+            '<h2 class="text-lg font-bold text-start">' . $product1->title . '</h2>',
+            '<h2 class="text-lg font-bold text-start">' . $product3->title . '</h2>',
+            '<h2 class="text-lg font-bold text-start">' . $product2->title . '</h2>'
+        ]);
+        
         $response = $this->get('categories/' . $category->id . '?sort=desc');
 
-        $response->assertSeeInOrder([$product2->title, $product3->title, $product1->title]);
+        $response->assertSeeHtmlInOrder([
+            '<h2 class="text-lg font-bold text-start">' . $product2->title . '</h2>',
+            '<h2 class="text-lg font-bold text-start">' . $product3->title . '</h2>',
+            '<h2 class="text-lg font-bold text-start">' . $product1->title . '</h2>'
+        ]);
 
         $response = $this->get('categories/' . $category->id . '?discounted_products=1');
 
-        $response->assertDontSee($product2->title);
+        $response->assertDontSeeHtml('<h2 class="text-lg font-bold text-start">' . $product2->title . '</h2>');
 
-        $response->assertSee($product1->title);
+        $response->assertSeeHtml('<h2 class="text-lg font-bold text-start">' . $product1->title . '</h2>');
 
-        $response->assertSee($product3->title);
+        $response->assertSeeHtml('<h2 class="text-lg font-bold text-start">' . $product3->title . '</h2>');
 
         $response = $this->get('categories/' . $category->id . '?min_price_range=0&max_price_range=100');
 
-        $response->assertDontSee($product2->title);
+        $response->assertDontSeeHtml('<h2 class="text-lg font-bold text-start">' . $product2->title . '</h2>');
 
-        $response->assertSee($product1->title);
+        $response->assertSeeHtml('<h2 class="text-lg font-bold text-start">' . $product1->title . '</h2>');
 
-        $response->assertSee($product3->title);
+        $response->assertSeeHtml('<h2 class="text-lg font-bold text-start">' . $product3->title . '</h2>');
 
         $response = $this->get('categories/' . $category->id . '?min_price_range=101&max_price_range=300');
 
-        $response->assertSee($product2->title);
+        $response->assertSeeHtml('<h2 class="text-lg font-bold text-start">' . $product2->title . '</h2>');
 
-        $response->assertDontSee($product1->title);
+        $response->assertDontSeeHtml('<h2 class="text-lg font-bold text-start">' . $product1->title . '</h2>');
 
-        $response->assertDontSee($product3->title);
-
+        $response->assertDontSee('<h2 class="text-lg font-bold text-start">' . $product3->title . '</h2>');
     }
 }

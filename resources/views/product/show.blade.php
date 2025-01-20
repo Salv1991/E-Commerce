@@ -1,16 +1,16 @@
 <x-layout>
     <div 
-        class="w-full px-5 pb-20 max-w-screen-xl m-auto" 
+        class="w-full px-5 pb-10 max-w-screen-xl m-auto" 
         data-controller="wishlist cart" 
         data-filter-target="productsContainer" >
         
         {{-- BREADCRUMBS --}}
         <x-nav.breadcrumbs :category="$product->categories->first()" :$product />
 
-        <div class="w-full m-auto grid grid-cols-2 gap-5 *:col-span-full *:md:col-span-1">
+        <div class="w-full m-auto grid grid-cols-2 gap-5 *:col-span-full *:md:col-span-1 mt-8">
 
             {{-- IMAGE --}}
-            <div class="aspect-[300/416] ">
+            <div class="aspect-[350/416]">
                 @if ($product->images->isNotEmpty())
                 <img 
                     src="{{ asset('storage/' . $product->image->image_path) }}" 

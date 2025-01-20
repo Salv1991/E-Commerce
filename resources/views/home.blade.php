@@ -16,35 +16,35 @@
         @if($randomCategories->isNotEmpty())
         <h2 class="text-2xl font-semibold border-b-2 border-b-pink-400 w-fit mb-5">Categories</h2>
 
-            <div class="grid grid-cols-2 gap-5 max-h-[540px] mb-16">
-                <div class="col-span-1 grid grid-cols-2 grid-rows-2 gap-5">
+            <div class="grid grid-cols-2 gap-5 mb-16 ">
+                <div class="col-span-full md:col-span-1 order-2 md:order-1 grid grid-cols-2 grid-rows-2 gap-5 md:max-h-[540px]">
                     @foreach ($randomCategories->take(3) as $category) 
                         <a @class([
-                                'col-span-1' => $loop->index == 0 || $loop->index == 1 || $loop->index == 3,
-                                'col-span-full' => $loop->index == 2,
-                                'h-[400px] md:h-[260px] w-full overflow-hidden relative'
+                                'col-span-1 aspect-square md:aspect-auto' => $loop->index == 0 || $loop->index == 1 || $loop->index == 3,
+                                'col-span-full aspect-[2/1] md:aspect-auto' => $loop->index == 2,
+                                'h-[400px] md:h-[260px] w-full overflow-hidden relative group rounded-md h-auto w-auto md:h-full md:w-full'
                             ])
                             href="{{ route('category', $category->id) }}">
                             <img 
                                 src="{{asset('storage/' . $category->image_path)}}" 
                                 alt="Product Image" 
-                                class="h-full w-full object-cover object-top rounded-md" />
-                            <div class="absolute right-0 bottom-0 py-2 px-8 bg-black/30 w-full">
-                                <h1 class="text-2xl font-semibold text-white text-end">{{ucfirst($category->title)}}</h1>
-                                <p class="text-gray-50 text-right text-sm mt-3 line-clamp-2">{{$category->description}}</p>
+                                class="h-full w-full object-cover object-top transform transition-transform duration-500 ease-in-out group-hover:scale-105" />
+                            <div class="absolute right-0 bottom-0 py-1 xs:py-2 px-4 md:px-8 bg-black/30 w-full">
+                                <h1 class="text-lg xs:text-xl md:text-2xl font-semibold text-white text-end">{{ucfirst($category->title)}}</h1>
+                                <p class="text-gray-50 text-right text-[11px] xs:text-xs md:text-sm mt-1 md:mt-3 line-clamp-2">{{$category->description}}</p>
                             </div>
                         </a>
                     @endforeach   
                 </div>
-                <div class="col-span-1 grid grid-rows-2 max-h-[540px]">
-                    <a href="{{ route('category', $randomCategories->last()->id) }}" class="h-full w-full overflow-hidden relative row-span-2">
+                <div class="col-span-full md:col-span-1 order-1 md:order-2 grid grid-rows-1 md:grid-rows-2 row-span-1 md:row-span-2 md:max-h-[540px] aspect-[2/1] md:aspect-auto">
+                    <a href="{{ route('category', $randomCategories->last()->id) }}" class="h-full w-full overflow-hidden rounded-md relative row-span-2 group">
                         <img 
                             src="{{asset('storage/' . $randomCategories->last()->image_path)}}" 
                             alt="Product Image" 
-                            class="h-full w-full object-cover object-top rounded-md" />
-                        <div class="absolute right-0 bottom-0 py-2 px-8 bg-black/30 ">
-                            <h1 class="text-2xl font-semibold text-white text-end">{{ucfirst($randomCategories->last()->title)}}</h1>
-                            <p class="text-gray-50 text-right text-sm mt-3 md:mt-5">{{$randomCategories->last()->description}}</p>
+                            class="h-full w-full object-cover object-top rounded-md transform transition-transform duration-500 ease-in-out group-hover:scale-105" />
+                        <div class="absolute right-0 bottom-0 py-1 xs:py-2 px-4 md:px-8 bg-black/30 ">
+                            <h1 class="text-xl md:text-2xl font-semibold text-white text-end">{{ucfirst($randomCategories->last()->title)}}</h1>
+                            <p class="text-gray-50 text-right text-xs md:text-sm  mt-1 md:mt-3 line-clamp-2">{{$randomCategories->last()->description}}</p>
                         </div>
                     </a>
                 </div>

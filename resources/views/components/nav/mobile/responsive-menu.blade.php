@@ -11,7 +11,7 @@
 
         {{-- RESPONSIVE MENU CARD --}}
         <div data-responsive-nav-menu-target="menu" 
-            class="flex flex-col justify-between items-center h-full bg-gray-50 w-72 -translate-x-full transition-transform duration-300">
+            class="flex flex-col justify-between items-center h-full bg-gray-50 w-3/4 xs:w-72 -translate-x-full transition-transform duration-300">
             
             <div class="w-full flex flex-col justify-start items-center relative">
                 {{-- SEARCH --}}
@@ -69,21 +69,6 @@
                         @endforeach
                     </ul>
                 </nav>
-            </div>
-
-            <div class="flex justify-center items-center gap-5 p-5">
-                <div class="relative">
-                    <div class="absolute -top-4 -right-2 bg-gray-500 text-white rounded-full w-5 h-5 text-xs flex justify-center items-center" >
-                        2
-                    </div>
-                    <x-heroicon-o-heart class="w-7 h-7 text-gray-500 hover:text-primary-500"/>
-                </div>
-                <div class="relative">
-                    <div class="absolute -top-4 -right-2 bg-gray-500 text-white rounded-full w-5 h-5 text-xs flex justify-center items-center" >
-                            22
-                    </div>
-                    <x-heroicon-c-shopping-bag class="w-7 h-7 text-gray-500 hover:text-primary-500"/>
-                </div>
             </div>
         </div>
     </div>

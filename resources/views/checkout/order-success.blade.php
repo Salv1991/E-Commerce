@@ -1,4 +1,4 @@
-<x-layout :hideHeader="true">
+<x-layout :hideHeader="true" :hideFooter="true">
     <div class="fixed top-0 bottom-0 right-0 left-0 flex justify-center items-center">
         <div class="bg-white w-3/4">
             <div class="mb-10 m-auto px-5 py-20 relative">

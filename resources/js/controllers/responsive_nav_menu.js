@@ -8,6 +8,18 @@ export default class extends Controller {
         document.querySelectorAll('.category-container').forEach(container => {
             container.addEventListener('mouseover', event => event.stopPropagation());
         });
+        console.log( document.querySelector('div[data-responsive-nav-menu-target="responsiveMenuContainer"]'));
+        document.querySelector('div[data-responsive-nav-menu-target="responsiveMenuContainer"]').addEventListener('click', this.handleClickOutside.bind(this)); 
+    }
+
+    disconnect() {
+        document.removeEventListener('click', this.handleClickOutside.bind(this));
+    }
+
+    handleClickOutside(event){
+        if(!document.querySelector('div[data-responsive-nav-menu-target="menu"]').contains(event.target)){
+            this.toggleResponsiveMenu();
+        }
     }
 
     toggleResponsiveMenu() {

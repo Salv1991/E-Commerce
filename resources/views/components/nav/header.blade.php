@@ -90,7 +90,7 @@
 
             <div class="flex justify-center items-center gap-2 py-6">
                 {{-- SEARCH --}}
-                <form action="{{route('search')}}" method="get" class="relative w-[70%]">
+                <form action="{{route('search')}}" method="get" class="relative w-[70%] hidden xs:block">
                     <input type="search" placeholder="Search" name="query" value="{{ request()->query('query') }}" class="w-full rounded-xl py-1 pl-9 pr-2 border-2 border-gray-200 outline-none text-sm placeholder:text-sm" />
                     <button type='submit' class="absolute left-2 top-[5px] mr-2 ">
                         <x-heroicon-c-magnifying-glass  class="w-6 h-6 text-gray-500 hover:text-primary-500"/>       
@@ -161,10 +161,13 @@
                         border-gray-200 p-4">
                             <ul class="space-y-2">
                                 @auth 
+                                    <li >
+                                        <a href="{{route('user.orders')}}" class="hover:text-primary-500">My orders</a>
+                                    </li>
                                     <li>
                                         <form method="POST" action="{{ route('logout') }}">
                                             @csrf
-                                            <button type="submit" class="hover:text-primary-500">Log out</button>
+                                            <button type="submit" class="hover:text-primary-500">Logout</button>
                                         </form>
                                     </li>
                                 @endauth
@@ -173,7 +176,7 @@
                                         <a href="{{route('login')}}" class="inline-block w-full hover:text-primary-500">Login</a>
                                     </li> 
                                     <li>
-                                        <a href="{{route('signup')}}" class="inline-block w-full hover:text-primary-500">Sign up</a>
+                                        <a href="{{route('signup')}}" class="inline-block w-full hover:text-primary-500">Signup</a>
                                     </li> 
                                 @endguest
                             </ul>
@@ -181,12 +184,12 @@
                     </div>
                 </div>
                 
-                {{-- RESPONSIVE MENU ICON --}}
+                {{-- RESPONSIVE MENU BUTTON --}}
                 <div class="cursor-pointer block md:hidden">
                     <x-heroicon-m-bars-3-bottom-right data-action="click->responsive-nav-menu#toggleResponsiveMenu" class="w-7 h-7 text-gray-500 hover:text-primary-500"/>
                 </div>
                 
-                {{-- HIDDEN CONTAINER --}}
+                {{-- HIDDEN CATEGORIES CONTAINER --}}
                 <x-nav.mobile.responsive-menu :$categories/>
 
             </div> 

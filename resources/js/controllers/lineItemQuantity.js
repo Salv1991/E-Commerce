@@ -28,6 +28,5 @@ export default class extends Controller {
                 container.querySelector('.closed-chevron').classList.toggle('hidden');
             }
         })
-
     }
 }

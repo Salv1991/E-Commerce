@@ -9,6 +9,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\SearchController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -22,6 +23,7 @@ Route::get('/categories/{category}', [CategoryController::class, 'index'])->name
 
 Route::get('/login', [LoginController::class, 'show'])->middleware('guest')->name('login.show');
 Route::post('/login', [LoginController::class, 'login'])->middleware('guest')->name('login');
+Route::get('/user/orders', [UserController::class, 'orders'])->middleware('auth')->name('user.orders');
 Route::post('/logout', [LoginController::class, 'logout'])->middleware('auth')->name('logout');
 
 Route::get('/signup', [SignupController::class, 'show'])->middleware('guest')->name('signup');

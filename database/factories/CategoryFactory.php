@@ -24,7 +24,6 @@ class CategoryFactory extends Factory
             'products/image7.jpg',
             'products/image8.jpg',
             'products/image9.jpg',
-            'products/image10.jpg',
         ];
 
         $title = fake()->unique()->word(); 

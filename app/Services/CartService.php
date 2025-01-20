@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Auth;
 
 class CartService
 {
-    //check if product stock is 0 and if yes  then use reject on the collection(removedProducts);
     public function getCartData()
     {
         $cartData = [

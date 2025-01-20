@@ -147,7 +147,7 @@
 
                         <span class="text-base">
                             Payment Fee: 
-                            <span id="payment-fee">{{ number_format( $cartData['payment_fee'], 2). ' $' }}</span>
+                            <span id="payment-fee">{{ $cartData['payment_fee'] == 0 ? 'Free' : number_format( $cartData['payment_fee'], 2). ' $' }}</span>
                         </span>
 
                         <span class="text-lg font-semibold mt-2">
