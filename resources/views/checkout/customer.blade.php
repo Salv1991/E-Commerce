@@ -6,12 +6,12 @@
             <x-error-message />
         </div>
 
-        <div class="mb-10 max-w-screen-xl m-auto px-5 pt-20 relative">
+        <div class="max-w-screen-xl m-auto px-5 pt-10 relative">
             <a href="/" class="block w-fit m-auto" >
-                <img src="{{ asset('svg/logo.svg') }}" alt="Logo" class="w-20 h-20">
+                <img src="{{ asset('svg/logo7.png') }}" alt="Logo" class="h-36">
             </a>
 
-            <h1 class="text-center text-3xl sm:text-5xl font-semibold mt-16">Customer Information</h1>
+            <h1 class="text-center text-3xl sm:text-5xl font-semibold mt-10">Customer Information</h1>
             
             <x-checkout.steps :$steps :$currentStep />      
 

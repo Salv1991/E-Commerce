@@ -23,11 +23,15 @@ Route::get('/categories/{category}', [CategoryController::class, 'index'])->name
 
 Route::get('/login', [LoginController::class, 'show'])->middleware('guest')->name('login.show');
 Route::post('/login', [LoginController::class, 'login'])->middleware('guest')->name('login');
-Route::get('/user/orders', [UserController::class, 'orders'])->middleware('auth')->name('user.orders');
 Route::post('/logout', [LoginController::class, 'logout'])->middleware('auth')->name('logout');
 
 Route::get('/signup', [SignupController::class, 'show'])->middleware('guest')->name('signup');
 Route::post('/signup', [SignupController::class, 'create'])->middleware('guest')->name('signup.create');
+
+Route::get('/user/orders', [UserController::class, 'orders'])->middleware('auth')->name('user.orders');
+Route::get('/user/settings/customer-information', [UserController::class, 'showCustomerInformation'])->middleware('auth')->name('settings.customer-information.show');
+Route::patch('/user/settings/customer-information', [UserController::class, 'editCustomerInformation'])->middleware('auth')->name('settings.customer-information.edit');
+Route::get('/user/settings/account', [UserController::class, 'account'])->middleware('auth')->name('settings.account.show');
 
 Route::get('/wishlist', [WishlistController::class, 'show'])->middleware('auth')->name('wishlist');
 Route::post('/wishlist/{id}', [WishlistController::class, 'toggle'])->middleware('auth')->name('wishlist.toggle');

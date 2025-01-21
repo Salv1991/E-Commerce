@@ -1,9 +1,9 @@
 <x-layout>
-    <div class="mt-10 max-w-screen-xl m-auto p-6">
+    <div class="max-w-screen-xl m-auto py-16 px-5">
 
         <h1 class="text-center text-4xl font-semibold">Cart</h1>
 
-        <div class="mt-14 grid grid-cols-6 items-start gap-8 bg-gray-100">
+        <div class="mt-14 grid grid-cols-6 items-start gap-8">
             <div 
                 data-controller="wishlist cart lineItemQuantity" 
                 data-filter-target="productsContainer" 
@@ -57,13 +57,13 @@
                     </div>
                 @endif
 
-                <div class="divide-y-2">
+                <div class="space-y-2 min-h-96">
                     @if ($cart->isNotEmpty())
                         @foreach ($cart as $lineItem )
                             <div id="product-{{$lineItem->product->id}}" 
                                 data-teaser-{{$lineItem->product->id}} 
-                                class="px-5 {{$lineItem->product->stock <= 0 ? 'bg-red-100' : 'bg-white'}} grid grid-cols-7 py-5 gap-4">
-                            
+                                class="px-5 bg-gray-50 grid grid-cols-7 py-5 gap-4">
+            
                                 <a href="{{route('product', $lineItem->product)}}" 
                                     class="w-full h-full overflow-hidden aspect-[.75] col-span-2 lg:col-span-1">
                                     <img 
@@ -154,7 +154,7 @@
                             </div>
                         @endforeach
                     @endif
-                    <div class="{{$cart->isNotEmpty() ? 'hidden' : 'flex'}} empty-cart-message bg-white h-96 px-5 py-5 flex justify-center items-center text-gray-500">
+                    <div class="{{$cart->isNotEmpty() ? 'hidden' : 'flex'}} empty-cart-message bg-gray-50 border border-gray-200 h-96 px-5 py-5 flex justify-center items-center text-gray-500">
                         Your Cart is empty.
                     </div>
                 </div>

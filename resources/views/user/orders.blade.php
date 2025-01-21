@@ -1,6 +1,6 @@
 <x-layout>
     <div class="max-w-screen-xl m-auto p-10">
-        <h1 class="text-center text-4xl font-semibold">My orders</h1>
+        <h1 class="text-start text-4xl font-semibold">My orders</h1>
         <div class="overflow-x-auto">
             <table class="table-auto w-full mt-20 min-w-[800px]">
                 <thead class="">
@@ -15,7 +15,7 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y-2">
-                    @foreach($orders as $order)
+                    @forelse($orders as $order)
                     <tr class="*:text-end">
                         <td>{{$order->status}}</td>
                         <td>{{$order->total_price}}$</td>
@@ -25,7 +25,12 @@
                         <td>{{config('app.shipping_methods')[$order->shipping_method]['title']}}</td>
                         <td>{{$order->paid == 0 ? 'Not paid' : 'Paid'}}</td>
                     </tr>
-                    @endforeach
+                    @empty
+                    <tr class="">
+                        <td colspan="7" class="text-center p-2">No orders found</td>
+
+                    </tr> 
+                    @endforelse
                 </tbody>
             </table> 
         </div>         

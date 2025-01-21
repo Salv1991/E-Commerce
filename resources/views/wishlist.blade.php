@@ -5,7 +5,7 @@
         <div id="wishlist-container"
             data-controller="wishlist cart" 
             data-filter-target="wishlistsContainer" 
-            class="mt-14 flex flex-col justify-between divide-y-2 divide-gray-100 items-center bg-gray-100 p-2">
+            class="mt-14 flex flex-col justify-between space-y-2 items-center p-2">
 
             <div class="hidden lg:grid grid-cols-8 items-center justify-center gap-5 h-20 w-full">
                 <div class="grid grid-cols-2 col-span-2">

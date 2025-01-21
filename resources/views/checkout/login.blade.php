@@ -1,11 +1,11 @@
 <x-layout :hideHeader="true">
     <div class="bg-white min-h-screen">
-        <div class="mb-10 max-w-screen-xl m-auto px-5 pt-20 relative">
+        <div class="max-w-screen-xl m-auto px-5 pt-20 relative">
             <a href="/" class="block w-fit m-auto" >
-                <img src="{{ asset('svg/logo.svg') }}" alt="Logo" class="w-20 h-20">
+                <img src="{{ asset('svg/logo6.svg') }}" alt="Logo" class="h-56">
             </a>
 
-            <h1 class="text-center text-5xl font-semibold mt-16">Checkout</h1>
+            <h1 class="text-center text-5xl font-semibold">Checkout</h1>
             
             <x-checkout.steps :$steps :$currentStep />      
 

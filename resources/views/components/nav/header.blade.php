@@ -1,5 +1,5 @@
 <header 
-    class="sticky top-0 border-b border-b-stone-300 w-full z-40  bg-white" 
+    class="sticky top-0 border-b border-b-stone-300 w-full z-40 h-[89px] bg-white" 
     data-controller="responsive-nav-menu" 
     data-action="mouseover->responsive-nav-menu#closeSubmenu">
 
@@ -7,7 +7,7 @@
 
         {{-- MESSAGES --}}
         @if(session('success') || session('error'))    
-            <div id='flash-message' class="z-30 rounded-lg {{session('success') ? 'bg-black' : 'bg-red-500'}} text-white p-5  absolute -bottom-20 right-5 ">
+            <div id='flash-message' class="z-30 rounded-lg {{session('success') ? 'bg-black' : 'bg-red-400'}} text-white p-5  absolute -bottom-20 right-5 ">
                 {{ session('success') ?? session('error') }}
             </div>
 
@@ -22,11 +22,11 @@
             </script>
         @endif
         
-        <div id='errorMessage' class="z-30 rounded-lg bg-red-500 text-white p-5  absolute -bottom-20 right-5 hidden"></div>
+        <div id='errorMessage' class="z-30 rounded-lg bg-red-400 text-white p-5  absolute -bottom-20 right-5 hidden"></div>
         
         {{-- LOGO --}}
-        <a href="/" class="min-w-[40px]" >
-            <img src="{{ asset('svg/logo.svg') }}" alt="Logo" class="w-10 h-10">
+        <a href="/" class="min-w-[89px]" >
+            <img src="{{ asset('svg/logo7.png') }}" alt="Logo" class="w-32 overflow-hidden">
         </a>
 
         <div class="w-full flex justify-between items-center gap-6">
@@ -42,7 +42,7 @@
                             <li class="group" data-action="mouseover->responsive-nav-menu#openSubmenu">
 
                                 <a  href="{{ route('category', $category) }}"
-                                    class="px-5 py-9 group-hover:text-primary-500 text-sm uppercase font-semibold"
+                                    class="px-5 py-9 group-hover:text-red-400 text-sm uppercase font-semibold"
                                     data-responsive-nav-menu-target="firstDepth" 
                                     data-category-id="{{ $category->id }}">  
                                         {{$category->title}}
@@ -51,7 +51,7 @@
                                 <div data-responsive-nav-menu-target="submenu" 
                                     class="submenu hidden fixed top-[88px] right-0 left-0 bottom-0 bg-black/60" 
                                     data-action="mouseover->responsive-nav-menu#closeSubmenu2">
-                                    <div class="category-container  bg-white z-50 " >
+                                    <div class="category-container bg-white z-50" >
                                         <div class="max-w-screen-xl min-h-[400px] m-auto col-span-2 grid grid-cols-5" id="categories-container">
                                             <div class="col-span-3 grid grid-cols-2 xl:grid-cols-3 p-8 gap-1">
                                                 @foreach ($category->children as $secondDepthCategory)
@@ -71,7 +71,7 @@
                                             </div>
                                             <div class="col-span-2">
                                                 {{-- IMAGE --}}
-                                                <a href="{{ route('category', $category)}}" class="block aspect-[360/416] max-h-[600px] h-full">  
+                                                <a href="{{ route('category', $category)}}" class="block aspect-[350/416] max-h-[500px] ml-auto h-full">  
                                                     <img 
                                                         src="{{ asset('storage/' . ( $category->image_path ?: 'products/placeholder.jpg') )}}" 
                                                         alt="Product Image" 
@@ -93,19 +93,19 @@
                 <form action="{{route('search')}}" method="get" class="relative w-[70%] hidden xs:block">
                     <input type="search" placeholder="Search" name="query" value="{{ request()->query('query') }}" class="w-full rounded-xl py-1 pl-9 pr-2 border-2 border-gray-200 outline-none text-sm placeholder:text-sm" />
                     <button type='submit' class="absolute left-2 top-[5px] mr-2 ">
-                        <x-heroicon-c-magnifying-glass  class="w-6 h-6 text-gray-500 hover:text-primary-500"/>       
+                        <x-heroicon-c-magnifying-glass  class="w-6 h-6 text-gray-500 hover:text-red-400"/>       
                     </button>
                 </form>
 
                 {{-- WISHLIST --}}
                 <x-nav.icon numberContainerId="wishlist-count" href="{{ route('wishlist') }}" :number="$wishlistCount">
-                    <x-heroicon-o-heart class="wishlist-icon transform transition-transform duration-500 w-6 h-6 text-gray-700 group-hover:text-primary-500"/>
+                    <x-heroicon-o-heart class="wishlist-icon transform transition-transform duration-500 w-6 h-6 text-gray-700 group-hover:text-red-400"/>
                 </x-nav.icon>
                 
                 {{-- CART --}}
                 <div class="relative group" data-controller="cart">
                     <x-nav.icon numberContainerId="cart-count" href="{{ route('cart') }}" :number="$cartCount">
-                        <x-heroicon-o-shopping-bag class="w-6 h-6 text-gray-600 group-hover:text-primary-500"/>
+                        <x-heroicon-o-shopping-bag class="w-6 h-6 text-gray-600 group-hover:text-red-400"/>
                     </x-nav.icon>
        
                     <div class="bg-white z-10 min-w-96 absolute top-10 -right-[92px] md:-right-3 pt-[24px] {{ $isCartView ? '' : 'group-hover:block'}} hidden">
@@ -116,7 +116,7 @@
                         </div>
 
                         <div class="border border-gray-200 p-4 h-72 overflow-y-auto">
-                            <ul id="cart-teasers-container" class="cart-teasers-container h-full flex flex-col gap-5">
+                            <ul id="cart-teasers-container" class="cart-teasers-container h-full flex flex-col *:pb-4">
                                 @if ($cart->isNotEmpty())
                                     @foreach ($cart as $lineItem)
                                         <x-nav.cart-teaser :product="$lineItem->product" :quantity="$lineItem->quantity" />
@@ -156,27 +156,45 @@
                         </x-nav.user-icon> 
                     @endguest            
 
-                    <div class="z-10 min-w-32 absolute top-10 -right-[35px] md:-right-3 py-[24px] group-hover:block hidden">
+                    <div class="z-10 min-w-52 absolute top-10 -right-[35px] md:-right-3 py-[24px] group-hover:block hidden">
                         <div class="bg-white border 
-                        border-gray-200 p-4">
-                            <ul class="space-y-2">
+                        border-gray-200">
+                            <ul class="divide-y-2">
                                 @auth 
-                                    <li >
-                                        <a href="{{route('user.orders')}}" class="hover:text-primary-500">My orders</a>
+                                    <li class="">
+                                        <ul class="flex flex-col">
+                                            <li>
+                                                <a href="{{route('user.orders')}}" class="hover:bg-gray-100/80 p-3 group/orders flex justify-start items-center gap-3">
+                                                    <x-heroicon-m-archive-box class="w-6 text-gray-600 "/>
+                                                    <span class="">My orders</span>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="{{route('settings.customer-information.show')}}" class="hover:bg-gray-100/80 p-3 group/settings flex justify-start items-center gap-3">
+                                                    <x-heroicon-c-cog-8-tooth class="w-6 text-gray-600 "/>
+                                                    <span class="">Settings</span>
+                                                </a>
+                                            </li>
+                                        </ul>
+
                                     </li>
                                     <li>
                                         <form method="POST" action="{{ route('logout') }}">
                                             @csrf
-                                            <button type="submit" class="hover:text-primary-500">Logout</button>
+                                            <button type="submit" class="hover:bg-red-50 p-3 group/logout w-full flex justify-start items-center gap-2">
+                                                <x-heroicon-c-arrow-right-start-on-rectangle class="w-7 h-7 text-gray-500 group-hover/logout:text-red-400"/>
+                                                <span class="group-hover/logout:text-red-400">Log Out</span>
+                                            </button>
                                         </form>
-                                    </li>
+                                    </li>                                  
                                 @endauth
+
                                 @guest
-                                    <li>
-                                        <a href="{{route('login')}}" class="inline-block w-full hover:text-primary-500">Login</a>
+                                    <li class="p-3">
+                                        <a href="{{route('login')}}" class="inline-block w-full hover:text-red-400">Login</a>
                                     </li> 
-                                    <li>
-                                        <a href="{{route('signup')}}" class="inline-block w-full hover:text-primary-500">Signup</a>
+                                    <li class="p-3">
+                                        <a href="{{route('signup')}}" class="inline-block w-full hover:text-red-400">Sign up</a>
                                     </li> 
                                 @endguest
                             </ul>
@@ -186,7 +204,7 @@
                 
                 {{-- RESPONSIVE MENU BUTTON --}}
                 <div class="cursor-pointer block md:hidden">
-                    <x-heroicon-m-bars-3-bottom-right data-action="click->responsive-nav-menu#toggleResponsiveMenu" class="w-7 h-7 text-gray-500 hover:text-primary-500"/>
+                    <x-heroicon-m-bars-3-bottom-right data-action="click->responsive-nav-menu#toggleResponsiveMenu" class="w-7 h-7 text-gray-500 hover:text-red-400"/>
                 </div>
                 
                 {{-- HIDDEN CATEGORIES CONTAINER --}}
