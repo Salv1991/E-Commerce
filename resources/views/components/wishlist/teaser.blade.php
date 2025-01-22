@@ -53,9 +53,7 @@
                     Add to cart 
                     <x-heroicon-c-shopping-bag class="inline-block w-5 h-5 -translate-y-1 ml-1"/>
                 </button>
-
             </form>
-
         </div>
     </div>
 </div>

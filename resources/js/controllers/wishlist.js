@@ -34,17 +34,19 @@ export default class extends Controller {
                 if(wishlistText){
                     wishlistText.textContent = 'Remove from Wishlist';
                 }
+                wishlistIcon.classList.remove('fill-gray-300/70', 'text-transparent'); 
 
                 headerWishlistIcon.classList.add('animate');
 
-                wishlistIcon.classList.add('animate', 'fill-red-300', 'text-red-300');
+                wishlistIcon.classList.add('animate', 'fill-red-400', 'text-white/10');
             
                 setTimeout(() => {
                     headerWishlistIcon.classList.remove('animate');
                     wishlistIcon.classList.remove('animate');
                 }, 300); 
             } else {
-                wishlistIcon.classList.remove('fill-red-300', 'text-red-300'); 
+                wishlistIcon.classList.remove('fill-red-400', 'text-white/10'); 
+                wishlistIcon.classList.add('fill-gray-300/70', 'text-transparent'); 
                 
                 if(wishlistText){
                     wishlistText.textContent = 'Add to Wishlist';
@@ -57,7 +59,7 @@ export default class extends Controller {
         .catch(error => {
             console.log('Error:', error);
             if (data.status === 'added') {
-                wishlistIcon.classList.remove('fill-red-300', 'text-red-300');
+                wishlistIcon.classList.remove('fill-red-300', 'text-white/20');
                 if (wishlistText) {
                     wishlistText.textContent = 'Add to Wishlist';
                 }
@@ -82,6 +84,7 @@ export default class extends Controller {
         .then(data => {
             selectedWishlistForm.closest(`#wishlist-item-${data.productId}`).remove();
             document.getElementById('wishlist-count').textContent = data.updatedWishlistCount;
+            document.querySelector('.empty-wishlist-message').classList.toggle('hidden', data.updatedWishlistCount > 0);      
         })
     }
 }

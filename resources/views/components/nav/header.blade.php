@@ -99,13 +99,13 @@
 
                 {{-- WISHLIST --}}
                 <x-nav.icon numberContainerId="wishlist-count" href="{{ route('wishlist') }}" :number="$wishlistCount">
-                    <x-heroicon-o-heart class="wishlist-icon transform transition-transform duration-500 w-6 h-6 text-gray-700 group-hover:text-red-400"/>
+                    <x-heroicon-o-heart class="wishlist-icon transform transition-transform duration-500 w-6 h-6 text-gray-700"/>
                 </x-nav.icon>
                 
                 {{-- CART --}}
                 <div class="relative group" data-controller="cart">
                     <x-nav.icon numberContainerId="cart-count" href="{{ route('cart') }}" :number="$cartCount">
-                        <x-heroicon-o-shopping-bag class="w-6 h-6 text-gray-600 group-hover:text-red-400"/>
+                        <x-heroicon-o-shopping-bag class="w-6 h-6 text-gray-700"/>
                     </x-nav.icon>
        
                     <div class="bg-white z-10 min-w-96 absolute top-10 -right-[92px] md:-right-3 pt-[24px] {{ $isCartView ? '' : 'group-hover:block'}} hidden">
@@ -190,11 +190,11 @@
                                 @endauth
 
                                 @guest
-                                    <li class="p-3">
-                                        <a href="{{route('login')}}" class="inline-block w-full hover:text-red-400">Login</a>
-                                    </li> 
-                                    <li class="p-3">
-                                        <a href="{{route('signup')}}" class="inline-block w-full hover:text-red-400">Sign up</a>
+                                    <li class=" hover:bg-gray-100/80">
+                                        <a href="{{route('login')}}" class="p-3 block w-full">Login</a>
+                                    </li>  
+                                    <li class=" hover:bg-gray-100/80">
+                                        <a href="{{route('signup')}}" class="p-3 block w-full">Sign up</a>
                                     </li> 
                                 @endguest
                             </ul>

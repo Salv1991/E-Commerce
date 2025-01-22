@@ -62,10 +62,10 @@
                         @foreach ($cart as $lineItem )
                             <div id="product-{{$lineItem->product->id}}" 
                                 data-teaser-{{$lineItem->product->id}} 
-                                class="px-5 bg-gray-50 grid grid-cols-7 py-5 gap-4">
+                                class="px-5 bg-gray-50 grid grid-cols-7 py-5 gap-4 overflow-hidden">
             
                                 <a href="{{route('product', $lineItem->product)}}" 
-                                    class="w-full h-full overflow-hidden aspect-[.75] col-span-2 lg:col-span-1">
+                                    class="w-full h-full overflow-hidden aspect-[.75] col-span-3 sm:col-span-2 lg:col-span-1">
                                     <img 
                                         class="h-full w-full object-cover object-center" 
                                         src="{{ asset('storage/' . ($lineItem->product->images->isNotEmpty() 
@@ -74,7 +74,7 @@
                                         alt="Product Image">  
                                 </a>
 
-                                <div class="col-span-5 lg:col-span-6 flex flex-col justify-between gap-4 lg:grid grid-cols-1 lg:grid-cols-3 ">
+                                <div class="col-span-4 sm:col-span-5 lg:col-span-6 flex flex-col justify-between gap-4 lg:grid grid-cols-1 lg:grid-cols-3 ">
                                     
                                     <div class="flex flex-col lg:grid grid-cols-2 col-span-2 gap-3">
                                         

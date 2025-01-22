@@ -1,6 +1,6 @@
 <x-layout>
     <div class="mt-10 max-w-screen-xl m-auto p-6">
-        <h1 class="text-center text-4xl font-semibold">My Wishlist</h1>
+        <h1 class="text-center text-4xl font-semibold">Wishlist</h1>
 
         <div id="wishlist-container"
             data-controller="wishlist cart" 
@@ -32,12 +32,12 @@
             @if ($wishlistedProducts->isNotEmpty())
                 @foreach ($wishlistedProducts as $product )
                     <x-wishlist.teaser :$product />
-                @endforeach
-                
-            @else
-               <span> Your Wishlist is empty ... </span>
+                @endforeach            
             @endif
-           
+
+             <div class="{{$wishlistedProducts->isNotEmpty() ? 'hidden' : 'flex'}} empty-wishlist-message col-span-7 bg-gray-50 h-96 flex items-center justify-center border w-full">
+                <span>Your Wishlist is empty.</span>
+             </div>
         </div>
     </div>
 </x-layout>
