@@ -32,6 +32,7 @@ Route::get('/user/orders', [UserController::class, 'orders'])->middleware('auth'
 Route::get('/user/settings/customer-information', [UserController::class, 'showCustomerInformation'])->middleware('auth')->name('settings.customer-information.show');
 Route::patch('/user/settings/customer-information', [UserController::class, 'editCustomerInformation'])->middleware('auth')->name('settings.customer-information.edit');
 Route::get('/user/settings/account', [UserController::class, 'account'])->middleware('auth')->name('settings.account.show');
+Route::delete('/user/settings/account', [UserController::class, 'deleteAccount'])->middleware('auth')->name('settings.account.delete');
 
 Route::get('/wishlist', [WishlistController::class, 'show'])->middleware('auth')->name('wishlist');
 Route::post('/wishlist/{id}', [WishlistController::class, 'toggle'])->middleware('auth')->name('wishlist.toggle');

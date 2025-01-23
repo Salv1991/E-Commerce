@@ -5,6 +5,7 @@ import Filter from "./controllers/filter";
 import Cart from "./controllers/cart";
 import lineItemQuantity from "./controllers/lineItemQuantity";
 import Order from "./controllers/order";
+import DeleteAccount from "./controllers/deleteAccount";
 
 const application = Application.start();
 application.register("responsive-nav-menu", ResponsiveNavMenu);
@@ -13,3 +14,4 @@ application.register("cart", Cart);
 application.register("filter", Filter);
 application.register("lineItemQuantity", lineItemQuantity);
 application.register("order", Order);
+application.register("delete-account", DeleteAccount);

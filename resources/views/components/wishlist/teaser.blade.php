@@ -27,7 +27,8 @@
         </a>
     </div>
 
-    <div class="h-full lg:grid grid-cols-1 lg:grid-cols-7 col-span-5 lg:col-span-6 lg:items-center flex flex-col justify-between items-start">
+    <div class="h-full lg:grid grid-cols-1 lg:grid-cols-7 col-span-5 lg:col-span-6 lg:items-center flex flex-col 
+        justify-between items-start">
         <div class="grid grid-cols-5 col-span-5 space-y-2">
             <div class="col-span-2 font-semibold text-lg">
                 <a href="{{route('product', $product)}}" class="hover:text-primary-500">{{ $product->title }}</a>
@@ -49,9 +50,14 @@
         <div class="col-span-full lg:col-span-2 lg:m-auto">
             <form action="{{ route('cart.add', $product) }}" data-action="submit->cart#add" method="post">
                 @csrf
-                <button @disabled($product->stock <= 0) type="submit" class="px-4 py-3 bg-black border-2 border-black hover:bg-white hover:text-black disabled:bg-black/40 disabled:border-none disabled:hover:bg-black/40 text-white duration-300 disabled:text-white">
+                <button
+                    @disabled($product->stock <= 0) 
+                    type="submit" 
+                    class="rounded-sm text-sm sm:text-base p-2 sm:px-4 sm:py-3 bg-black border-2 border-black hover:bg-white 
+                    hover:text-black disabled:bg-black/40 disabled:border-none disabled:hover:bg-black/40 text-white 
+                    transition-colors duration-300 disabled:text-white">
                     Add to cart 
-                    <x-heroicon-c-shopping-bag class="inline-block w-5 h-5 -translate-y-1 ml-1"/>
+                    <x-heroicon-c-shopping-bag class="inline-block w-5 h-5 -translate-y-[2px] ml-1"/>
                 </button>
             </form>
         </div>

@@ -38,15 +38,26 @@ class UserController extends Controller
             abort(403, "Email mismatch.");
         }
 
-        $user->customerInformation->update(
-            $validatedData
-        );
-       
+        $user->update(['name' => $validatedData['name']]);
+
+        unset($validatedData['name'], $validatedData['email']);
+
+        if($user->customerInformation) {
+            $user->customerInformation->update($validatedData);
+        } else {
+            $user->customerInformation()->create($validatedData);
+        }
+        
         return redirect()->route('settings.customer-information.show')->with('success', 'Your information has updated successfully.');
     }
 
     public function account() {
 
         return view('user.settings.account', compact([]));
+    }
+
+    public function deleteAccount() {
+        Auth::user()->delete();
+        return redirect('/')->with('success', 'Your account has been deleted.');
     }
 }

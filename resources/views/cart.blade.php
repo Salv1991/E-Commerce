@@ -62,7 +62,7 @@
                         @foreach ($cart as $lineItem )
                             <div id="product-{{$lineItem->product->id}}" 
                                 data-teaser-{{$lineItem->product->id}} 
-                                class="px-5 bg-gray-50 grid grid-cols-7 py-5 gap-4 overflow-hidden">
+                                class="px-5 bg-gray-50 grid grid-cols-7 py-5 gap-4">
             
                                 <a href="{{route('product', $lineItem->product)}}" 
                                     class="w-full h-full overflow-hidden aspect-[.75] col-span-3 sm:col-span-2 lg:col-span-1">

@@ -43,7 +43,6 @@ class Order extends Model
         $subtotal = $this->lineItems->sum(function($lineItem){
             return $lineItem->quantity * $lineItem->price;
         });
-        
         $shippingMethods = config('app.shipping_methods');
 
             if($subtotal == 0 || $subtotal >= config('app.free_shipping_min_subtotal')) {
@@ -60,7 +59,6 @@ class Order extends Model
                     $shipping_fee = $defaultShippingMethod['extra_cost'];
                 }
             }
-
         $this->update([
             'shipping_method' => $selectedShippingMethod,
             'shipping_fee' => $shipping_fee,

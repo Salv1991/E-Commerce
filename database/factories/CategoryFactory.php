@@ -32,7 +32,7 @@ class CategoryFactory extends Factory
         return [
             'slug' => $slug,
             'title' => $title,
-            'description' => fake()->text(),
+            'description' => fake()->text(400),
             'image_path' => $this->faker->randomElement($images),
         ];
     }

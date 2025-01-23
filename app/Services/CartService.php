@@ -24,6 +24,7 @@ class CartService
         ];
 
         $productsWithoutStock = [];
+        $lineItemIdsToDelete = [];
 
         if (Auth::check()) {
             $currentOrder = Auth::user()->currentOrder()
@@ -31,7 +32,7 @@ class CartService
                 ->first();
 
             if ($currentOrder) {
-                $cartData['cart'] = $currentOrder->lineItems->map(function ($lineItem) use(&$productsWithoutStock){
+                $cartData['cart'] = $currentOrder->lineItems->map(function ($lineItem) use(&$productsWithoutStock, &$lineItemIdsToDelete){
                     if($lineItem->product->stock <= 0) {
                         $productsWithoutStock[] = (object)[
                             'id' => $lineItem->product->id,
@@ -39,8 +40,8 @@ class CartService
                             'price' => $lineItem->product->current_price,
                         ];
 
-                        $lineItem->delete();
-                        
+                        $lineItemIdsToDelete[] = $lineItem->id;
+
                         return null;
                     }
 
@@ -52,10 +53,10 @@ class CartService
                     ];
                 })->filter();
 
-                //bulk delete lineitems!
-
                 if(!empty($productsWithoutStock)) {
+                    LineItem::whereIn('id', $lineItemIdsToDelete)->delete();
                     $cartData['productsWithoutStock'] = $productsWithoutStock;
+                    $currentOrder->refresh()->calculateSubtotal();
                 }
 
                 $cartData['cartCount'] = $currentOrder->lineItemsQuantity();

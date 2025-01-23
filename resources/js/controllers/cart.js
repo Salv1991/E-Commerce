@@ -69,14 +69,16 @@ export default class extends Controller {
     }
 
     showErrorMessage(message) {
-        const errorMessage = document.querySelector('#errorMessage');
-        errorMessage.classList.remove('hidden');
+        const errorMessageContainer = document.getElementById('errorMessageContainer');
+        const errorMessage = document.getElementById('errorMessage');
+        errorMessageContainer.classList.toggle('translate-x-full');
+        errorMessageContainer.classList.toggle('opacity-0');
         errorMessage.textContent = message;
         
         setTimeout(() => {
-            errorMessage.classList.add('hidden');
-            errorMessage.textContent = '';
-        }, 2000);
+            errorMessageContainer.classList.toggle('translate-x-full');
+            errorMessageContainer.classList.toggle('opacity-0');
+        }, 3000);
     }
 
     add(event) {

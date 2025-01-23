@@ -48,10 +48,10 @@
                             <button type="submit"
                                 @disabled($product->stock <= 0)
                                 class="w-full px-4 py-4 bg-black border-2 border-black hover:bg-white hover:text-black disabled:hover:text-white disabled:border-gray-500/10 disabled:bg-gray-500/50
-                                text-white duration-300">
+                                text-white text-xl duration-300">
                                 @if($product->stock > 0)
                                     <span>Add to cart</span> 
-                                    <x-heroicon-c-shopping-bag class="inline-block w-7 h-7 -translate-y-1"/>
+                                    <x-heroicon-c-shopping-bag class="inline-block w-7 h-7 ml-2 -translate-y-1"/>
                                 @else
                                     <span>Out of stock</span> 
                                 @endif

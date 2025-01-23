@@ -1,5 +1,5 @@
 <x-layout>
-    <div class="bg-gray-50 p-5 fixed top-0 right-0 bottom-0 left-0 flex justify-center items-center overflow-y-auto">
+    <div class="bg-gray-50 px-5 fixed top-[89px] right-0 bottom-0 left-0 flex justify-center items-center overflow-y-auto">
 
         <div class="w-full max-w-screen-xl m-auto grid grid-cols-2 shadow-lg">
             {{-- LEFT --}}
@@ -10,7 +10,7 @@
 
                     <x-form.input required label="E-mail" name="email" value="{{old('email')}}" placeholder="E-mail"/>
 
-                    <x-form.input required label="Password" name="password" value="{{old('password')}}" placeholder="Password" />
+                    <x-form.input required type="password" label="Password" name="password" value="{{old('password')}}" placeholder="Password" />
                                  
                     @if ($errors->any())
                         <div class="text-red-500">

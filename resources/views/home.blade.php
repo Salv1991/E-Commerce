@@ -5,7 +5,7 @@
             alt="Product Image" 
             class="h-full w-full object-cover object-top" />
             <div class="absolute inset-0 bg-black/10"></div>
-            <div class="absolute right-5 sm:right-8 md:right-20 bottom-10 md:bottom-28 p-3">
+            <div class="absolute right-5 sm:right-8 md:right-24 lg:right-28 bottom-10 md:bottom-20 lg:bottom-20 p-3">
                 <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold text-white text-end">E-Commerce</h1>
                 <p class="text-gray-50 text-right text-sm sm:text-base lg:text-xl w-[300px] md:w-[450px] lg:w-[600px] mt-4 md:mt-5">No shipping fees on purchases over $200</p>
             </div>

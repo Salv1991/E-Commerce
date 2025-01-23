@@ -1,5 +1,5 @@
 <header 
-    class="sticky top-0 border-b border-b-stone-300 w-full z-40 h-[89px] bg-white" 
+    class="sticky top-0 border-b border-b-stone-300 w-full z-40 h-[89px] bg-white overflow-x-clip" 
     data-controller="responsive-nav-menu" 
     data-action="mouseover->responsive-nav-menu#closeSubmenu">
 
@@ -7,25 +7,38 @@
 
         {{-- MESSAGES --}}
         @if(session('success') || session('error'))    
-            <div id='flash-message' class="z-30 rounded-lg {{session('success') ? 'bg-black' : 'bg-red-400'}} text-white p-5  absolute -bottom-20 right-5 ">
-                {{ session('success') ?? session('error') }}
+            <div id='flash-message-container' class="z-30 px-5 w-full xs:w-fit text-white text-sm xs:text-base 
+                text-center absolute -bottom-20 m-auto right-0 translate-x-full transform duration-300 opacity-0">
+                <div id='flash-message' class="{{session('success') ? 'bg-black' : 'bg-red-400'}} p-5 rounded-lg">
+                    {{ session('success') ?? session('error') }}
+                </div>
             </div>
 
             <script>
-                const flashMessage = document.getElementById('flash-message');
+                const flashMessage = document.getElementById('flash-message-container');
 
                 if (flashMessage) {
                     setTimeout( () => {
-                        flashMessage.style.display = 'none';
+                        flashMessage.classList.toggle('translate-x-full');
+                        flashMessage.classList.toggle('opacity-0');
+                    }, 100);
+
+                    setTimeout( () => {
+                        flashMessage.classList.toggle('translate-x-full');
+                        flashMessage.classList.toggle('opacity-0');
                     }, 3000);
                 }
             </script>
         @endif
         
-        <div id='errorMessage' class="z-30 rounded-lg bg-red-400 text-white p-5  absolute -bottom-20 right-5 hidden"></div>
-        
+        <div id='errorMessageContainer' class="z-30 px-5 w-full xs:w-fit text-white text-sm xs:text-base  
+        text-center absolute -bottom-20 m-auto right-0 translate-x-full transform duration-300 opacity-0">
+            <div id='errorMessage' class="bg-red-400 p-5 rounded-lg"></div>
+        </div>
+
+
         {{-- LOGO --}}
-        <a href="/" class="min-w-[89px]" >
+        <a href="/" class="min-w-[89px]">
             <img src="{{ asset('svg/logo7.png') }}" alt="Logo" class="w-32 overflow-hidden">
         </a>
 
@@ -37,7 +50,7 @@
                     data-responsive-nav-menu-target="categoriesWrapper" 
                     class="relative justify-center items-center gap-5 hidden md:flex">
 
-                    <ul class="flex justify-center items-center">          
+                    <ul class="flex justify-center items-center">     
                         @foreach ($categories as $category)
                             <li class="group" data-action="mouseover->responsive-nav-menu#openSubmenu">
 
@@ -47,7 +60,7 @@
                                     data-category-id="{{ $category->id }}">  
                                         {{$category->title}}
                                 </a>
-                                
+                                     
                                 <div data-responsive-nav-menu-target="submenu" 
                                     class="submenu hidden fixed top-[88px] right-0 left-0 bottom-0 bg-black/60" 
                                     data-action="mouseover->responsive-nav-menu#closeSubmenu2">
@@ -164,15 +177,15 @@
                                     <li class="">
                                         <ul class="flex flex-col">
                                             <li>
-                                                <a href="{{route('user.orders')}}" class="hover:bg-gray-100/80 p-3 group/orders flex justify-start items-center gap-3">
-                                                    <x-heroicon-m-archive-box class="w-6 text-gray-600 "/>
-                                                    <span class="">My orders</span>
+                                                <a href="{{route('user.orders')}}" class="hover:bg-gray-100/80 p-3 *:text-gray-600 flex justify-start items-center gap-3">
+                                                    <x-heroicon-m-archive-box class="w-6"/>
+                                                    <span class="font-semibold">My orders</span>
                                                 </a>
                                             </li>
                                             <li>
-                                                <a href="{{route('settings.customer-information.show')}}" class="hover:bg-gray-100/80 p-3 group/settings flex justify-start items-center gap-3">
-                                                    <x-heroicon-c-cog-8-tooth class="w-6 text-gray-600 "/>
-                                                    <span class="">Settings</span>
+                                                <a href="{{route('settings.customer-information.show')}}" class="hover:bg-gray-100/80 p-3 *:text-gray-600 flex justify-start items-center gap-3">
+                                                    <x-heroicon-c-cog-8-tooth class="w-6"/>
+                                                    <span class="font-semibold">Settings</span>
                                                 </a>
                                             </li>
                                         </ul>
@@ -181,20 +194,30 @@
                                     <li>
                                         <form method="POST" action="{{ route('logout') }}">
                                             @csrf
-                                            <button type="submit" class="hover:bg-red-50 p-3 group/logout w-full flex justify-start items-center gap-2">
-                                                <x-heroicon-c-arrow-right-start-on-rectangle class="w-7 h-7 text-gray-500 group-hover/logout:text-red-400"/>
-                                                <span class="group-hover/logout:text-red-400">Log Out</span>
+                                            <button type="submit" class="hover:bg-gray-100/80 p-3 *:text-gray-600 w-full flex justify-start items-center gap-2">
+                                                <x-heroicon-c-arrow-right-start-on-rectangle class="w-7 h-7"/>
+                                                <span class="font-semibold">Log Out</span>
                                             </button>
                                         </form>
                                     </li>                                  
                                 @endauth
 
                                 @guest
-                                    <li class=" hover:bg-gray-100/80">
-                                        <a href="{{route('login')}}" class="p-3 block w-full">Login</a>
-                                    </li>  
-                                    <li class=" hover:bg-gray-100/80">
-                                        <a href="{{route('signup')}}" class="p-3 block w-full">Sign up</a>
+                                    <li class=" ">
+                                        <ul>
+                                            <li>
+                                                <a href="{{route('login')}}" class="hover:bg-gray-100/80 p-3 *:text-gray-600 flex justify-start items-center gap-3">   
+                                                    <x-heroicon-c-arrow-right-end-on-rectangle class="w-7 h-7"/>
+                                                    <span class="font-semibold">Log in</span>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="{{route('signup')}}" class="hover:bg-gray-100/80 p-3 *:text-gray-600 flex justify-start items-center gap-3">   
+                                                    <x-heroicon-c-user class="w-7 h-7 translate-x-[3px]"/>
+                                                    <span class="font-semibold">Sign up</span>
+                                                </a>
+                                            </li>
+                                        </ul>
                                     </li> 
                                 @endguest
                             </ul>

@@ -6,7 +6,7 @@
     @endif
     </label>
     <input 
-        type="text" 
+        type="{{ $type ?? 'text'}}" 
         placeholder="{{ $placeholder }}" 
         name="{{ $name }}"
         value="{{ $value }}"
@@ -19,7 +19,7 @@
             readonly 
         @endif
         
-        class="w-full mt-2 px-5 py-4 rounded-full bg-gray-50 focus:outline-none focus:ring-1 focus:ring-red-300 focus:border-red-300">
+        class="w-full mt-2 px-5 py-4 rounded-full bg-gray-50 focus:outline-none focus:ring-1 focus:ring-gray-200 focus:border-gray-200">
         @if ($errors->any())
             <span class="pl-2 text-sm text-red-500">
                 {{ $errors->first($name) }}
