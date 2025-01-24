@@ -69,8 +69,8 @@ export default class extends Controller {
     }
 
     showErrorMessage(message) {
-        const errorMessageContainer = document.getElementById('errorMessageContainer');
-        const errorMessage = document.getElementById('errorMessage');
+        const errorMessageContainer = document.getElementById('error-message-container');
+        const errorMessage = document.getElementById('error-message');
         errorMessageContainer.classList.toggle('translate-x-full');
         errorMessageContainer.classList.toggle('opacity-0');
         errorMessage.textContent = message;

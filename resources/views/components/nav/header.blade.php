@@ -31,9 +31,9 @@
             </script>
         @endif
         
-        <div id='errorMessageContainer' class="z-30 px-5 w-full xs:w-fit text-white text-sm xs:text-base  
+        <div id='error-message-container' class="px-5 w-full xs:w-fit text-white text-sm xs:text-base  
         text-center absolute -bottom-20 m-auto right-0 translate-x-full transform duration-300 opacity-0">
-            <div id='errorMessage' class="bg-red-400 p-5 rounded-lg"></div>
+            <div id='error-message' class="bg-red-400 p-5 rounded-lg"></div>
         </div>
 
 
@@ -170,8 +170,7 @@
                     @endguest            
 
                     <div class="z-10 min-w-52 absolute top-10 -right-[35px] md:-right-3 py-[24px] group-hover:block hidden">
-                        <div class="bg-white border 
-                        border-gray-200">
+                        <div class="bg-white border border-gray-200">
                             <ul class="divide-y-2">
                                 @auth 
                                     <li class="">

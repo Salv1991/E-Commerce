@@ -23,222 +23,169 @@ class CartService
             'productsWithoutStock' => [],
         ];
 
+        if (Auth::check()) {
+            return $this->getUserCartData($cartData);
+        } else {
+            return $this->getGuestCartData($cartData);
+        }    
+    }
+
+    public function getUserCartData($cartData) {        
         $productsWithoutStock = [];
         $lineItemIdsToDelete = [];
 
-        if (Auth::check()) {
-            $currentOrder = Auth::user()->currentOrder()
+        $currentOrder = Auth::user()->currentOrder()
                 ->with('lineItems.product.images')
                 ->first();
 
-            if ($currentOrder) {
-                $cartData['cart'] = $currentOrder->lineItems->map(function ($lineItem) use(&$productsWithoutStock, &$lineItemIdsToDelete){
-                    if($lineItem->product->stock <= 0) {
-                        $productsWithoutStock[] = (object)[
-                            'id' => $lineItem->product->id,
-                            'product' => $lineItem->product,
-                            'price' => $lineItem->product->current_price,
-                        ];
-
-                        $lineItemIdsToDelete[] = $lineItem->id;
-
-                        return null;
-                    }
-
-                    return (object)[
-                        'id' => $lineItem->id,
-                        'product' => $lineItem->product,
-                        'quantity' => $lineItem->quantity,
-                        'price' => $lineItem->quantity * $lineItem->product->current_price,
-                    ];
-                })->filter();
-
-                if(!empty($productsWithoutStock)) {
-                    LineItem::whereIn('id', $lineItemIdsToDelete)->delete();
-                    $cartData['productsWithoutStock'] = $productsWithoutStock;
-                    $currentOrder->refresh()->calculateSubtotal();
-                }
-
-                $cartData['cartCount'] = $currentOrder->lineItemsQuantity();
-                $cartData['cartSubtotal'] = $currentOrder->subtotal;
-                $cartData['cartTotal'] = $currentOrder->total_price;
-                $cartData['shipping_method'] = $currentOrder->shipping_method;
-                $cartData['shipping_fee'] = $currentOrder->shipping_fee;
-                $cartData['payment_method'] = $currentOrder->payment_method;
-                $cartData['payment_fee'] = $currentOrder->payment_fee;
-                
-            }
-        } else {
-            $guest = collect(session()->get('guest', []));
-            $guestCart = collect($guest->get('cart', []));
-
-            if ($guestCart->isNotEmpty()) {
-                $productIds = $guestCart->pluck('product_id')->unique();
-                $products = Product::with('images')->whereIn('id', $productIds)->get();
-
-                $cartData['cart'] = $products->map(function ($product) use ($guestCart, &$productsWithoutStock) {
-                    if ($guestCart->has($product->id)) {
-                        if ($product->stock <= 0 ){
-                            $productsWithoutStock[] = (object)[
-                                'id' => $product->id,
-                                'product' => $product,
-                                'price' => $product->current_price,
-                            ];
-
-                           $guestCart->forget($product->id);
-
-                           return null;
-                        }
-
-                        $quantity = $guestCart->get($product->id)['quantity'];
-                        return (object)[
-                            'id' => $product->id,
-                            'product' => $product,
-                            'quantity' => $quantity,
-                            'price' => $product->current_price,
-                        ];
-                    }
-                })->filter();
-
-                if(!empty($productsWithoutStock)){
-                    $cartData['productsWithoutStock'] = $productsWithoutStock;
-                    session()->put('guest.cart', $guestCart->toArray());
-                }
-
-                // Cart quantity.
-                $cartData['cartCount'] = $cartData['cart']->sum('quantity');
-
-                // Cart subtotal.
-                $cartData['cartSubtotal'] = $cartData['cart']->sum(function ($product) {
-                    return $product->quantity * $product->price;
-                });
-
-                // Shipping method.
-                $availableShippingMethods = config('app.shipping_methods'); 
-
-                if($guest->has('shipping_method') && isset($availableShippingMethods[$guest['shipping_method']['value']])){
-                    $selectedShippingMethod = $guest['shipping_method']['value'];
-                } else {
-                    $selectedShippingMethod = array_key_first($availableShippingMethods);
-                }
-
-                if($cartData['cartSubtotal'] > 0 && $cartData['cartSubtotal'] <= config('app.free_shipping_min_subtotal')) {                
-                    $cartData['shipping_fee'] = number_format($availableShippingMethods[$selectedShippingMethod]['extra_cost'], 2);
-                } else {
-                    $cartData['shipping_fee'] = 0;
-                }
-
-                $cartData['shipping_method'] = $selectedShippingMethod;
-
-                // Payment method.
-                $availablePaymentMethods = config('app.payment_methods');   
-                  
-                if($guest->has('payment_method') && isset($availablePaymentMethods[$guest['payment_method']['value']])){
-                    $selectedPaymentMethod = $guest['payment_method']['value'];
-                    $cartData['payment_fee'] = number_format($availablePaymentMethods[$selectedPaymentMethod]['extra_cost'], 2);
-                } else {
-                    $selectedPaymentMethod = '';
-                    $cartData['payment_fee'] = 0;
-                }
-
-                $cartData['payment_method'] = $selectedPaymentMethod ; 
-                
-                // Cart total.
-                $cartData['cartTotal'] = $cartData['cartSubtotal'] + $cartData['shipping_fee'] + $cartData['payment_fee'];
-            }
+        if (!$currentOrder) {
+            return $cartData;
         }
+
+        $cartData['cart'] = $currentOrder->lineItems->map(function ($lineItem) use(&$productsWithoutStock, &$lineItemIdsToDelete){
+            if($lineItem->product->stock <= 0) {
+                $productsWithoutStock[] = (object)[
+                    'id' => $lineItem->product->id,
+                    'product' => $lineItem->product,
+                    'price' => $lineItem->product->current_price,
+                ];
+
+                $lineItemIdsToDelete[] = $lineItem->id;
+
+            } else {
+                return (object)[
+                    'id' => $lineItem->id,
+                    'product' => $lineItem->product,
+                    'quantity' => $lineItem->quantity,
+                    'price' => $lineItem->quantity * $lineItem->product->current_price,
+                ];
+            }
+        })->filter();
+
+        if(!empty($productsWithoutStock)) {
+            LineItem::whereIn('id', $lineItemIdsToDelete)->delete();
+            $cartData['productsWithoutStock'] = $productsWithoutStock;
+            $currentOrder->refresh()->calculateSubtotal();
+        }
+
+        $cartData['cartCount'] = $currentOrder->lineItemsQuantity();
+        $cartData['cartSubtotal'] = $currentOrder->subtotal;
+        $cartData['cartTotal'] = $currentOrder->total_price;
+        $cartData['shipping_method'] = $currentOrder->shipping_method;
+        $cartData['shipping_fee'] = $currentOrder->shipping_fee;
+        $cartData['payment_method'] = $currentOrder->payment_method;
+        $cartData['payment_fee'] = $currentOrder->payment_fee;
+    
+        return $cartData;
+    }
+
+    public function getGuestCartData($cartData) {
+        $guest = collect(session()->get('guest', []));
+        $guestCart = collect($guest->get('cart', []));
+
+        if ($guestCart->isEmpty()) {
+            return $cartData;
+        }
+
+        $productsWithoutStock = [];
+        $productIds = $guestCart->pluck('product_id')->unique();
+        $products = Product::with('images')->whereIn('id', $productIds)->get();
+
+        $cartData['cart'] = $products->map(function ($product) use ($guestCart, &$productsWithoutStock) {
+            if ($guestCart->has($product->id)) {
+                if ($product->stock <= 0){
+                    $productsWithoutStock[] = (object)[
+                        'id' => $product->id,
+                        'product' => $product,
+                        'price' => $product->current_price,
+                    ];
+
+                    $guestCart->forget($product->id);
+                } else {
+                    return (object)[
+                        'id' => $product->id,
+                        'product' => $product,
+                        'quantity' => $guestCart->get($product->id)['quantity'],
+                        'price' => $product->current_price,
+                    ];
+                }
+            }
+        })->filter();
+
+        // Puts products without stock in session.
+        if(!empty($productsWithoutStock)){
+            $cartData['productsWithoutStock'] = $productsWithoutStock;
+            session()->put('guest.cart', $guestCart->toArray());
+        }
+
+        // Cart quantity.
+        $cartData['cartCount'] = $cartData['cart']->sum('quantity');
+
+        // Cart subtotal.
+        $cartData['cartSubtotal'] = $cartData['cart']->sum(function ($product) {
+            return $product->quantity * $product->price;
+        });
+
+        // Shipping method.
+        $availableShippingMethods = config('app.shipping_methods'); 
+
+        if($guest->has('shipping_method') && isset($availableShippingMethods[$guest['shipping_method']['value']])){
+            $selectedShippingMethod = $guest['shipping_method']['value'];
+        } else {
+            $selectedShippingMethod = array_key_first($availableShippingMethods);
+        }
+
+        if($cartData['cartSubtotal'] > 0 && $cartData['cartSubtotal'] <= config('app.free_shipping_min_subtotal')) {                
+            $cartData['shipping_fee'] = number_format($availableShippingMethods[$selectedShippingMethod]['extra_cost'], 2);
+        } else {
+            $cartData['shipping_fee'] = 0;
+        }
+
+        $cartData['shipping_method'] = $selectedShippingMethod;
+
+        // Payment method.
+        $availablePaymentMethods = config('app.payment_methods');   
+            
+        if($guest->has('payment_method') && isset($availablePaymentMethods[$guest['payment_method']['value']])){
+            $selectedPaymentMethod = $guest['payment_method']['value'];
+            $cartData['payment_fee'] = number_format($availablePaymentMethods[$selectedPaymentMethod]['extra_cost'], 2);
+        } else {
+            $selectedPaymentMethod = '';
+            $cartData['payment_fee'] = 0;
+        }
+
+        $cartData['payment_method'] = $selectedPaymentMethod ; 
         
+        // Cart total.
+        $cartData['cartTotal'] = $cartData['cartSubtotal'] + $cartData['shipping_fee'] + $cartData['payment_fee'];
+
         return $cartData;
     }
 
     public function addProductToCart($id) {
         $product = Product::find($id);
-        $cartSubtotal = 0;
-        $cartCount = 0;
-        $lineItemExists = false;
 
         if(!$product || $product->stock <= 0){
             return ['error' => 'Product not available.'];
         }
 
+        $cartSubtotal = 0;
+        $cartCount = 0;
+        $lineItemExists = false;
+
         if(Auth::check()){
-            $user = Auth::user()->load('currentOrder.lineItems');
-            $currentOrder = $user->currentOrder;
-
-            if(!$currentOrder){
-                $currentOrder = Order::create([
-                    'user_id' => $user->id,
-                    'status' => 'pending',
-                    'subtotal' => 0,
-                    'total_price' => 0,
-                    
-                ]);
-            }
-            
-            $lineItem = $currentOrder->lineItems->firstWhere('product_id', $product->id);
-
-            if($lineItem) {
-                if($lineItem->quantity >= $product->stock){
-                    return ['error' => 'Not enough stock available'];
-                }; 
-
-                $lineItem->increment('quantity');
-                $lineItemExists = true;
-
-            } else {
-                $lineItem = LineItem::create([
-                    'order_id' => $currentOrder->id,
-                    'product_id' => $id,
-                    'quantity' => 1,
-                    'price' => $product->current_price 
-                ]);
-
-            }
-
-            $currentOrder = $currentOrder->refresh();
-            $orderData = $this->calculateOrderSummaryForUser($currentOrder);         
+            $data = $this->addProductToUserCart($id, $product);        
         } else {
-            $guest = session()->get('guest', []);
-            $shippingMethod = $guest['shipping_method'] ?? [];
-            $paymentMethod = $guest['payment_method'] ?? [];
+            $data = $this->addProductToGuestCart($id, $product);       
+        };
 
+        if(isset($data['error'])) {
+            return $data;
+        };
 
-            if(isset($guest['cart'][$id])){
-                if($guest['cart'][$id]['quantity'] >= $product->stock){
-                    return ['error' => 'Not enough stock available'];
-                } 
-
-                $guest['cart'][$id]['quantity']++;
-                $lineItemExists = true;
-            }else{
-                $guest['cart'][$id] = [
-                    'product_id' => $id,
-                    'quantity' => 1,
-                    'price' => $product->current_price,    
-                ];
-            }
-
-            if(empty($shippingMethod)){
-                $guest['shipping_method'] = [
-                    'value' => 'elta',
-                    'extra_cost' => number_format(config('app.shipping_methods.elta.extra_cost'), 2),
-                ];
-            }
-
-            if(empty($paymentMethod)){
-                $guest['payment_method'] = [
-                    'value' => '',
-                    'extra_cost' => 0,
-                ];
-            }
-            
-            session()->put('guest', $guest);
-
-            $orderData = $this->calculateOrderSummaryForGuest($guest);         
-        }
-
-        $quantity = $lineItem->quantity ?? $guest['cart'][$id]['quantity'];
-
+        $orderData = $data['orderSummary'];
+        $quantity =  $data['quantity'];
+        $lineItemExists = $data['lineItemExists'];
         $orderData['message'] = 'Product added to cart';
         $orderData['product_id'] = $product->id;
         $orderData['lineItemExists'] = $lineItemExists;
@@ -252,6 +199,97 @@ class CartService
         }
 
         return $orderData;
+    }
+
+    public function addProductToUserCart($id, $product) {
+        $user = Auth::user()->load('currentOrder.lineItems');
+        $currentOrder = $user->currentOrder;
+
+        if(!$currentOrder){
+            $currentOrder = Order::create([
+                'user_id' => $user->id,
+                'status' => 'pending',
+                'subtotal' => 0,
+                'total_price' => 0,
+            ]);
+        }
+        
+        $lineItem = $currentOrder->lineItems->firstWhere('product_id', $product->id);
+
+        if ($lineItem && $lineItem->quantity >= $product->stock) {
+            return ['error' => 'Not enough stock available'];
+        }
+
+        if($lineItem) {       
+            $lineItem->increment('quantity');
+            $lineItemExists = true;
+        } else {
+            $lineItem = LineItem::create([
+                'order_id' => $currentOrder->id,
+                'product_id' => $id,
+                'quantity' => 1,
+                'price' => $product->current_price 
+            ]);
+
+            $lineItemExists = false;
+        }
+
+        $quantity = $lineItem->quantity;
+        $currentOrder = $currentOrder->refresh();
+        
+        return [
+            'orderSummary' => $this->calculateOrderSummaryForUser($currentOrder),
+            'quantity' => $quantity,
+            'lineItemExists' => $lineItemExists
+        ]; 
+    }
+
+    public function addProductToGuestCart($id, $product) {
+        $guest = session()->get('guest', []);
+        $shippingMethod = $guest['shipping_method'] ?? [];
+        $paymentMethod = $guest['payment_method'] ?? [];
+
+
+        if(isset($guest['cart'][$id])){
+            if($guest['cart'][$id]['quantity'] >= $product->stock){
+                return ['error' => 'Not enough stock available'];
+            } 
+
+            $guest['cart'][$id]['quantity']++;
+            $lineItemExists = true;
+        }else{
+            $guest['cart'][$id] = [
+                'product_id' => $id,
+                'quantity' => 1,
+                'price' => $product->current_price,    
+            ];
+            $lineItemExists = false;
+        }
+
+        $quantity = $guest['cart'][$id]['quantity'];
+
+        if(empty($shippingMethod)){
+            $guest['shipping_method'] = [
+                'value' => 'elta',
+                'extra_cost' => number_format(config('app.shipping_methods.elta.extra_cost'), 2),
+            ];
+        }
+
+        if(empty($paymentMethod)){
+            $guest['payment_method'] = [
+                'value' => '',
+                'extra_cost' => 0,
+            ];
+        }
+        
+        session()->put('guest', $guest);
+
+
+        return [
+            'orderSummary' => $this->calculateOrderSummaryForGuest($guest),
+            'quantity' => $quantity,
+            'lineItemExists' => $lineItemExists
+        ]; 
     }
 
     public function getCartCount() {

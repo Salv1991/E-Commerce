@@ -91,7 +91,7 @@ class CheckoutController extends Controller
                 abort(403, "Email mismatch.");
             }
 
-            $user->customerInformation->updateOrCreate(
+            $user->customerInformation()->updateOrCreate(
                 ['user_id' => $user->id],
                 $validatedData
             );

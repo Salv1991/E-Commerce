@@ -11,9 +11,8 @@ class CategoryController extends Controller
     public function index(Category $category)
     {
         //Get all the current category's children's children.
-        $childrenCategories = $category->children()
-                                        ->with('children')
-                                        ->get()
+        $childrenCategories = $category->load('children.children')
+                                        ->children
                                         ->flatMap(fn($child) =>  $child->children->pluck('id')->prepend($child->id))
                                         ->prepend($category->id)
                                         ->unique();

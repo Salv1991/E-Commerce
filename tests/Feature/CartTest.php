@@ -117,9 +117,7 @@ class CartTest extends TestCase
         $response->assertStatus(200);
         
         $response->assertSee($product->title);
-
         $response->assertDontSee($product2->title);
-
         $response->assertSeeHtml('<span class="cart-subtotal">60.00$</span>');
         $response->assertSeeHtml('<span class="cart-total font-bold">63.40$</span>');
         
@@ -144,7 +142,6 @@ class CartTest extends TestCase
         $response->assertSeeHtml('<span id="payment-fee">2.00$</span>');
         $response->assertSeeHtml('<span class="cart-subtotal">80.00$</span>');
         $response->assertSeeHtml('<span class="cart-total font-bold">85.40$</span>');
-        
     }
 
     public function test_cart_merge_for_users_that_login() {
@@ -182,9 +179,7 @@ class CartTest extends TestCase
         $response->assertStatus(200);
         
         $response->assertSee($product1->title);
-
         $response->assertDontSee($product2->title);
-
         $response->assertSeeHtml('<span class="cart-subtotal">60.00$</span>');
         $response->assertSeeHtml('<span class="cart-total font-bold">63.40$</span>');
     }
@@ -227,9 +222,7 @@ class CartTest extends TestCase
         $response->assertStatus(200);
         
         $response->assertSee($product1->title);
-
         $response->assertDontSee($product2->title);
-
         $response->assertSeeHtml('<span class="cart-subtotal">60.00$</span>');
         $response->assertSeeHtml('<span class="cart-total font-bold">63.40$</span>');    
     }
@@ -273,14 +266,9 @@ class CartTest extends TestCase
         $response->assertStatus(200);
         
         $response->assertSee($product1->title);
-
         $response->assertSee($product2->title);
-
         $response->assertSeeHtml('<span class="cart-subtotal">80.00$</span>');
-        $response->assertSeeHtml('<span class="cart-total font-bold">83.40$</span>');
-        
-       
-        
+        $response->assertSeeHtml('<span class="cart-total font-bold">83.40$</span>');  
     }
 
     public function test_cart_merge_when_quantity_exceeds_product_stock_on_existing_order() {
@@ -346,4 +334,87 @@ class CartTest extends TestCase
         $response->assertSeeHtml('<span class="cart-subtotal">110.00$</span>');
         $response->assertSeeHtml('<span class="cart-total font-bold">115.40$</span>');
     }
+
+    public function test_products_without_stock_are_removed_from_cart_for_user() {
+        $user = User::create([
+            'name' => 'Test Name',    
+            'email' => 'test1234@example.com',
+            'password' => '12341312'
+        ]);   
+
+        $this->actingAs($user);
+
+        $product1 = Product::create(['title' => 'bar', 'current_price' => 20, 'stock' => 0]);
+        $product2 = Product::create(['title' => 'foobar', 'current_price' => 10, 'stock' => 5]);
+        
+        $order = Order::create([
+            'user_id' => $user->id,
+            'status' => 'pending',
+            'total_price' => 85.4,
+            'subtotal' => 80,
+            'payment_method' => 'bank_transfer',
+            'payment_fee' => 2.00,
+            'shipping_method' => 'elta',
+            'shipping_fee' => 3.40,
+        ]);
+
+        $lineItem1 = LineItem::create([
+            'order_id' => $order->id,
+            'product_id' => $product1->id,
+            'quantity' => 2,
+            'price' => 20, 
+        ]);
+        
+        $lineItem2 = LineItem::create([
+            'order_id' => $order->id,
+            'product_id' => $product2->id,
+            'quantity' => 4,
+            'price' => 10, 
+        ]);
+
+        $response = $this->get(route('cart'));
+
+        $response->assertStatus(200);
+
+        $order->refresh();
+
+        $this->assertEquals($order->subtotal, 40);
+    }
+
+    public function test_products_without_stock_are_removed_from_cart_for_guest() {
+        $product1 = Product::create(['title' => 'bar', 'current_price' => 20, 'stock' => 22]);
+        $product2 = Product::create(['title' => 'foobar', 'current_price' => 10, 'stock' => 0]);
+        
+        $this->withSession([
+            'guest' => [
+                'cart' => [
+                    $product1->id => [
+                        'product_id' => $product1->id,
+                        'quantity' => 3,
+                        'price' => $product1->current_price,
+                    ],
+                    $product2->id => [
+                        'product_id' => $product2->id,
+                        'quantity' => 3,
+                        'price' => $product1->current_price,
+                    ],
+                ],
+                'shipping_method' => [
+                    'value' => 'elta',
+                    'extra_cost' => 3.40,   
+                ],
+                'payment_method' => [
+                    'value' => '',
+                    'extra_cost' => 0,   
+                ],
+            ]
+        ]);
+
+        $response = $this->get(route('cart'));
+
+        $response->assertStatus(200);
+        
+        $response->assertSeeHtml('<span class="cart-subtotal">60.00$</span>');
+    }
+
 }
