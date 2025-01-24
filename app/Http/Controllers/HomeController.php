@@ -11,12 +11,8 @@ class HomeController extends Controller
     public function index() {
         $latestProducts = Product::with('images')->orderBy('created_at', 'desc')->take(8)->get();
 
-        $randomCategories = Category::select('id', 'name') 
-            ->distinct('id')
-            ->inRandomOrder()
-            ->limit(4)
-            ->get();
-            
+        $randomCategories = Category::inRandomOrder()->take(4)->get();
+
         $wishlistedProductsIds = Auth::check() 
             ? Auth::user()->wishlistedProductsIds()
             : collect(); 
