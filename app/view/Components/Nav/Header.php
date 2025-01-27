@@ -28,10 +28,15 @@ class Header extends Component
         
         $this->wishlistCount = Auth::check() 
             ? Auth::user()->wishlistedProducts()->count() 
-            : 0;     
+            : 0;    
 
         $this->categories = Cache::remember('first-depth-categories', config('cache.durations.categories'), function () {
-            return Category::with('children.children')->whereNull('parent_id')->get();
+            return Category::whereNull('parent_id')
+                ->with(['children.children' => function ($query) {
+                $query->select('id', 'title', 'parent_id');
+            }])
+            ->select('id', 'title', 'image_path')
+            ->get();
         });
 
         if(!$this->isCartView){

@@ -38,7 +38,7 @@
                     @if ($products->isNotEmpty())            
                         @foreach ($products as $product)
                             <x-product.teaser 
-                                :isWishlisted="$wishlistedProductsIds->contains($product->id)" 
+                                :isWishlisted="in_array($product->id, $wishlistedProductsIds)" 
                                 :product="$product" />
                         @endforeach
                     @else

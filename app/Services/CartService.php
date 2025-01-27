@@ -214,10 +214,10 @@ class CartService
             ]);
         }
         
-        $lineItem = $currentOrder->lineItems->firstWhere('product_id', $product->id);
+        $lineItem = $currentOrder->lineItems->where('product_id', $product->id)->first();
 
         if ($lineItem && $lineItem->quantity >= $product->stock) {
-            return ['error' => 'Not enough stock available'];
+            return ['error' => 'Not enough stock available.'];
         }
 
         if($lineItem) {       
@@ -252,7 +252,7 @@ class CartService
 
         if(isset($guest['cart'][$id])){
             if($guest['cart'][$id]['quantity'] >= $product->stock){
-                return ['error' => 'Not enough stock available'];
+                return ['error' => 'Not enough stock available.'];
             } 
 
             $guest['cart'][$id]['quantity']++;
@@ -320,7 +320,7 @@ class CartService
         if(Auth::check()){   
             $currentOrder = Auth::user()->currentOrder()->with('lineItems.product')->first();
 
-            $lineItem = $currentOrder->lineItems->firstWhere('product_id', $id);
+            $lineItem = $currentOrder->lineItems->where('product_id', $id)->first();
 
             $quantity = min($requestQuantity, $lineItem->product->stock);
           
@@ -367,13 +367,13 @@ class CartService
             $currentOrder = Auth::user()->currentOrder()->with('lineItems')->first();
 
             if($currentOrder){
-                $lineItem = $currentOrder->lineItems->firstWhere('product_id', $id);
+                $lineItem = $currentOrder->lineItems->where('product_id', $id)->first();
 
                 if($lineItem){
                     $lineItem->delete();
+                    $currentOrder = $currentOrder->refresh();
                 }
 
-                $currentOrder = $currentOrder->refresh();
                 $orderData = $this->calculateOrderSummaryForUser($currentOrder);         
             } else {
                 return ['error' => 'Product not found.'];
@@ -470,7 +470,7 @@ class CartService
                 continue;
             }
 
-            $existingLineItem = $currentOrder->lineItems->firstWhere('product_id', $lineItem['product_id']);
+            $existingLineItem = $currentOrder->lineItems->where('product_id', $lineItem['product_id'])->first();
 
             if($existingLineItem){
                 $quantity = min($existingLineItem->quantity + $lineItem['quantity'], $product->stock);    

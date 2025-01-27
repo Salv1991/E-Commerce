@@ -11,11 +11,10 @@ class CartController extends Controller
     public function __construct(protected CartService $cartService){}
 
     public function index(){
-        $wishlistedProductsIds = collect();
         $cartData = $this->cartService->getCartData();
 
         if(Auth::check()) {
-            $wishlistedProductsIds = Auth::user()->wishlistedProductsIds();
+            $wishlistedProductsIds = Auth::user()->wishlistedProductsIds()->toArray();
         };
  
         return view('cart', [
@@ -26,7 +25,7 @@ class CartController extends Controller
             'cartSubtotal' => $cartData['cartSubtotal'],
             'cartTotal' => $cartData['cartTotal'],
             'cartCount' => $cartData['cartCount'],
-            'wishlistedProductsIds' => $wishlistedProductsIds,
+            'wishlistedProductsIds' => $wishlistedProductsIds ?? [],
         ]);     
     }
 

@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
-use App\View\Composers\CartComposer;
-use Illuminate\Support\Facades\View;
+use App\Models\Wishlist;
+use App\Observers\WishlistObserver;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -21,6 +21,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-       
+        Wishlist::observe(WishlistObserver::class);
     }
 }

@@ -30,16 +30,16 @@ export default class extends Controller {
 
             if(data.status === 'added'){
                 const headerWishlistIcon = document.querySelector('header .wishlist-icon');
-                
-                if(wishlistText){
-                    wishlistText.textContent = 'Remove from Wishlist';
-                }
                 wishlistIcon.classList.remove('fill-gray-300/70', 'text-transparent'); 
 
                 headerWishlistIcon.classList.add('animate');
 
                 wishlistIcon.classList.add('animate', 'fill-red-400', 'text-white/10');
-            
+                
+                if(wishlistText){
+                    wishlistText.textContent = 'Remove from Wishlist';
+                }
+        
                 setTimeout(() => {
                     headerWishlistIcon.classList.remove('animate');
                     wishlistIcon.classList.remove('animate');

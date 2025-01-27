@@ -60,7 +60,7 @@
                 class="col-span-4 lg:col-span-3 grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-10 ">
                     @foreach ($latestProducts as $product)
                         <x-product.teaser 
-                            :isWishlisted="$wishlistedProductsIds->contains($product->id)" 
+                            :isWishlisted="in_array($product->id, $wishlistedProductsIds)" 
                             :product="$product" />
                     @endforeach
             </div>

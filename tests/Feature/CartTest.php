@@ -335,7 +335,213 @@ class CartTest extends TestCase
         $response->assertSeeHtml('<span class="cart-total font-bold">115.40$</span>');
     }
 
-    public function test_products_without_stock_are_removed_from_cart_for_user() {
+    public function test_add_product_to_cart_exceeds_product_current_stock() {
+        $product1 = Product::create(['title' => 'bar', 'current_price' => 20, 'stock' => 1]);
+       
+        $response = $this->postJson(route('cart.add', ['id' => $product1->id]), [], ['X-Requested-With'=> 'XMLHttpRequest'] );
+        $response = $this->postJson(route('cart.add', ['id' => $product1->id]), [], ['X-Requested-With'=> 'XMLHttpRequest'] );
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'error' => 'Not enough stock available.',
+            ]);
+
+        $response->assertSeeHtml('Not enough stock available.');
+    }
+
+    public function test_add_product_without_stock_to_cart() {
+        $product1 = Product::create(['title' => 'bar', 'current_price' => 20, 'stock' => 0]);
+       
+        $response = $this->postJson(route('cart.add', ['id' => $product1->id]), [], ['X-Requested-With'=> 'XMLHttpRequest'] );
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'error' => 'Product not available.',
+            ]);
+
+        $response->assertSeeHtml('Product not available.');
+    }
+
+    public function test_delete_product_from_cart() {
+        $user = User::create([
+            'name' => 'Test Name',    
+            'email' => 'test1234@example.com',
+            'password' => '12341312'
+        ]);   
+
+        $this->actingAs($user);
+
+        $product1 = Product::create(['title' => 'bar', 'current_price' => 20, 'stock' => 2]);
+        $product2 = Product::create(['title' => 'foobar', 'current_price' => 10, 'stock' => 5]);
+        
+        $order = Order::create([
+            'user_id' => $user->id,
+            'status' => 'pending',
+            'total_price' => 85.4,
+            'subtotal' => 80,
+            'payment_method' => 'bank_transfer',
+            'payment_fee' => 2.00,
+            'shipping_method' => 'elta',
+            'shipping_fee' => 3.40,
+        ]);
+
+        $lineItem1 = LineItem::create([
+            'order_id' => $order->id,
+            'product_id' => $product1->id,
+            'quantity' => 2,
+            'price' => 20, 
+        ]);
+        
+        $lineItem2 = LineItem::create([
+            'order_id' => $order->id,
+            'product_id' => $product2->id,
+            'quantity' => 4,
+            'price' => 10, 
+        ]);
+       
+        $response = $this->deleteJson(route('cart.add', ['id' => $product1->id]), [], ['X-Requested-With'=> 'XMLHttpRequest'] );
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'message' =>'Product removed from cart.',
+                'product_id' => $product1->id,
+                'cartCount' => 4,
+                'cartSubtotal' => 40,
+                'shippingFee' => 3.40,
+                'paymentFee' => 2.00,
+                'cartTotal' => 45.40,
+            ]);
+    }
+
+    public function test_update_product_quantity() {
+        $user = User::create([
+            'name' => 'Test Name',    
+            'email' => 'test1234@example.com',
+            'password' => '12341312'
+        ]);   
+
+        $this->actingAs($user);
+
+        $product1 = Product::create(['title' => 'bar', 'current_price' => 20, 'stock' => 6]);
+        $product2 = Product::create(['title' => 'foobar', 'current_price' => 10, 'stock' => 5]);
+        
+        $order = Order::create([
+            'user_id' => $user->id,
+            'status' => 'pending',
+            'total_price' => 85.4,
+            'subtotal' => 80,
+            'payment_method' => 'bank_transfer',
+            'payment_fee' => 2.00,
+            'shipping_method' => 'elta',
+            'shipping_fee' => 3.40,
+        ]);
+
+        $lineItem1 = LineItem::create([
+            'order_id' => $order->id,
+            'product_id' => $product1->id,
+            'quantity' => 2,
+            'price' => 20, 
+        ]);
+        
+        $lineItem2 = LineItem::create([
+            'order_id' => $order->id,
+            'product_id' => $product2->id,
+            'quantity' => 4,
+            'price' => 10, 
+        ]);
+        
+        $response = $this->get(route('cart'));
+        $response->assertStatus(200);
+        $response->assertSee($product1->title);
+
+        $response = $this->patchJson(route('cart.add', ['id' => $product1->id]), ['quantity' => 3], ['X-Requested-With'=> 'XMLHttpRequest'] );
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'product_id' => $product1->id,
+                'cartCount' => 7,
+                'cartSubtotal' => 100.00,
+                'shippingFee' => 3.40,
+                'paymentFee' => 2.00,
+                'cartTotal' => 105.40,
+            ]);
+
+        $response = $this->patchJson(route('cart.add', ['id' => $product1->id]), ['quantity' => 0], ['X-Requested-With'=> 'XMLHttpRequest'] );
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'product_id' => $product1->id,
+                'cartCount' => 4,
+                'cartSubtotal' => 40.00,
+                'shippingFee' => 3.40,
+                'paymentFee' => 2,
+                'cartTotal' => 45.40,
+            ]);
+
+        $response->assertDontSee($product1->title);
+    }
+
+    public function test_update_product_quantity_for_guest() {
+        $product1 = Product::create(['title' => 'bar', 'current_price' => 20, 'stock' => 22]);
+        $product2 = Product::create(['title' => 'foobar', 'current_price' => 10, 'stock' => 5]);
+        
+        $this->withSession([
+            'guest' => [
+                'cart' => [
+                    $product1->id => [
+                        'product_id' => $product1->id,
+                        'quantity' => 1,
+                        'price' => $product1->current_price,
+                    ],
+                    $product2->id => [
+                        'product_id' => $product2->id,
+                        'quantity' => 3,
+                        'price' => $product2->current_price,
+                    ],
+                ],
+                'shipping_method' => [
+                    'value' => 'elta',
+                    'extra_cost' => 3.40,   
+                ],
+                'payment_method' => [
+                    'value' => '',
+                    'extra_cost' => 0,   
+                ],
+            ]
+        ]);
+  
+        $response = $this->get(route('cart'));
+        $response->assertStatus(200);
+        $response->assertSee($product1->title);
+
+        $response = $this->patchJson(route('cart.add', ['id' => $product1->id]), ['quantity' => 3], ['X-Requested-With'=> 'XMLHttpRequest'] );
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'product_id' => $product1->id,
+                'cartCount' => 6,
+                'cartSubtotal' => 90.00,
+                'shippingFee' => 3.40,
+                'paymentFee' => 0,
+                'cartTotal' => 93.40,
+            ]);
+
+        $response = $this->patchJson(route('cart.add', ['id' => $product1->id]), ['quantity' => 0], ['X-Requested-With'=> 'XMLHttpRequest'] );
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'product_id' => $product1->id,
+                'cartCount' => 3,
+                'cartSubtotal' => 30.00,
+                'shippingFee' => 3.40,
+                'paymentFee' => 0,
+                'cartTotal' => 33.40,
+            ]);
+
+        $response->assertDontSee($product1->title);
+    }
+
+    public function test_products_without_stock_are_removed_from_user_cart() {
         $user = User::create([
             'name' => 'Test Name',    
             'email' => 'test1234@example.com',
@@ -381,7 +587,7 @@ class CartTest extends TestCase
         $this->assertEquals($order->subtotal, 40);
     }
 
-    public function test_products_without_stock_are_removed_from_cart_for_guest() {
+    public function test_products_without_stock_are_removed_from_guest_cart() {
         $product1 = Product::create(['title' => 'bar', 'current_price' => 20, 'stock' => 22]);
         $product2 = Product::create(['title' => 'foobar', 'current_price' => 10, 'stock' => 0]);
         
@@ -396,7 +602,7 @@ class CartTest extends TestCase
                     $product2->id => [
                         'product_id' => $product2->id,
                         'quantity' => 3,
-                        'price' => $product1->current_price,
+                        'price' => $product2->current_price,
                     ],
                 ],
                 'shipping_method' => [

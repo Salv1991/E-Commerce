@@ -19,7 +19,6 @@
         </main>
 
         @if(!($hideFooter ?? false))
-            <x-nav.footer />
         @endif
     </body>
 </html>

@@ -14,7 +14,7 @@ class OrderTest extends TestCase
 {
     use DatabaseTransactions;
 
-    public function test_cart_page_order_summary_for_authenticated_user() {
+    public function test_cart_page_order_summary_for_user() {
 
         $user = User::create([
             'name' => 'Foobar',    
@@ -495,9 +495,9 @@ class OrderTest extends TestCase
         
         $response->assertRedirect(route('order.success'));
         
-        $order = Order::where('user_id', $user->id)->with('lineItems.product')->count();
+        $orderCount = Order::where('user_id', $user->id)->with('lineItems.product')->count();
 
-        $this->assertEquals(2, $order);
+        $this->assertEquals(2, $orderCount);
     }
 
 }

@@ -112,7 +112,7 @@
 
                 {{-- WISHLIST --}}
                 <x-nav.icon numberContainerId="wishlist-count" href="{{ route('wishlist') }}" :number="$wishlistCount">
-                    <x-heroicon-o-heart class="wishlist-icon transform transition-transform duration-500 w-6 h-6 text-gray-700"/>
+                    <x-heroicon-o-heart class="wishlist-icon transform transition-transform duration-300 w-6 h-6 text-gray-700"/>
                 </x-nav.icon>
                 
                 {{-- CART --}}

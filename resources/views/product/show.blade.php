@@ -62,7 +62,7 @@
                         @auth
                             <x-form.wishlist-toggle-alternative 
                                 :product='$product' 
-                                :isWishlisted="$wishlistedProductsIds->contains($product->id)"/>      
+                                :isWishlisted="in_array($product->id, $wishlistedProductsIds)"/>      
                         @endif
                     </div>
                 </div>

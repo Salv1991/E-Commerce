@@ -136,7 +136,7 @@
                                         @auth   
                                             <x-form.wishlist-toggle 
                                                 :product="$lineItem->product" 
-                                                :isWishlisted="$wishlistedProductsIds->contains($lineItem->product->id)"/>
+                                                :isWishlisted="in_array($lineItem->product->id, $wishlistedProductsIds)"/>
                                         @endauth
                                         
                                         {{-- REMOVE FROM CART BUTTON --}}

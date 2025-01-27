@@ -14,30 +14,25 @@ class WishlistController extends Controller
     }
 
     public function toggle($id) {
-        $userId = Auth::id();
-        $product = Product::findOrFail($id);
+        $user = Auth::user();
 
-        $wishlistedProduct = Wishlist::where('user_id', $userId)
+        $isWishlisted = Wishlist::where('user_id', $user->id)
             ->where('product_id', $id)
-            ->first();
+            ->exists();
 
-        if (!$wishlistedProduct) {
+        if (!$isWishlisted) {
             $status = 'added';
 
             Wishlist::create([
-                'user_id' => $userId,
+                'user_id' => $user->id,
                 'product_id' => $id,
             ]);
-
-            $isWishlisted = true;
         } else {
             $status = 'removed';
-            $wishlistedProduct->delete();
-            $isWishlisted = false;     
-        }
+            $user->wishlistedProducts()->detach($id);        }
 
         if (request()->ajax()) {
-            $wishlistCount = Auth::user()->wishlistedProducts()->count();
+            $wishlistCount = Wishlist::where('user_id', $user->id)->count();
 
             return response()->json([
                 'productId' => $id,

@@ -85,7 +85,6 @@ export default class extends Controller {
         event.preventDefault();
         const selectedCartForm = event.currentTarget;
         const cartTeasersContainer = document.querySelector('.cart-teasers-container');
-
         this.fetchData(selectedCartForm, new FormData(selectedCartForm))
         .then(data => {
             if(!data.error){

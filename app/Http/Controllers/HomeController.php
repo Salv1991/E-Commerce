@@ -14,11 +14,9 @@ class HomeController extends Controller
         $randomCategories = Category::inRandomOrder()->take(4)->get();
 
         $wishlistedProductsIds = Auth::check() 
-            ? Auth::user()->wishlistedProductsIds()
-            : collect(); 
+            ? Auth::user()->wishlistedProductsIds()->toArray()
+            : []; 
 
         return view('home', compact(['latestProducts', 'wishlistedProductsIds', 'randomCategories']));
     }
-
-
 }
