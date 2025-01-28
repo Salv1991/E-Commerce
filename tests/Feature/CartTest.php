@@ -58,9 +58,7 @@ class CartTest extends TestCase
             'quantity' => 1,
             'price' => 50,
         ]);
-
-        $lineItem1->refresh();
-        
+       
         $response = $this->get(route('cart'));
 
         $response->assertStatus(200);
@@ -71,20 +69,38 @@ class CartTest extends TestCase
 
         $response->assertSeeHtml('<span id="shipping-fee">Free</span>');
         
-        $lineItem1->update(['quantity' => 1]);
-
-        $lineItem1->refresh();
-
-        $response->assertSeeHtml('<span id="shipping-fee">Free</span>');
+        $response = $this->patchJson(route('cart.quantity', ['id' => $product->id]), ['quantity' => 1], ['X-Requested-With'=> 'XMLHttpRequest'] );
+        $response->assertStatus(200)
+            ->assertJson([
+                "cartCount" => 2,
+                "cartSubtotal" => "200.00",
+                "vatPrice" => "48.00",
+                "shippingFee" => "0.00",
+                "paymentFee" => "0.00",
+                "cartTotal" => "200.00",
+                "quantity" => 1,
+                "product_id" => "51",
+            ]);
+       
+        $response = $this->patchJson(route('cart.quantity', ['id' => $product->id]), ['quantity' => 0], ['X-Requested-With'=> 'XMLHttpRequest'] );
+        $response->assertStatus(200)
+            ->assertJson([
+                'cartCount' => 1,
+                'cartSubtotal' => '50.00',
+                'vatPrice' => '12.00',
+                'shippingFee' => '3.40',
+                'paymentFee' => '0.00',
+                'cartTotal' => '53.40',
+                'quantity' => 0,
+                'product_id' => '51',
+            ]);
 
         $response = $this->get(route('cart'));
 
-        $lineItem1->update(['quantity' => 0]);
+        $response->assertDontSee($product->title);
 
-        $lineItem1->refresh();
+        $response->assertSee($product2->title);
 
-        $response = $this->get(route('cart'));
-        
         $response->assertSeeHtml('<span id="shipping-fee">3.40$</span>');
     }
 
@@ -172,7 +188,6 @@ class CartTest extends TestCase
         ]);      
 
         $response->assertRedirect('/');
-
 
         $response = $this->get(route('cart'));
 
@@ -454,7 +469,7 @@ class CartTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee($product1->title);
 
-        $response = $this->patchJson(route('cart.add', ['id' => $product1->id]), ['quantity' => 3], ['X-Requested-With'=> 'XMLHttpRequest'] );
+        $response = $this->patchJson(route('cart.quantity', ['id' => $product1->id]), ['quantity' => 3], ['X-Requested-With'=> 'XMLHttpRequest'] );
 
         $response->assertStatus(200)
             ->assertJson([
@@ -466,7 +481,7 @@ class CartTest extends TestCase
                 'cartTotal' => 105.40,
             ]);
 
-        $response = $this->patchJson(route('cart.add', ['id' => $product1->id]), ['quantity' => 0], ['X-Requested-With'=> 'XMLHttpRequest'] );
+        $response = $this->patchJson(route('cart.quantity', ['id' => $product1->id]), ['quantity' => 0], ['X-Requested-With'=> 'XMLHttpRequest'] );
 
         $response->assertStatus(200)
             ->assertJson([
@@ -514,7 +529,7 @@ class CartTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee($product1->title);
 
-        $response = $this->patchJson(route('cart.add', ['id' => $product1->id]), ['quantity' => 3], ['X-Requested-With'=> 'XMLHttpRequest'] );
+        $response = $this->patchJson(route('cart.quantity', ['id' => $product1->id]), ['quantity' => 3], ['X-Requested-With'=> 'XMLHttpRequest'] );
 
         $response->assertStatus(200)
             ->assertJson([
@@ -526,7 +541,7 @@ class CartTest extends TestCase
                 'cartTotal' => 93.40,
             ]);
 
-        $response = $this->patchJson(route('cart.add', ['id' => $product1->id]), ['quantity' => 0], ['X-Requested-With'=> 'XMLHttpRequest'] );
+        $response = $this->patchJson(route('cart.quantity', ['id' => $product1->id]), ['quantity' => 0], ['X-Requested-With'=> 'XMLHttpRequest'] );
 
         $response->assertStatus(200)
             ->assertJson([

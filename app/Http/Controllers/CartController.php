@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Services\CartService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 
 class CartController extends Controller
 {
@@ -13,9 +14,11 @@ class CartController extends Controller
     public function index(){
         $cartData = $this->cartService->getCartData();
 
-        if(Auth::check()) {
-            $wishlistedProductsIds = Auth::user()->wishlistedProductsIds()->toArray();
-        };
+        $wishlistedProductsIds = Cache::remember('wishlisted-product-ids', config('cache.durations.categories'), function (){
+            return Auth::check() 
+                ? Auth::user()->wishlistedProductsIds()->toArray()
+                : []; 
+        });
  
         return view('cart', [
             'cart' => $cartData['cart'],
@@ -25,7 +28,7 @@ class CartController extends Controller
             'cartSubtotal' => $cartData['cartSubtotal'],
             'cartTotal' => $cartData['cartTotal'],
             'cartCount' => $cartData['cartCount'],
-            'wishlistedProductsIds' => $wishlistedProductsIds ?? [],
+            'wishlistedProductsIds' => $wishlistedProductsIds,
         ]);     
     }
 

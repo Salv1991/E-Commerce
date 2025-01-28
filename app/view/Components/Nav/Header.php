@@ -26,10 +26,18 @@ class Header extends Component
         $this->cartTotal = 0;
         $this->isCartView = $this->isCartView();
         
-        $this->wishlistCount = Auth::check() 
-            ? Auth::user()->wishlistedProducts()->count() 
-            : 0;    
+        //$this->wishlistCount = Auth::check() 
+          //  ? Auth::user()->wishlistedProducts()->count() 
+            //: 0; 
 
+        $wishlistedProducts = Cache::remember('wishlisted-product-ids', config('cache.durations.categories'), function (){
+            return Auth::check() 
+                ? Auth::user()->wishlistedProductsIds()->toArray()
+                : []; 
+        });
+
+        $this->wishlistCount = count($wishlistedProducts);
+        
         $this->categories = Cache::remember('first-depth-categories', config('cache.durations.categories'), function () {
             return Category::whereNull('parent_id')
                 ->with(['children.children' => function ($query) {

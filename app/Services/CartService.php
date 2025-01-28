@@ -5,10 +5,14 @@ namespace App\Services;
 use App\Models\LineItem;
 use App\Models\Order;
 use App\Models\Product;
+use App\Traits\FormatPrices;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 
 class CartService
 {
+    use FormatPrices;
+
     public function getCartData()
     {
         $cartData = [
@@ -34,9 +38,15 @@ class CartService
         $productsWithoutStock = [];
         $lineItemIdsToDelete = [];
 
-        $currentOrder = Auth::user()->currentOrder()
+        //$currentOrder = Auth::user()->currentOrder()
+               // ->with('lineItems.product.images')
+                //->first();
+
+        $currentOrder = Cache::remember('user_cart_' . Auth::id(), 60, function () {
+            return Auth::user()->currentOrder()
                 ->with('lineItems.product.images')
                 ->first();
+        });
 
         if (!$currentOrder) {
             return $cartData;
@@ -65,7 +75,7 @@ class CartService
         if(!empty($productsWithoutStock)) {
             LineItem::whereIn('id', $lineItemIdsToDelete)->delete();
             $cartData['productsWithoutStock'] = $productsWithoutStock;
-            $currentOrder->refresh()->calculateSubtotal();
+            $currentOrder->refresh()->calculateOrderSummary();
         }
 
         $cartData['cartCount'] = $currentOrder->lineItemsQuantity();
@@ -235,8 +245,11 @@ class CartService
         }
 
         $quantity = $lineItem->quantity;
+
+        Cache::forget('user_cart_' . Auth::id());
+
         $currentOrder = $currentOrder->refresh();
-        
+
         return [
             'orderSummary' => $this->calculateOrderSummaryForUser($currentOrder),
             'quantity' => $quantity,
@@ -248,7 +261,6 @@ class CartService
         $guest = session()->get('guest', []);
         $shippingMethod = $guest['shipping_method'] ?? [];
         $paymentMethod = $guest['payment_method'] ?? [];
-
 
         if(isset($guest['cart'][$id])){
             if($guest['cart'][$id]['quantity'] >= $product->stock){
@@ -330,7 +342,11 @@ class CartService
                 $lineItem->update(['quantity' => $quantity]); 
             }
 
-            $currentOrder = $currentOrder->refresh();
+            Cache::forget('user_cart_' . Auth::id());
+
+            $currentOrder->refresh();
+
+
             $orderData = $this->calculateOrderSummaryForUser($currentOrder);        
 
         } else {
@@ -361,7 +377,6 @@ class CartService
         return $orderData;
     }
 
-
     public function deleteProductFromCart($id){
         if(Auth::check()){     
             $currentOrder = Auth::user()->currentOrder()->with('lineItems')->first();
@@ -371,7 +386,10 @@ class CartService
 
                 if($lineItem){
                     $lineItem->delete();
+                    Cache::forget('user_cart_' . Auth::id());
+
                     $currentOrder = $currentOrder->refresh();
+
                 }
 
                 $orderData = $this->calculateOrderSummaryForUser($currentOrder);         
@@ -398,20 +416,16 @@ class CartService
     }
 
     public function calculateOrderSummaryForUser($order) {
-        $cartCount = $order->lineItems->sum('quantity'); 
         $cartSubtotal = $order->subtotal; 
-        $cartTotal = $order->total_price; 
-        $shippingFee = $order->shipping_fee;
-        $paymentFee = $order->payment_fee;
         $vatPrice = $cartSubtotal * config('app.vat_rate');
 
         return [
-            'cartCount' => $cartCount,
-            'cartSubtotal' => number_format($cartSubtotal, 2),
-            'vatPrice' => number_format($vatPrice, 2),
-            'shippingFee' =>number_format($shippingFee, 2),
-            'paymentFee' =>number_format($paymentFee, 2),
-            'cartTotal' => number_format($cartTotal, 2),
+            'cartCount' => $order->lineItems->sum('quantity'),
+            'cartSubtotal' =>$this->formatPrice($cartSubtotal),
+            'vatPrice' =>$this->formatPrice($vatPrice),
+            'shippingFee' =>$this->formatPrice($order->shipping_fee),
+            'paymentFee' =>$this->formatPrice($order->payment_fee),
+            'cartTotal' =>$this->formatPrice($order->total_price),
         ];
     }  
 
@@ -439,11 +453,11 @@ class CartService
        
         return [
             'cartCount' => $cartCount,
-            'cartSubtotal' => number_format($cartSubtotal, 2),
-            'vatPrice' => number_format($vatPrice, 2),
-            'shippingFee' =>number_format($shippingFee, 2),
-            'paymentFee' =>number_format($paymentFee, 2),
-            'cartTotal' => number_format($cartSubtotal + $shippingFee + $paymentFee, 2),
+            'cartSubtotal' => $this->formatPrice($cartSubtotal),
+            'vatPrice' => $this->formatPrice($vatPrice),
+            'shippingFee' =>$this->formatPrice($shippingFee),
+            'paymentFee' =>$this->formatPrice($paymentFee),
+            'cartTotal' => $this->formatPrice($cartSubtotal + $shippingFee + $paymentFee),
         ];
     }  
 
@@ -486,15 +500,17 @@ class CartService
             ];
         } 
 
-        if (!empty($upsertData)){
+        //if (!empty($upsertData)){
             LineItem::upsert(
                 $upsertData,
                 uniqueBy: ['order_id', 'product_id'],
                 update: ['quantity', 'price'],
             );
 
-            $currentOrder->refresh()->calculateSubtotal();
-        }
+            $currentOrder->refresh()->calculateOrderSummary();
+            session()->forget('guest');
+
+        //}
     }
 
 }

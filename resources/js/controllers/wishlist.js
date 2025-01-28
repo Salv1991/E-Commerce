@@ -11,10 +11,36 @@ export default class extends Controller {
         event.preventDefault();
         const selectedWishlistForm = event.currentTarget;
         const wishlistButton = selectedWishlistForm.querySelector('button');
+        wishlistButton.disabled = true;
+
         const wishlistIcon = selectedWishlistForm.querySelector('.wishlist-icon');
         const wishlistText = selectedWishlistForm.querySelector('.wishlist-text');
+        const headerWishlistIcon = document.querySelector('header .wishlist-icon');
+        const wasWishlisted = wishlistIcon.classList.contains('fill-red-400');
 
-        wishlistButton.disabled = true;
+        if(!wasWishlisted){
+            wishlistIcon.classList.add('animate', 'fill-red-400', 'text-white/10');
+            wishlistIcon.classList.remove('fill-gray-300/70', 'text-transparent'); 
+            headerWishlistIcon.classList.add('animate', 'fill-red-400','text-white/10');
+            headerWishlistIcon.classList.remove('text-gray-700');
+
+            if(wishlistText){
+                wishlistText.textContent = 'Remove from Wishlist';
+            }
+
+            setTimeout(() => {
+                headerWishlistIcon.classList.remove('animate', 'fill-red-400', 'text-white/10');
+                headerWishlistIcon.classList.add('text-gray-700');
+                wishlistIcon.classList.remove('animate');
+            }, 300); 
+        } else {
+            wishlistIcon.classList.remove('fill-red-400', 'text-white/10'); 
+            wishlistIcon.classList.add('fill-gray-300/70', 'text-transparent'); 
+            
+            if(wishlistText){
+                wishlistText.textContent = 'Add to Wishlist';
+            }
+        }
         
         fetch( selectedWishlistForm.action, {
             method: selectedWishlistForm.method,
@@ -27,39 +53,21 @@ export default class extends Controller {
         .then(response => response.json())
         .then(data => {
             document.getElementById('wishlist-count').textContent = data.updatedWishlistCount;
-
-            if(data.status === 'added'){
-                const headerWishlistIcon = document.querySelector('header .wishlist-icon');
-                wishlistIcon.classList.remove('fill-gray-300/70', 'text-transparent'); 
-
-                headerWishlistIcon.classList.add('animate');
-
-                wishlistIcon.classList.add('animate', 'fill-red-400', 'text-white/10');
-                
-                if(wishlistText){
-                    wishlistText.textContent = 'Remove from Wishlist';
-                }
-        
-                setTimeout(() => {
-                    headerWishlistIcon.classList.remove('animate');
-                    wishlistIcon.classList.remove('animate');
-                }, 300); 
-            } else {
-                wishlistIcon.classList.remove('fill-red-400', 'text-white/10'); 
-                wishlistIcon.classList.add('fill-gray-300/70', 'text-transparent'); 
-                
-                if(wishlistText){
-                    wishlistText.textContent = 'Add to Wishlist';
-                }
-            }
         })
         .finally(() => {
             wishlistButton.disabled = false;
         })
         .catch(error => {
             console.log('Error:', error);
-            if (data.status === 'added') {
-                wishlistIcon.classList.remove('fill-red-300', 'text-white/20');
+            if (wasWishlisted) {
+                wishlistIcon.classList.add('fill-red-400', 'text-white/10');
+                wishlistIcon.classList.remove('fill-gray-300/70', 'text-transparent');
+                if (wishlistText) {
+                    wishlistText.textContent = 'Remove from Wishlist';
+                }
+            } else {
+                wishlistIcon.classList.remove('fill-red-400', 'text-white/10');
+                wishlistIcon.classList.add('fill-gray-300/70', 'text-transparent');
                 if (wishlistText) {
                     wishlistText.textContent = 'Add to Wishlist';
                 }

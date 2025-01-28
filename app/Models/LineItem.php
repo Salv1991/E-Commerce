@@ -19,19 +19,19 @@ class LineItem extends Model
     protected static function booted(){
         static::created(function ($lineItem) {
             if ($lineItem->order->status === 'pending') {
-                $lineItem->order->calculateSubtotal();
+                $lineItem->order->calculateOrderSummary();
             }
         });
 
         static::updated(function ($lineItem) {
             if ($lineItem->order->status === 'pending') {
-                $lineItem->order->calculateSubtotal();
+                $lineItem->order->calculateOrderSummary();
             }
         });
 
         static::deleted(function ($lineItem) {
             if ($lineItem->order->status === 'pending') {
-                $lineItem->order->calculateSubtotal();
+                $lineItem->order->calculateOrderSummary();
             }
         });
     }

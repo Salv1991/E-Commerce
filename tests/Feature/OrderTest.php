@@ -80,7 +80,7 @@ class OrderTest extends TestCase
 
         $order->update(['payment_method' => 'credit_card', 'payment_fee' => 5.00]);
 
-        $user->currentOrder()->first()->calculateSubtotal();
+        $user->currentOrder()->first()->calculateOrderSummary();
 
         $order->refresh();
 
@@ -245,7 +245,7 @@ class OrderTest extends TestCase
             'payment_fee' => 7.50
         ]);
 
-        $order->calculateSubtotal();
+        $order->calculateOrderSummary();
 
         $order->refresh();
 

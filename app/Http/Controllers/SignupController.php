@@ -39,7 +39,6 @@ class SignupController extends Controller
 
         if(!empty($guest['cart'])){
             $this->cartService->mergeCarts($guest['cart']);
-            session()->forget('guest.cart');
         }
 
         session()->flash('success', 'Registration successful! Welcome, ' . $user->name . '!');

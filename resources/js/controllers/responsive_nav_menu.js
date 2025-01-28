@@ -42,7 +42,9 @@ export default class extends Controller {
 
     closeSubmenu() {
         this.submenuTargets.forEach( submenu => {
-            submenu.classList.add('hidden');
+            if(!submenu.classList.contains('hidden')){
+                submenu.classList.add('hidden');
+            }
         }) 
     }
 

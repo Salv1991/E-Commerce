@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Product;
+use App\Jobs\UpdateWishlist;
 use App\Models\Wishlist;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 
 class WishlistController extends Controller
 {
@@ -22,14 +23,17 @@ class WishlistController extends Controller
 
         if (!$isWishlisted) {
             $status = 'added';
+            $user->wishlistedProducts()->attach($id);
+            //UpdateWishlist::dispatch($user, $id, $status);
 
-            Wishlist::create([
-                'user_id' => $user->id,
-                'product_id' => $id,
-            ]);
         } else {
             $status = 'removed';
-            $user->wishlistedProducts()->detach($id);        }
+            $user->wishlistedProducts()->detach($id); 
+            //UpdateWishlist::dispatch($user, $id, $status);
+
+        }
+
+        Cache::forget('wishlisted-product-ids');
 
         if (request()->ajax()) {
             $wishlistCount = Wishlist::where('user_id', $user->id)->count();

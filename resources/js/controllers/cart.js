@@ -118,7 +118,6 @@ export default class extends Controller {
         this.fetchData(selectedCartForm, formData)
         .then(data => {
             if(!data.error){
-                console.log(data);
                 const quantityContainer = quantityButton.closest('.quantity-container');
                 const buttons = quantityContainer.querySelectorAll('button[name="quantity"]');
                 const quantity = data.quantity;
@@ -129,7 +128,6 @@ export default class extends Controller {
 
                 this.updateCartUi(data);
                 this.toggleEmptyCartMessage(data.cartCount);
-                console.log(data);
 
                 buttons.forEach(button => {
                     if(quantity == 0) { 
