@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Services\CartService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
@@ -62,7 +63,7 @@ class CheckoutController extends Controller
         $customerData = Auth::check() 
             ? Auth::user()->getCustomerData() 
             : session('guest.customer_information', []);
-
+            
         return view('checkout.customer', [
             'currentStep' => $currentStep,
             'steps' => $this->steps,  
@@ -91,6 +92,10 @@ class CheckoutController extends Controller
                 abort(403, "Email mismatch.");
             }
 
+            $user->update(['name' => $validatedData['name']]);
+
+            unset($validatedData['name'], $validatedData['email']);
+            
             $user->customerInformation()->updateOrCreate(
                 ['user_id' => $user->id],
                 $validatedData
@@ -251,7 +256,6 @@ class CheckoutController extends Controller
         ]);
 
         $cartData = $cartService->getCartData();
-
         
         if($cartData['cart']->isEmpty()){
             return redirect()->route('cart')->with('error', 'Your cart is empty.');
@@ -300,7 +304,7 @@ class CheckoutController extends Controller
                             'name' => $guestCustomerInformation['name'],
                             'password' => 123213,
                             'is_guest' => true,
-                            'admin' => false,
+                            'is_admin' => false,
                         ]
                     );
 
@@ -364,7 +368,6 @@ class CheckoutController extends Controller
 
                 session()->forget(['guest.cart', 'guest.shipping_method', 'guest.payment_method']);
             }
-
         return redirect(route('order.success'));
 
         } catch (\Exception $e) {

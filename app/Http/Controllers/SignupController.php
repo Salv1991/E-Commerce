@@ -29,7 +29,7 @@ class SignupController extends Controller
             'name' => $validatedData['name'],
             'email' => $validatedData['email'],
             'password' => Hash::make($validatedData['password']),
-            'admin' => false,
+            'is_admin' => false,
             'is_guest' => false,
         ]);
 

@@ -20,7 +20,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'user',
             'email' => 'user@user.com',
             'password' => 'user1234',
-            'admin' => false,
+            'is_admin' => true,
         ]);
         
         $user->customerInformation()->create([

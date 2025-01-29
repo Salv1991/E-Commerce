@@ -33,7 +33,7 @@ class WishlistController extends Controller
 
         }
 
-        Cache::forget('wishlisted-product-ids');
+        Cache::forget('wishlisted-product-ids-' . Auth::id());
 
         if (request()->ajax()) {
             $wishlistCount = Wishlist::where('user_id', $user->id)->count();

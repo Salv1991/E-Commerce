@@ -1,4 +1,4 @@
-import { Controller } from "stimulus";
+import { Controller } from '@hotwired/stimulus';
 
 export default class extends Controller {
 
@@ -56,7 +56,6 @@ export default class extends Controller {
                 this.shippingFee.textContent = `${data.shippingFee}$`;
             }
 
-            console.log(data);
             if(data.paymentFee == 0){
                 this.paymentFee.textContent = 'Free';
             } else {
@@ -112,14 +111,15 @@ export default class extends Controller {
         event.preventDefault();
         const selectedCartForm = event.currentTarget;
         const quantityButton = event.submitter;
+        const quantityContainer = quantityButton.closest('.quantity-container');
+        const buttons = quantityContainer.querySelectorAll('button[name="quantity"]');
+        buttons.forEach(button => button.setAttribute('disabled', true));
         const formData = new FormData(selectedCartForm);
         formData.append(quantityButton.name, quantityButton.value);
 
         this.fetchData(selectedCartForm, formData)
         .then(data => {
             if(!data.error){
-                const quantityContainer = quantityButton.closest('.quantity-container');
-                const buttons = quantityContainer.querySelectorAll('button[name="quantity"]');
                 const quantity = data.quantity;
                 quantityButton.textContent = quantity;
                 quantityButton.value = quantity;
@@ -144,6 +144,9 @@ export default class extends Controller {
                 this.showErrorMessage(data.error);
             }
         })
+        .finally(() => {
+            buttons.forEach(button => button.removeAttribute('disabled', true));
+        }) 
         .catch(error => {
             console.log('Error:', error);
         })

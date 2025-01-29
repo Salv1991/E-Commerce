@@ -30,7 +30,7 @@ class Header extends Component
           //  ? Auth::user()->wishlistedProducts()->count() 
             //: 0; 
 
-        $wishlistedProducts = Cache::remember('wishlisted-product-ids', config('cache.durations.categories'), function (){
+        $wishlistedProducts = Cache::remember('wishlisted-product-ids-' . Auth::id(), config('cache.durations.categories'), function (){
             return Auth::check() 
                 ? Auth::user()->wishlistedProductsIds()->toArray()
                 : []; 

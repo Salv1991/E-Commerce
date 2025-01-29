@@ -1,11 +1,10 @@
-import { Controller } from "stimulus";
+import { Controller } from "@hotwired/stimulus";
 
 export default class extends Controller {
 
     static targets = ['confirmPrompt'];
 
     connect() {
-        console.log('de');
         this.form = document.getElementById('delete-account-form');
         this.form.addEventListener('submit', (event) => {
             event.preventDefault();

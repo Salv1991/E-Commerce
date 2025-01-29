@@ -1,4 +1,4 @@
-import { Application } from "stimulus";
+import { Application } from '@hotwired/stimulus';
 import ResponsiveNavMenu from "./controllers/responsive_nav_menu";
 import Wishlist from "./controllers/wishlist";
 import Filter from "./controllers/filter";

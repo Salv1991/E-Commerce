@@ -6,6 +6,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 
 class UpdateWishlist implements ShouldQueue
@@ -31,7 +32,7 @@ class UpdateWishlist implements ShouldQueue
             } else if($this->status === 'removed'){
                 $this->user->wishlistedProducts()->detach($this->id);       
             }
-            Cache::forget('wishlisted-product-ids');
+            Cache::forget('wishlisted-product-ids-' . Auth::id());
 
         } catch (\Exception $e) {
             logger('Wishlist update failed');

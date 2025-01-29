@@ -14,7 +14,7 @@ class CartController extends Controller
     public function index(){
         $cartData = $this->cartService->getCartData();
 
-        $wishlistedProductsIds = Cache::remember('wishlisted-product-ids', config('cache.durations.categories'), function (){
+        $wishlistedProductsIds = Cache::remember('wishlisted-product-ids-' . Auth::id(), config('cache.durations.categories'), function (){
             return Auth::check() 
                 ? Auth::user()->wishlistedProductsIds()->toArray()
                 : []; 
@@ -34,7 +34,7 @@ class CartController extends Controller
 
     public function add($id){
         $cartData = $this->cartService->addProductToCart($id);
-
+        
         if(request()->ajax()){
             return response()->json($cartData);
         }

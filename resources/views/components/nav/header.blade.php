@@ -7,7 +7,7 @@
 
         {{-- MESSAGES --}}
         @if(session('success') || session('error'))    
-            <div id='flash-message-container' class="z-30 px-5 w-full xs:w-fit text-white text-sm xs:text-base 
+            <div id='flash-message-container' class="px-5 w-full xs:w-fit text-white text-sm xs:text-base 
                 text-center absolute -bottom-20 m-auto right-0 translate-x-full transform duration-300 opacity-0">
                 <div id='flash-message' class="{{session('success') ? 'bg-black' : 'bg-red-400'}} p-5 rounded-lg">
                     {{ session('success') ?? session('error') }}
@@ -172,6 +172,19 @@
                     <div class="z-10 min-w-52 absolute top-10 -right-[35px] md:-right-3 py-[24px] group-hover:block hidden">
                         <div class="bg-white border border-gray-200">
                             <ul class="divide-y-2">
+                                @admin
+                                    <li class="">
+                                        <ul class="flex flex-col">
+                                            <li>
+                                                <a href="{{route('admin.dashboard')}}" class="hover:bg-gray-100/80 p-3 *:text-gray-600 flex justify-start items-center gap-3">
+                                                    <x-heroicon-m-archive-box class="w-6"/>
+                                                    <span class="font-semibold">Admin</span>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                @endadmin
+
                                 @auth 
                                     <li class="">
                                         <ul class="flex flex-col">
@@ -188,8 +201,8 @@
                                                 </a>
                                             </li>
                                         </ul>
-
                                     </li>
+
                                     <li>
                                         <form method="POST" action="{{ route('logout') }}">
                                             @csrf

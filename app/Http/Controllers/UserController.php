@@ -42,11 +42,10 @@ class UserController extends Controller
 
         unset($validatedData['name'], $validatedData['email']);
 
-        if($user->customerInformation) {
-            $user->customerInformation->update($validatedData);
-        } else {
-            $user->customerInformation()->create($validatedData);
-        }
+        $user->customerInformation()->updateOrCreate(
+            ['user_id' => $user->id],
+            $validatedData
+        );
         
         return redirect()->route('settings.customer-information.show')->with('success', 'Your information has updated successfully.');
     }

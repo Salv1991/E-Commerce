@@ -24,14 +24,17 @@ class OrderTest extends TestCase
 
         $this->actingAs($user);
 
-        $product = Product::create([
+        $product1 = Product::create([
             'title' => 'foo',
             'current_price' => 150,    
+            'stock' => 10
         ]);
 
         $product2 = Product::create([
             'title' => 'bar',
             'current_price' => 50,    
+            'stock' => 10
+
         ]);
 
         $order = Order::create([
@@ -45,49 +48,60 @@ class OrderTest extends TestCase
             'shipping_fee' => 3.40,
         ]);
 
-        $lineItem1 = LineItem::create([
-            'order_id' => $order->id,
-            'product_id' => $product->id,
-            'quantity' => 2,
-            'price' => 150,
+        $this->postJson(route('cart.add', ['id' => $product1->id]), [], ['X-Requested-With'=> 'XMLHttpRequest'] );
+
+        $order->refresh();
+
+        $this->assertDatabaseHas('orders', [
+            'id' => $order->id,
+            'user_id' => $user->id,
+            'status' => 'pending',
+            'total_price' => 153.40,
+            'subtotal' => 150,
+            'payment_method' => null,
+            'payment_fee' => 0,
+            'shipping_method' => 'elta',
+            'shipping_fee' => 3.40,
         ]);
 
-        $lineItem2 = LineItem::create([
+
+        $this->assertDatabaseHas('line_items', [
+            'order_id' => $order->id,
+            'product_id' => $product1->id,
+            'quantity' => 1,
+            'price' => 150,   
+        ]);
+
+        $this->postJson(route('cart.add', ['id' => $product1->id]), [], ['X-Requested-With'=> 'XMLHttpRequest'] );
+        $this->postJson(route('cart.add', ['id' => $product2->id]), [], ['X-Requested-With'=> 'XMLHttpRequest'] );
+
+        $order->refresh();
+
+        $this->assertDatabaseHas('orders', [
+            'id' => $order->id,
+            'user_id' => $user->id,
+            'status' => 'pending',
+            'total_price' => 350.00,
+            'subtotal' => 350.00,
+            'payment_method' => null,
+            'payment_fee' => 0,
+            'shipping_method' => 'elta',
+            'shipping_fee' => 0,
+        ]);
+
+        $this->assertDatabaseHas('line_items', [
+            'order_id' => $order->id,
+            'product_id' => $product1->id,
+            'quantity' => 2,
+            'price' => 150,   
+        ]);
+
+        $this->assertDatabaseHas('line_items', [
             'order_id' => $order->id,
             'product_id' => $product2->id,
             'quantity' => 1,
-            'price' => 50,
+            'price' => 50,   
         ]);
-
-        $lineItem1->refresh();
-        $lineItem2->refresh();
-        $order->refresh();
-
-        $this->assertEquals(350, $order->total_price);
-        $this->assertEquals(350, $order->subtotal);
-        $this->assertEquals(0, $order->shipping_fee);
-        $this->assertEquals(0, $order->payment_fee);
-
-        $lineItem1->update(['quantity' => 0]);
-        $lineItem2->update(['quantity' => 2]);
-
-        $order->refresh();
-
-        $this->assertEquals(103.4, $order->total_price);
-        $this->assertEquals(100, $order->subtotal);
-        $this->assertEquals(3.40, $order->shipping_fee);
-        $this->assertEquals(0, $order->payment_fee);
-
-        $order->update(['payment_method' => 'credit_card', 'payment_fee' => 5.00]);
-
-        $user->currentOrder()->first()->calculateOrderSummary();
-
-        $order->refresh();
-
-        $this->assertEquals(108.4, $order->total_price);
-        $this->assertEquals(100, $order->subtotal);
-        $this->assertEquals(3.40, $order->shipping_fee);
-        $this->assertEquals(5, $order->payment_fee);
     }
 
     public function test_complete_order_successfully_for_user() {
@@ -142,12 +156,46 @@ class OrderTest extends TestCase
         $response->assertStatus(200);
         
         $response = $this->post(route('checkout.order.complete'), [
-            'payment_method' => 'bank_transfer',
+            'payment_method' => 'paypal',
+            'shipping_method' => 'elta'    
+        ]);
+
+        $response = $this->postJson(route('checkout.order.payment', []), ['payment_method' => 'paypal'], ['X-Requested-With'=> 'XMLHttpRequest'] );
+
+        $response->assertStatus(200);
+
+        $response = $this->post(route('checkout.order.complete'), [
+            'payment_method' => 'paypal',
             'shipping_method' => 'elta'    
         ]);
 
         $response->assertRedirect(route('order.success'));
         
+        $this->assertDatabaseHas('orders', [
+            'user_id' => $user->id,
+            'status' => 'completed',
+            'total_price' => 90.90,
+            'subtotal' => 80,
+            'payment_method' => 'paypal',
+            'payment_fee' => 7.50,
+            'shipping_method' => 'elta',
+            'shipping_fee' => 3.40,
+        ]);
+
+        $this->assertDatabaseHas('line_items', [
+            'order_id' => $order->id,
+            'product_id' => $product1->id,
+            'quantity' => 2,
+            'price' => 20,   
+        ]);
+
+        $this->assertDatabaseHas('line_items', [
+            'order_id' => $order->id,
+            'product_id' => $product2->id,
+            'quantity' => 4,
+            'price' => 10,   
+        ]);
+
         $this->assertEquals($order->refresh()->status, 'completed');
     }
 
@@ -410,19 +458,30 @@ class OrderTest extends TestCase
         
         $order = Order::where('user_id', $user->id)->with('lineItems.product')->first();
 
-        $this->assertEquals('Michael Scott', $user->name);
-        $this->assertEquals('completed', $order->status);
-        $this->assertEquals(502, $order->total_price);
-        $this->assertEquals(500, $order->subtotal);
-        $this->assertEquals('bank_transfer', $order->payment_method);
-        $this->assertEquals(2, $order->payment_fee);
-        $this->assertEquals('elta', $order->shipping_method);
-        $this->assertEquals(0, $order->shipping_fee);
+        $this->assertDatabaseHas('orders', [
+            'user_id' => $user->id,
+            'status' => 'completed',
+            'total_price' => 502,
+            'subtotal' => 500,
+            'payment_method' => 'bank_transfer',
+            'payment_fee' => 2,
+            'shipping_method' => 'elta',
+            'shipping_fee' => 0,       
+        ]);
 
-        $lineItemProductTitles = $order->lineItems->pluck('product.title');
-        $this->assertTrue($lineItemProductTitles->contains($product->title));
-        $this->assertTrue($lineItemProductTitles->contains($product2->title));
-        
+        $this->assertDatabaseHas('line_items', [
+            'order_id' => $order->id,
+            'product_id' => $product->id,
+            'quantity' => 3,
+            'price' => 150,   
+        ]);
+
+        $this->assertDatabaseHas('line_items', [
+            'order_id' => $order->id,
+            'product_id' => $product2->id,
+            'quantity' => 1,
+            'price' => 50,   
+        ]);
     }
 
     public function test_complete_order_successfully_for_existing_guest_user() {   

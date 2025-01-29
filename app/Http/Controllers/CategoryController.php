@@ -20,7 +20,7 @@ class CategoryController extends Controller
                 ->toArray();
         });
 
-        $wishlistedProductsIds = Cache::remember('wishlisted-product-ids', config('cache.durations.categories'), function (){
+        $wishlistedProductsIds = Cache::remember('wishlisted-product-ids-' . Auth::id(), config('cache.durations.categories'), function (){
             return Auth::check() 
                 ? Auth::user()->wishlistedProductsIds()->toArray()
                 : []; 

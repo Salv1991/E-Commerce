@@ -38,15 +38,9 @@ class CartService
         $productsWithoutStock = [];
         $lineItemIdsToDelete = [];
 
-        //$currentOrder = Auth::user()->currentOrder()
-               // ->with('lineItems.product.images')
-                //->first();
-
-        $currentOrder = Cache::remember('user_cart_' . Auth::id(), 60, function () {
-            return Auth::user()->currentOrder()
+        $currentOrder = Auth::user()->currentOrder()
                 ->with('lineItems.product.images')
                 ->first();
-        });
 
         if (!$currentOrder) {
             return $cartData;
@@ -245,9 +239,6 @@ class CartService
         }
 
         $quantity = $lineItem->quantity;
-
-        Cache::forget('user_cart_' . Auth::id());
-
         $currentOrder = $currentOrder->refresh();
 
         return [
@@ -342,10 +333,7 @@ class CartService
                 $lineItem->update(['quantity' => $quantity]); 
             }
 
-            Cache::forget('user_cart_' . Auth::id());
-
             $currentOrder->refresh();
-
 
             $orderData = $this->calculateOrderSummaryForUser($currentOrder);        
 
@@ -386,10 +374,7 @@ class CartService
 
                 if($lineItem){
                     $lineItem->delete();
-                    Cache::forget('user_cart_' . Auth::id());
-
                     $currentOrder = $currentOrder->refresh();
-
                 }
 
                 $orderData = $this->calculateOrderSummaryForUser($currentOrder);         

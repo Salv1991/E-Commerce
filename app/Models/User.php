@@ -21,7 +21,7 @@ class User extends Authenticatable
         'email',
         'password',
         'is_guest',
-        'admin'
+        'is_admin'
     ];
 
     /**
@@ -77,13 +77,13 @@ class User extends Authenticatable
         return [
             'name' => $this->name,
             'email' => $this->email,
-            'address' => $customerInformation->address ?? '',
-            'postal_code' =>$customerInformation->postal_code  ?? '',
-            'floor' => $customerInformation->floor ?? '',
-            'country' => $customerInformation->country ?? '',
-            'city' => $customerInformation->city ?? '',
-            'mobile' => $customerInformation->mobile ?? '',
-            'alternative_phone' => $customerInformation->alternative_phone ?? '',
+            'address' => $customerInformation->address ?? null,
+            'postal_code' =>$customerInformation->postal_code  ?? null,
+            'floor' => $customerInformation->floor ?? null,
+            'country' => $customerInformation->country ?? null,
+            'city' => $customerInformation->city ?? null,
+            'mobile' => $customerInformation->mobile ?? null,
+            'alternative_phone' => $customerInformation->alternative_phone ?? null,
         ];
     }
 }
