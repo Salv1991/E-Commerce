@@ -53,4 +53,6 @@ Route::post('/checkout/shipping-method', [CheckoutController::class, 'updateShip
 Route::post('/checkout/order-complete', [CheckoutController::class, 'completeOrder'])->name('checkout.order.complete');
 Route::get('/checkout/order-success', [CheckoutController::class, 'orderSuccess'])->name('order.success');
 
-Route::get('/dashboard', [AdminController::class, 'dashboard'])->middleware(AdminMiddleware::class)->name('admin.dashboard');
+Route::get('/dashboard/products', [AdminController::class, 'showProducts'])->middleware(AdminMiddleware::class)->name('admin.products');
+Route::get('/dashboard/products/{id}', [AdminController::class, 'product'])->middleware(AdminMiddleware::class)->name('admin.product.show');
+Route::patch('/dashboard/products/{id}', [AdminController::class, 'editProduct'])->middleware(AdminMiddleware::class)->name('admin.product.edit');

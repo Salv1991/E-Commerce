@@ -40,11 +40,17 @@ class UserController extends Controller
 
         $user->update(['name' => $validatedData['name']]);
 
-        unset($validatedData['name'], $validatedData['email']);
-
         $user->customerInformation()->updateOrCreate(
             ['user_id' => $user->id],
-            $validatedData
+            [
+                'address' => $validatedData['address'],
+                'postal_code' => $validatedData['postal_code'],
+                'floor' => $validatedData['floor'],
+                'country' => $validatedData['country'],
+                'city' => $validatedData['city'],
+                'mobile' => $validatedData['mobile'],
+                'alternative_phone' => $validatedData['alternative_phone'],
+            ]
         );
         
         return redirect()->route('settings.customer-information.show')->with('success', 'Your information has updated successfully.');

@@ -20,7 +20,7 @@ class ProductFactory extends Factory
         $discount = fake()->boolean(50) ? fake()->numberBetween(5, 70) : null;
         return [
             'title' => fake()->word(),
-            'mpn' => fake()->shuffleString(),
+            'mpn' => fake()->shuffleString('abcefg123689'),
             'description' => fake()->text(400),
             'current_price' => $price - $price * ($discount/100 ?? 0),
             'original_price' => $price,
