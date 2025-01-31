@@ -1,11 +1,12 @@
-<div class="bg-white relative h-screen">
-    <div class="flex justify-between items-stretch h-full">
+<div class="bg-gray-100 relative h-screen">
+    <div class="flex justify-between items-stretch h-full" data-controller="sidebar">
       
-        <aside class="z-30 w-64 fixed top-0 bottom-0 left-0 text-white bg-black">
+        <aside class="z-50 w-64 fixed top-0 bottom-0 left-0 text-white bg-black transition-all duration-300" data-sidebar-target="sidebar">
             <div class="border-b border-gray-50/30">
-                <a href="/" class="block w-full p-5 font-bold text-lg" >
-                    Admin
-                </a>
+            <div class="border-b border-gray-50/30 h-[68px]"></div>    
+            </div>
+            <div class="p-4 bg-black hover:bg-gray-100/10 cursor-pointer" data-action="click->sidebar#toggle">
+                <x-heroicon-o-arrows-right-left class="w-5 h-5 m-auto text-white"/>
             </div>
             <ul class=" *:text-sm">
                 <li>
@@ -29,7 +30,14 @@
             </ul>
         </aside>
 
-        <div class=" ml-64 relative flex-1 flex flex-col justify-start">
+        <aside class="-translate-x-full z-[60] w-16 fixed top-0 bottom-0 left-0 text-white bg-black transition-all duration-300" data-sidebar-target="sidebarSmall">
+            <div class="border-b border-gray-100/10 h-[68px]"></div>    
+            <div class="p-4 bg-black hover:bg-gray-100/10 cursor-pointer" data-action="click->sidebar#toggle">
+                <x-heroicon-o-arrows-right-left class="w-5 h-5 m-auto text-white"/>
+            </div>   
+        </aside>
+
+        <div class="ml-64 relative flex-1 flex flex-col justify-start transition-all duration-300" data-sidebar-target="content">
             <div class="shadow-md drop-shadow-xl fixed top-0 right-0 left-0 bg-black min-h-[68px] h-[68px] px-5">
                 <div class="relative w-full flex justify-end items-center h-full">
                     

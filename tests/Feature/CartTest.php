@@ -79,7 +79,7 @@ class CartTest extends TestCase
                 "paymentFee" => "0.00",
                 "cartTotal" => "200.00",
                 "quantity" => 1,
-                "product_id" => "51",
+                "product_id" => $product->id,
             ]);
        
         $response = $this->patchJson(route('cart.quantity', ['id' => $product->id]), ['quantity' => 0], ['X-Requested-With'=> 'XMLHttpRequest'] );
@@ -92,7 +92,7 @@ class CartTest extends TestCase
                 'paymentFee' => '0.00',
                 'cartTotal' => '53.40',
                 'quantity' => 0,
-                'product_id' => '51',
+                'product_id' => $product->id,
             ]);
 
         $response = $this->get(route('cart'));

@@ -1,6 +1,10 @@
 <x-layout :hideHeader="true" :hideFooter="true">
    <x-admin.layout title="Products">
-      <div class="overflow-x-auto">
+        <a href="{{route('admin.product.create')}}" class="ml-auto bg-black hover:bg-black/80  text-white w-fit px-4 py-2 flex justify-between items-center gap-2">
+            <x-heroicon-m-plus class="w-5 h-5"/>
+            <span>Create Product</span>
+        </a>
+        <div class="overflow-x-auto">
             <table class="table-auto w-full mt-5 min-w-[800px]">
                 <thead class="">
                     <tr class="*:text-end bg-gray-200">
@@ -31,7 +35,6 @@
                     @empty
                     <tr class="">
                         <td colspan="7" class="text-center p-2">No products found</td>
-
                     </tr> 
                     @endforelse
                 </tbody>

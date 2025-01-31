@@ -53,6 +53,8 @@ Route::post('/checkout/shipping-method', [CheckoutController::class, 'updateShip
 Route::post('/checkout/order-complete', [CheckoutController::class, 'completeOrder'])->name('checkout.order.complete');
 Route::get('/checkout/order-success', [CheckoutController::class, 'orderSuccess'])->name('order.success');
 
-Route::get('/dashboard/products', [AdminController::class, 'showProducts'])->middleware(AdminMiddleware::class)->name('admin.products');
-Route::get('/dashboard/products/{id}', [AdminController::class, 'product'])->middleware(AdminMiddleware::class)->name('admin.product.show');
-Route::patch('/dashboard/products/{id}', [AdminController::class, 'editProduct'])->middleware(AdminMiddleware::class)->name('admin.product.edit');
+Route::get('/dashboard/products/list', [AdminController::class, 'showProducts'])->middleware(AdminMiddleware::class)->name('admin.products');
+Route::get('/dashboard/products/edit/{id}', [AdminController::class, 'product'])->middleware(AdminMiddleware::class)->name('admin.product.show');
+Route::patch('/dashboard/products/edit/{id}', [AdminController::class, 'editProduct'])->middleware(AdminMiddleware::class)->name('admin.product.edit');
+Route::get('/dashboard/products/add', [AdminController::class, 'createProduct'])->middleware(AdminMiddleware::class)->name('admin.product.create');
+Route::post('/dashboard/products/add', [AdminController::class, 'storeProduct'])->middleware(AdminMiddleware::class)->name('admin.product.store');

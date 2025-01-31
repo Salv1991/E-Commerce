@@ -1,24 +1,22 @@
 <x-layout :hideHeader="true" :hideFooter="true">
-   <x-admin.layout title="{{$product->title}} (id:{{$product->id}})">
-    <form class="mt-10" method="post" action="{{route('admin.product.edit', $product->id)}}" enctype="multipart/form-data">
-            @method('PATCH')
+   <x-admin.layout title="New product">
+    <form class="mt-10" method="post" action="{{route('admin.product.store')}}" enctype="multipart/form-data">
             @csrf
 
-            <div class="relative m-auto">
-                <img 
-                    src="{{ asset('storage/' . ($product->images->isNotEmpty() ? $product->images->first()->image_path : 'products/placeholder.jpg') )}}" 
-                    alt="Product Image" 
-                    class="w-56 object-cover rounded-md" />
-            </div>
-
             <label for="image" class="block text-xs font-bold pl-2 mt-5">Upload New Image</label>
-            <input required type="file" name="image" id="image" accept="image/*" 
+            <input  type="file" name="image" id="image" accept="image/*" 
                 class="w-full mt-2 px-4 py-2 border rounded-md bg-gray-50 focus:outline-none focus:ring-1 focus:ring-gray-200 focus:border-gray-200">
                 
-            <x-form.input required label="Title" name="title" value="{{ old('title', $product->title) }}" placeholder="Title"/>
+            @error('image')
+                <div class="text-red-500 text-sm mt-2">
+                    {{ $message }}
+                </div>
+            @enderror
+
+            <x-form.input required label="Title" name="title" value="{{ old('title') }}" placeholder="Title"/>
             
             <label for="description" class="block text-xs font-bold pl-2 mt-5">Description *</label>
-            <textarea required id="description" class="w-full mt-2 h-52 px-5 py-4 rounded-md bg-gray-50 focus:outline-none focus:ring-1 focus:ring-gray-200 focus:border-gray-200" name="description">{{ old('description', $product->description) }}</textarea>
+            <textarea required id="description" class="w-full mt-2 h-52 px-5 py-4 rounded-md bg-gray-50 focus:outline-none focus:ring-1 focus:ring-gray-200 focus:border-gray-200" name="description">{{ old('description') }}</textarea>
 
             <div class="grid grid-cols-4 lg:grid-cols-5 gap-4">
                 <x-form.input required type="number" class="col-span-full sm:col-span-2 lg:col-span-1" label="Current price" name="current_price" value="{{ old('current_price') }}" placeholder="Current price"/>
