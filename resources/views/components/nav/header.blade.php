@@ -176,7 +176,7 @@
                                     <li class="">
                                         <ul class="flex flex-col">
                                             <li>
-                                                <a href="{{route('admin.products')}}" class="hover:bg-gray-100/80 p-3 *:text-gray-600 flex justify-start items-center gap-3">
+                                                <a href="{{route('admin.product.index')}}" class="hover:bg-gray-100/80 p-3 *:text-gray-600 flex justify-start items-center gap-3">
                                                     <x-heroicon-c-user class="w-6"/>
                                                     <span class="font-semibold">Admin</span>
                                                 </a>

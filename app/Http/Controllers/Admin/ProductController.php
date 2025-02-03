@@ -1,13 +1,16 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
 use App\Models\Product;
 use App\Models\ProductImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Controllers\Controller;
+use App\Models\Category;
+use Illuminate\Support\Facades\Cache;
 
-class AdminController extends Controller
+class ProductController extends Controller
 {
     public function showProducts() {
         $products = Product::get();
@@ -56,8 +59,14 @@ class AdminController extends Controller
     }
 
     public function createProduct() {
-        
-        return view('admin.product.create');
+        $categories = Category::whereNull('parent_id')
+                ->with(['children.children' => function ($query) {
+                $query->select('id', 'title', 'parent_id');
+            }])
+            ->select('id', 'title', 'parent_id')
+            ->get();
+
+        return view('admin.product.create', compact('categories'));
     }
 
     public function storeProduct(Request $request) {
@@ -69,6 +78,8 @@ class AdminController extends Controller
             'original_price' => 'required|numeric|min:0|gte:current_price',
             'stock' => 'required|integer',
             'mpn' => 'required|string|min:5|max:16',
+            'categories' => 'required|array',
+            'categories.*' => 'exists:categories,id',
         ]);
 
         $discount = (($validatedData['original_price'] - $validatedData['current_price']) / $validatedData['original_price']) * 100;
@@ -84,6 +95,8 @@ class AdminController extends Controller
             'stock' => $validatedData['stock'],  
             'mpn' => $validatedData['mpn']
         ]);
+
+        $product->categories()->sync($validatedData['categories']);
 
         ProductImage::create([
            'product_id' => $product->id,

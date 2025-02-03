@@ -1,41 +1,57 @@
 <div class="bg-gray-100 relative h-screen">
     <div class="flex justify-between items-stretch h-full" data-controller="sidebar">
       
-        <aside class="z-50 w-64 fixed top-0 bottom-0 left-0 text-white bg-black transition-all duration-300" data-sidebar-target="sidebar">
+    <aside>
+        <div class="z-50 w-64 fixed top-0 bottom-0 left-0 text-white bg-black transition-all duration-300" data-sidebar-target="sidebar">
             <div class="border-b border-gray-50/30">
-            <div class="border-b border-gray-50/30 h-[68px]"></div>    
+                <div class="border-b border-gray-50/30 h-[68px]"></div>    
             </div>
             <div class="p-4 bg-black hover:bg-gray-100/10 cursor-pointer" data-action="click->sidebar#toggle">
                 <x-heroicon-o-arrows-right-left class="w-5 h-5 m-auto text-white"/>
             </div>
             <ul class=" *:text-sm">
                 <li>
-                    <a href="/" class="p-5  hover:bg-gray-50/20 flex justify-between items-center">
-                        <span>Products</span>
-                        <x-heroicon-o-chevron-right class="w-5 h-5"/>
+                    <a 
+                        data-action="click->sidebar#openSubmenu" 
+                        data-sidebar-target="button" 
+                        data-products 
+                        class="p-5 {{request()->routeIs('admin.product.*') ? 'border-b border-red-800' : 'hover:bg-gray-50/20'}} flex justify-between items-start">
+                        <span>Product</span>
+                        <x-heroicon-o-chevron-right data-close class="w-5 h-5 hidden"/>
+                        <x-heroicon-o-chevron-down data-open class="w-5 h-5"/>
                     </a>
+                    <ul data-submenu class="flex flex-col justify-between items-center overflow-hidden transition-transform duration-300 bg-gray-50/5 {{request()->routeIs('admin.product.*') ? '' : 'scale-y-0 hidden'}} origin-top">
+                        <li class="text-xs w-full hover:bg-gray-50/20"><a href="{{route('admin.product.index')}}" class="px-10 py-4 block">Product list</a></li>
+                        <li class="text-xs w-full hover:bg-gray-50/20"><a href="{{route('admin.product.create')}}" class="px-10 py-4 block">Create</a></li>
+                    </ul>
                 </li>
                 <li>
-                    <a href="/" class="p-5  hover:bg-gray-50/20 flex justify-between items-center">
-                        <span>Categories</span>
-                        <x-heroicon-o-chevron-right class="w-5 h-5"/>
+                    <a 
+                        data-action="click->sidebar#openSubmenu" 
+                        data-sidebar-target="button" 
+                        data-products 
+                        class="p-5 {{request()->routeIs('admin.category.*') ? 'bg-gray-50/20' : 'hover:bg-gray-50/20'}} flex justify-between items-start">
+                        <span>Category</span>
+                        <x-heroicon-o-chevron-right data-close class="w-5 h-5"/>
+                        <x-heroicon-o-chevron-down data-open class="w-5 h-5 hidden"/>
                     </a>
-                </li>               
-                <li>
-                    <a href="/" class="p-5  hover:bg-gray-50/20 flex justify-between items-center">
-                        <span>Orders</span>
-                        <x-heroicon-o-chevron-right class="w-5 h-5"/>
-                    </a>
-                </li>            
+                    <ul data-submenu class="flex flex-col justify-between items-center overflow-hidden transition-transform duration-300 bg-gray-50/5 {{request()->routeIs('admin.category.*') ? '' : 'scale-y-0 hidden'}} origin-top">
+                        <li class="text-xs w-full hover:bg-gray-50/20"><a href="/" class="px-10 py-5 block">Category list</a></li>
+                        <li class="text-xs w-full hover:bg-gray-50/20"><a href="/" class="px-10 py-5 block">Create</a></li>
+                    </ul>
+                </li>
+     
             </ul>
-        </aside>
-
-        <aside class="-translate-x-full z-[60] w-16 fixed top-0 bottom-0 left-0 text-white bg-black transition-all duration-300" data-sidebar-target="sidebarSmall">
-            <div class="border-b border-gray-100/10 h-[68px]"></div>    
+        </div>
+        <div class="-translate-x-full z-[60] w-16 fixed top-0 bottom-0 left-0 text-white bg-black transition-all duration-300" data-sidebar-target="sidebarSmall">
+            <div class="border-b border-gray-50/30">
+                <div class="border-b border-gray-50/30 h-[68px]"></div>    
+            </div>   
             <div class="p-4 bg-black hover:bg-gray-100/10 cursor-pointer" data-action="click->sidebar#toggle">
                 <x-heroicon-o-arrows-right-left class="w-5 h-5 m-auto text-white"/>
             </div>   
-        </aside>
+        </div>
+    </aside>
 
         <div class="ml-64 relative flex-1 flex flex-col justify-start transition-all duration-300" data-sidebar-target="content">
             <div class="shadow-md drop-shadow-xl fixed top-0 right-0 left-0 bg-black min-h-[68px] h-[68px] px-5">
@@ -54,7 +70,7 @@
                                     <li class="">
                                         <ul class="flex flex-col">
                                             <li>
-                                                <a href="{{route('admin.products')}}" class="hover:bg-gray-100/80 p-3 *:text-gray-600 flex justify-start items-center gap-3">
+                                                <a href="{{route('admin.product.index')}}" class="hover:bg-gray-100/80 p-3 *:text-gray-600 flex justify-start items-center gap-3">
                                                     <x-heroicon-c-user class="w-6"/>
                                                     <span class="font-semibold">Admin</span>
                                                 </a>
