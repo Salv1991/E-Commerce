@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
+use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\ProductController;
@@ -54,9 +55,15 @@ Route::post('/checkout/order-complete', [CheckoutController::class, 'completeOrd
 Route::get('/checkout/order-success', [CheckoutController::class, 'orderSuccess'])->name('order.success');
 
 Route::middleware(AdminMiddleware::class)->prefix('dashboard')->group(function() {
-    Route::get('/products/list', [AdminProductController::class, 'showProducts'])->middleware(AdminMiddleware::class)->name('admin.product.index');
+    Route::get('/products/list', [AdminProductController::class, 'showList'])->middleware(AdminMiddleware::class)->name('admin.product.index');
     Route::get('/products/edit/{id}', [AdminProductController::class, 'product'])->middleware(AdminMiddleware::class)->name('admin.product.show');
     Route::patch('/products/edit/{id}', [AdminProductController::class, 'editProduct'])->middleware(AdminMiddleware::class)->name('admin.product.edit');
     Route::get('/products/add', [AdminProductController::class, 'createProduct'])->middleware(AdminMiddleware::class)->name('admin.product.create');
     Route::post('/products/add', [AdminProductController::class, 'storeProduct'])->middleware(AdminMiddleware::class)->name('admin.product.store');
+
+    Route::get('/category/list', [AdminCategoryController::class, 'showList'])->middleware(AdminMiddleware::class)->name('admin.category.list');
+    Route::get('/category/edit/{id}', [AdminCategoryController::class, 'category'])->middleware(AdminMiddleware::class)->name('admin.category.edit.show');
+    Route::patch('/category/edit/{id}', [AdminCategoryController::class, 'editCategory'])->middleware(AdminMiddleware::class)->name('admin.category.edit.store');
+    Route::get('/category/add', [AdminCategoryController::class, 'createCategory'])->middleware(AdminMiddleware::class)->name('admin.category.create.show');
+
 });

@@ -12,8 +12,8 @@ export default class extends Controller {
     toggle() {
         this.sidebarTarget.classList.toggle('-translate-x-full');
         this.sidebarSmallTarget.classList.toggle('-translate-x-full');
-        this.contentTarget.classList.toggle('ml-64');    
-        this.contentTarget.classList.toggle('ml-16');    
+        this.contentTarget.classList.toggle('pl-64');    
+        this.contentTarget.classList.toggle('pl-16');    
     }
 
     openSubmenu(event) {

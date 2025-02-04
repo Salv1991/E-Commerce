@@ -4,7 +4,7 @@
             <x-heroicon-m-plus class="w-5 h-5"/>
             <span>Create Product</span>
         </a>
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto pb-4">
             <table class="table-auto w-full mt-5 min-w-[800px]">
                 <thead class="">
                     <tr class="*:text-end bg-gray-200">
@@ -39,6 +39,12 @@
                     @endforelse
                 </tbody>
             </table> 
-        </div>    
+        </div>   
+
+        {{-- PAGINATION --}}
+        <div class="mt-4">
+            {{ $products->links() }}
+        </div> 
+
    </x-admin.layout>
 </x-layout>

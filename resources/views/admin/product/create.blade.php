@@ -1,5 +1,5 @@
 <x-layout :hideHeader="true" :hideFooter="true">
-   <x-admin.layout title="New product">
+   <x-admin.layout title="New Product">
     <form class="mt-10" method="post" action="{{route('admin.product.store')}}" enctype="multipart/form-data">
             @csrf
 
@@ -68,11 +68,13 @@
                     </div>
                 @endforeach
             </div>
+
             @error('categories')
                 <div class="text-red-500 text-sm mt-2">
                     {{ $message }}
                 </div>
             @enderror
+            
             <div class="ml-auto w-full sm:w-fit">
                 <button type="submit" class="bg-black mt-10 w-full rounded-sm hover:underline underline-offset-4 px-20 py-4 text-white">Save changes</button>
             </div>

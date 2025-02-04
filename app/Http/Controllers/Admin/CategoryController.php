@@ -8,57 +8,17 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
-use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 
-class ProductController extends Controller
+class CategoryController extends Controller
 {
     public function showList() {
-        $products = Product::paginate(20);
-        return view('admin.products', compact(['products']));
+        $categories = Category::paginate(20);
+        return view('admin.categories', compact(['categories']));
     }
 
-    public function product($id) {
-        $product = Product::findOrFail($id);
-        $product->load('images');
-
-        return view('admin.product.edit', compact(['product']));
-    }
-
-    public function editProduct(Request $request, $id) {
-
-        $product = Product::findOrFail($id);
-
-        $validatedData = $request->validate([
-            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-            'title' => 'required|string|max:200',
-            'description' => 'required|string',
-            'current_price' => 'required|numeric|min:0',
-            'original_price' => 'required|numeric|min:0|gte:current_price',
-            'stock' => 'required|integer',
-            'mpn' => 'required|string|min:5|max:16',
-        ]);
-
-        $discount = $this->calculateDiscount($validatedData['original_price'], $validatedData['current_price']);
-        
-        if ($request->hasFile('image')) {
-            $imagePath = $this->createImage($request);
-            $product->images()->first()->update(['image_path' => $imagePath]);
-        }
-
-        $product->update([
-            'title' => $validatedData['title'],
-            'description' => $validatedData['description'],
-            'current_price' => $validatedData['current_price'],
-            'original_price' => $validatedData['original_price'],
-            'discount' => $discount,
-            'stock' => $validatedData['stock'],
-            'mpn' => $validatedData['mpn']    
-        ]);
-
-        return redirect()->back()->with('success', 'Product updated successfully');
-    }
-
-    public function createProduct() {
+    public function category($id) {
+        $category = Category::with('parent.parent')->findOrFail($id);
         $categories = Category::whereNull('parent_id')
                 ->with(['children.children' => function ($query) {
                 $query->select('id', 'title', 'parent_id');
@@ -66,7 +26,45 @@ class ProductController extends Controller
             ->select('id', 'title', 'parent_id')
             ->get();
 
-        return view('admin.product.create', compact('categories'));
+        return view('admin.category.edit', compact(['category', 'categories']));
+    }
+
+    public function editCategory(Request $request, $id) {
+
+        $category = Category::findOrFail($id);
+
+        $validatedData = $request->validate([
+            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'title' => 'required|string|max:200',
+            'description' => 'required|string',
+            'weight' => 'required|integer|min:0',
+        ]);
+        
+        $dataToUpdate = [
+            'title' => $validatedData['title'],
+            'description' => $validatedData['description'],
+            'weight' => $validatedData['weight'],
+            'slug' => Str::slug($validatedData['title'])
+        ];
+
+        if ($request->hasFile('image')) {
+            $dataToUpdate['image'] = $this->createImage($request);
+        } 
+
+        $updated = $category->update($dataToUpdate);
+
+        return redirect()->back()->with('success', 'Category updated successfully');
+    }
+
+    public function createCategory() {
+        $categories = Category::whereNull('parent_id')
+                ->with(['children.children' => function ($query) {
+                $query->select('id', 'title', 'parent_id');
+            }])
+            ->select('id', 'title', 'parent_id')
+            ->get();
+
+        return view('admin.category.create', compact('categories'));
     }
 
     public function storeProduct(Request $request) {
@@ -74,12 +72,7 @@ class ProductController extends Controller
             'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             'title' => 'required|string|max:200',
             'description' => 'required|string',
-            'current_price' => 'required|numeric|min:0',
-            'original_price' => 'required|numeric|min:0|gte:current_price',
-            'stock' => 'required|integer',
-            'mpn' => 'required|string|min:5|max:16',
-            'categories' => 'required|array',
-            'categories.*' => 'exists:categories,id',
+            'weight' => 'required|integer|min:0',
         ]);
 
         $discount = $this->calculateDiscount($validatedData['original_price'], $validatedData['current_price']);

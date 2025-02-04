@@ -33,7 +33,7 @@ export default class extends Controller {
         const secondDepthCategoryContainer = selectedCheckbox.closest('div[data-secondDepthCategory]');
 
         if(secondDepthCategoryContainer) {
-            secondDepthCategoryContainer.querySelector('div[data-thirdDepthCategory]').querySelectorAll('input').forEach(input => {
+            secondDepthCategoryContainer.querySelector('div[data-thirdDepthCategory]')?.querySelectorAll('input').forEach(input => {
                 input.checked = false; 
                     input.removeAttribute('checked'); 
             });

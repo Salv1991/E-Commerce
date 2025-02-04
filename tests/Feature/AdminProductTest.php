@@ -145,4 +145,45 @@ class AdminProductTest extends TestCase
             ])
         );
     }
+
+    public function test_create_new_product_successfully() {
+        $user = User::create([
+            'name' => 'Michael Scott',    
+            'email' => 'michaelScott@example.com',
+            'password' => '12341312',
+            'is_admin' => true
+        ]);
+
+        $this->actingAs($user);
+
+        $response = $this->get(route('admin.product.create'));
+
+        $response->assertStatus(200);
+                
+        $this->post(route('admin.product.store'),[
+            'title' => 'bar',
+            'current_price' => 50,
+            'original_price' => 100,
+            'description' => 'Description text.',
+            'stock' => 5,
+            'mpn' => '23134fsa231',
+            'categories' => [1, 2, 5, 7]
+        ]);
+
+        $response->assertStatus(200);
+        
+        $this->assertDatabaseHas('products', ([
+            'mpn' => '23134fsa231',
+            'title' => 'bar',
+            'current_price' => 50,
+            'original_price' => 100,
+            'description' => 'Description text.',
+            'stock' => 5,
+        ]));
+
+       $product = Product::where('mpn', '23134fsa231')->firstOrFail();
+
+       $this->assertEquals([1, 2, 5, 7], $product->categories()->pluck('category_id')->toArray());
+       $this->assertEquals('products/placeholder.jpg', $product->images()->first()->image_path);
+    }
 }
