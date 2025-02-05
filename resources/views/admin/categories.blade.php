@@ -1,6 +1,6 @@
 <x-layout :hideHeader="true" :hideFooter="true">
    <x-admin.layout title="Categories">
-        <a href="{{}}" class="ml-auto bg-black hover:bg-black/80  text-white w-fit px-4 py-2 flex justify-between items-center gap-2">
+        <a href="{{route('admin.category.create.show')}}" class="ml-auto bg-black hover:bg-black/80  text-white w-fit px-4 py-2 flex justify-between items-center gap-2">
             <x-heroicon-m-plus class="w-5 h-5"/>
             <span>Create Category</span>
         </a>

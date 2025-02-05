@@ -4,48 +4,35 @@
     <aside>
         <div class="z-50 w-64 fixed top-0 bottom-0 left-0 text-white bg-black transition-all duration-300" data-sidebar-target="sidebar">
             <div class="border-b border-gray-50/30">
-                <div class="border-b border-gray-50/30 h-[68px]"></div>    
+                <a href="{{route('home')}}" class="flex justify-center items-center border-b border-gray-50/30 h-[68px] p-4 bg-black hover:bg-gray-100/10 cursor-pointer">
+                    <x-heroicon-c-home class="w-5 h-5 m-auto text-white"/>
+                </a>
             </div>
             <div class="p-4 bg-black hover:bg-gray-100/10 cursor-pointer" data-action="click->sidebar#toggle">
                 <x-heroicon-o-arrows-right-left class="w-5 h-5 m-auto text-white"/>
             </div>
+            
             <ul class="*:text-sm">
-                <li>
-                    <a 
-                        data-action="click->sidebar#openSubmenu" 
-                        data-sidebar-target="button" 
-                        data-products 
-                        class="cursor-pointer p-5 {{request()->routeIs('admin.product.*') ? 'border-b border-red-800' : ''}} hover:bg-gray-50/20 flex justify-between items-start">
-                        <div class="flex justify-between items-center gap-2 "><x-heroicon-c-archive-box class="w-5 h-5"/><span>Product</span></div>
-                        <x-heroicon-o-chevron-right data-close class="w-5 h-5 {{request()->routeIs('admin.product.*') ? 'hidden' : ''}}"/>
-                        <x-heroicon-o-chevron-down data-open class="w-5 h-5 {{request()->routeIs('admin.product.*') ? '' : 'hidden'}}"/>
-                    </a>
-                    <ul data-submenu class="flex flex-col justify-between items-center overflow-hidden transition-transform duration-300 bg-gray-50/5 {{request()->routeIs('admin.product.*') ? '' : 'scale-y-0 hidden'}} origin-top">
-                        <li class="text-xs w-full hover:bg-gray-50/20"><a href="{{route('admin.product.index')}}" class="px-10 py-4 block">Product list</a></li>
-                        <li class="text-xs w-full hover:bg-gray-50/20"><a href="{{route('admin.product.create')}}" class="px-10 py-4 block">Create</a></li>
-                    </ul>
-                </li>
-                <li>
-                    <a 
-                        data-action="click->sidebar#openSubmenu" 
-                        data-sidebar-target="button" 
-                        data-products 
-                        class="cursor-pointer p-5 {{request()->routeIs('admin.category.*') ? 'border-b border-red-800' : ''}} hover:bg-gray-50/20 flex justify-between items-start">
-                        <div class="flex justify-between items-center gap-2 "><x-heroicon-m-inbox class="w-5 h-5"/><span>Category</span></div>
-                        <x-heroicon-o-chevron-right data-close class="w-5 h-5 {{request()->routeIs('admin.category.*') ? 'hidden' : ''}}"/>
-                        <x-heroicon-o-chevron-down data-open class="w-5 h-5 {{request()->routeIs('admin.category.*') ? '' : 'hidden'}}"/>
-                    </a>
-                    <ul data-submenu class="flex flex-col justify-between items-center overflow-hidden transition-transform duration-300 bg-gray-50/5 {{request()->routeIs('admin.category.*') ? '' : 'scale-y-0 hidden'}} origin-top">
-                        <li class="text-xs w-full hover:bg-gray-50/20"><a href="{{route('admin.category.list')}}" class="px-10 py-5 block">Category list</a></li>
-                        <li class="text-xs w-full hover:bg-gray-50/20"><a href="{{route('admin.category.create.show')}}" class="px-10 py-5 block">Create</a></li>
-                    </ul>
-                </li>
-     
+                <x-admin.sidebar.li title="Product" :isRouteActive="request()->routeIs('admin.product.*')" icon="heroicon-o-archive-box">
+                    <li class="text-xs w-full hover:bg-gray-50/20"><a href="{{route('admin.product.index')}}" class="px-10 py-4 block select-none">Product list</a></li>
+                    <li class="text-xs w-full hover:bg-gray-50/20"><a href="{{route('admin.product.create')}}" class="px-10 py-4 block select-none">Create</a></li>
+                </x-admin.sidebar.li>
+
+                <x-admin.sidebar.li title="Category" :isRouteActive="request()->routeIs('admin.category.*')"  icon="heroicon-o-inbox">
+                    <li class="text-xs w-full hover:bg-gray-50/20"><a href="{{route('admin.category.list')}}" class="px-10 py-5 block select-none">Category list</a></li>
+                    <li class="text-xs w-full hover:bg-gray-50/20"><a href="{{route('admin.category.create.show')}}" class="px-10 py-5 block select-none">Create</a></li>
+                </x-admin.sidebar.li>
+
+                <x-admin.sidebar.li title="Order" :isRouteActive="request()->routeIs('admin.order.*')"  icon="heroicon-o-credit-card">
+                    <li class="text-xs w-full hover:bg-gray-50/20"><a href="{{route('admin.order.list')}}" class="px-10 py-5 block select-none">Order list</a></li>
+                </x-admin.sidebar.li>
             </ul>
         </div>
         <div class="-translate-x-full z-[60] w-16 fixed top-0 bottom-0 left-0 text-white bg-black transition-all duration-300" data-sidebar-target="sidebarSmall">
             <div class="border-b border-gray-50/30">
-                <div class="border-b border-gray-50/30 h-[68px]"></div>    
+                <a href="{{route('home')}}" class="flex justify-center items-center border-b border-gray-50/30 h-[68px] p-4 bg-black hover:bg-gray-100/10 cursor-pointer">
+                    <x-heroicon-c-home class="w-5 h-5 m-auto text-white"/>
+                </a>            
             </div>   
             <div class="p-4 bg-black hover:bg-gray-100/10 cursor-pointer" data-action="click->sidebar#toggle">
                 <x-heroicon-o-arrows-right-left class="w-5 h-5 m-auto text-white"/>
@@ -54,7 +41,7 @@
     </aside>
 
         <div class="pl-64 w-full relative flex-1 flex flex-col justify-start transition-all duration-300" data-sidebar-target="content">
-            <div class="shadow-md drop-shadow-xl z-50 fixed top-0 right-0 left-0 bg-black min-h-[68px] h-[68px] px-5">
+            <div class="shadow-md drop-shadow-xl z-40 fixed top-0 right-0 left-0 bg-black min-h-[68px] h-[68px] px-5">
                 <div class="relative w-full flex justify-end items-center h-full">
                     
                    <x-error-message/>
@@ -112,7 +99,13 @@
             </div>
 
             <div class="w-full bg-gray-100 px-5 py-10 mt-[68px]">
-               <h1 class="text-start text-2xl xs:text-2xl md:text-2xl font-semibold">{{ $title }}</h1>
+               <h1 class="text-start text-2xl xs:text-2xl md:text-2xl font-semibold">
+                    @isset ($href)
+                        <a class="text-start text-2xl xs:text-2xl md:text-2xl font-semibold hover:text-red-500" href="{{ $href }}">{{ $title }}</a>              
+                    @else
+                        {{ $title }}
+                    @endisset
+                </h1>
                {{ $slot }}
             </div>
         </div>

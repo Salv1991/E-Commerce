@@ -42,7 +42,9 @@
                                 :product="$product" />
                         @endforeach
                     @else
-                        <p class="text-center w-full col-span-full mt-20 text-lg font-semibold">No products found.</p>
+                        <div class="col-span-full bg-gray-50 border border-gray-200 h-96 lg:h-[600px] px-5 py-5 flex justify-center items-center text-gray-500">
+                            No products found.
+                        </div>
                     @endif
                 </div>
             </div> 

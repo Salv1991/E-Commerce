@@ -1,5 +1,5 @@
 <x-layout :hideHeader="true" :hideFooter="true">
-   <x-admin.layout title="{{$product->title}} (id:{{$product->id}})">
+   <x-admin.layout title="{{$product->title}} (id:{{$product->id}})" href="{{route('product', $product->id)}}">
     <form class="mt-10" method="post" action="{{route('admin.product.edit', $product->id)}}" enctype="multipart/form-data">
             @method('PATCH')
             @csrf
@@ -22,7 +22,7 @@
 
             <div class="grid grid-cols-4 lg:grid-cols-5 gap-4">
                 <x-form.input required type="number" class="col-span-full sm:col-span-2 lg:col-span-1" label="Current price" name="current_price" value="{{ old('current_price' , $product->current_price) }}" placeholder="Current price"/>
-                <x-form.input required type="number" class="col-span-full sm:col-span-2 lg:col-span-1" label="Original price" name="original_price" value="{{ old('original_price' , $product->current_price) }}" placeholder="Original price"/>
+                <x-form.input required type="number" class="col-span-full sm:col-span-2 lg:col-span-1" label="Original price" name="original_price" value="{{ old('original_price' , $product->original_price) }}" placeholder="Original price"/>
                 <x-form.input readonly type="number" class="col-span-full sm:col-span-2 lg:col-span-1" label="Discount" name="discount" value="{{ old('discount' , $product->discount) }}" placeholder="Discount"/>
                 <x-form.input required type="number" class="col-span-full sm:col-span-2 lg:col-span-1" label="Stock" name="stock" value="{{ old('stock' , $product->stock) }}" placeholder="Stock"/>
                 <x-form.input required class="col-span-full lg:col-span-1" label="mpn" name="mpn" value="{{ old('mpn' , $product->mpn) }}" placeholder="mpn"/>

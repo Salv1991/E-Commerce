@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\Product;
-use App\Models\ProductImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 class CategoryController extends Controller
@@ -51,7 +50,9 @@ class CategoryController extends Controller
             $dataToUpdate['image'] = $this->createImage($request);
         } 
 
-        $updated = $category->update($dataToUpdate);
+        $category->update($dataToUpdate);
+
+        Cache::forget('first-depth-categories');
 
         return redirect()->back()->with('success', 'Category updated successfully');
     }
@@ -67,15 +68,14 @@ class CategoryController extends Controller
         return view('admin.category.create', compact('categories'));
     }
 
-    public function storeProduct(Request $request) {
+    public function storeCategory(Request $request) {
         $validatedData = $request->validate([
             'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             'title' => 'required|string|max:200',
             'description' => 'required|string',
             'weight' => 'required|integer|min:0',
+            'parent_id' => 'nullable|exists:categories,id'
         ]);
-
-        $discount = $this->calculateDiscount($validatedData['original_price'], $validatedData['current_price']);
 
         if ($request->hasFile('image')) {
             $imagePath = $this->createImage($request);
@@ -83,24 +83,26 @@ class CategoryController extends Controller
             $imagePath = 'products/placeholder.jpg';
         }
 
-        $product = Product::create([
+        $parentCategory = Category::find($validatedData['parent_id']);
+
+        if($parentCategory) {
+            $depth = $parentCategory->depth + 1;
+        } else {
+            $depth = 0;
+        }
+
+        Category::create([
+            'image_path' => $imagePath,
             'title' => $validatedData['title'],
             'description' => $validatedData['description'],
-            'current_price' => $validatedData['current_price'],
-            'original_price' => $validatedData['original_price'],
-            'discount' => $discount,
-            'stock' => $validatedData['stock'],  
-            'mpn' => $validatedData['mpn']
+            'weight' => $validatedData['weight'],
+            'slug' => Str::slug($validatedData['title']),
+            'depth' => $depth
         ]);
         
-        $product->categories()->sync($validatedData['categories']);
+        Cache::forget('first-depth-categories');
 
-        ProductImage::create([
-           'product_id' => $product->id,
-           'image_path' => $imagePath
-        ]);
-
-        return redirect()->back()->with('success', 'Product added successfully');  
+        return redirect()->back()->with('success', 'Category created successfully');  
     }
 
     private function createImage($request) {
@@ -126,9 +128,5 @@ class CategoryController extends Controller
 
         // Store the file with the unique filename.
         return $file->storeAs($directory, $filename, 'public');
-    }
-
-    private function calculateDiscount($originalPrice, $currentPrice) {
-        return number_format((($originalPrice - $currentPrice) / $originalPrice) * 100, 0);  
     }
 }

@@ -1,6 +1,6 @@
 <x-layout :hideHeader="true" :hideFooter="true">
    <x-admin.layout title="New Category">
-    <form class="mt-10" method="post" action="{{route('admin.product.store')}}" enctype="multipart/form-data">
+    <form class="mt-10" method="post" action="{{route('admin.category.create.store')}}" enctype="multipart/form-data">
             @csrf
 
             <label for="image" class="block text-xs font-bold pl-2 mt-5">Upload New Image</label>
@@ -31,17 +31,17 @@
                         <option value="{{ $category->id }}" class="text-black">
                             {{ $category->title }}
                         </option>
-                        @if($category->children)
-                            @foreach ($category->children as $category)
-                                <option value="{{ $category->id }}" class="text-black">
-                                    {{ $category->title }}
+                        @if($category->children->isNotEmpty())
+                            @foreach ($category->children as $child)
+                                <option value="{{ $child->id }}" class="text-black">
+                                    {{ $child->title }}
                                 </option>
                             @endforeach
                         @endif
                     @endforeach
                 </select>
 
-            @error('categories')
+            @error('parent_id')
                 <div class="text-red-500 text-sm mt-2">
                     {{ $message }}
                 </div>

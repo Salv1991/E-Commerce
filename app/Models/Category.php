@@ -13,7 +13,10 @@ class Category extends Model
         'title',
         'slug',
         'description',
-        'weight'
+        'weight',
+        'parent_id',
+        'depth',
+        'image_path'
     ];
 
     public function products() {
@@ -21,7 +24,7 @@ class Category extends Model
     }
 
     public function parent() {
-        return $this->belongsTo(Category::class)->with('parent');
+        return $this->belongsTo(Category::class);
     }
 
     public function children()

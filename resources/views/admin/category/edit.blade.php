@@ -1,5 +1,5 @@
 <x-layout :hideHeader="true" :hideFooter="true">
-   <x-admin.layout title="{{$category->title}} (id:{{$category->id}})">
+   <x-admin.layout title="{{$category->title}} (id:{{$category->id}})"  href="{{route('category', $category->id)}}">
     <form class="mt-10" method="post" action="{{route('admin.category.edit.store', $category->id)}}" enctype="multipart/form-data">
             @method('PATCH')
             @csrf
