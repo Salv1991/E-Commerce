@@ -38,12 +38,12 @@
 
 
         {{-- LOGO --}}
-        <a href="/" class="min-w-[89px]">
+        <a href="/" class="min-w-[112px]">
             <img src="{{ asset('svg/logo7.png') }}" alt="Logo" class="w-32 overflow-hidden">
         </a>
 
         <div class="w-full flex justify-between items-center gap-6">
-            <nav class="flex justify-center items-center gap-5">
+            <nav class="flex justify-start items-center gap-1">
              
                 {{-- CATEGORIES --}}
                 <div id="categories-wrapper" 
@@ -101,9 +101,9 @@
                 </div>
             </nav>
 
-            <div class="flex justify-center items-center gap-2 py-6">
+            <div class="flex justify-end items-center gap-2 py-6">
                 {{-- SEARCH --}}
-                <form action="{{route('search')}}" method="get" class="relative w-[70%] hidden xs:block">
+                <form action="{{route('search')}}" method="get" class="relative w-[35%] hidden xs:block">
                     <input type="search" placeholder="Search" name="query" value="{{ request()->query('query') }}" class="w-full rounded-xl py-1 pl-9 pr-2 border-2 border-gray-200 outline-none text-sm placeholder:text-sm" />
                     <button type='submit' class="absolute left-2 top-[5px] mr-2 ">
                         <x-heroicon-c-magnifying-glass  class="w-6 h-6 text-gray-500 hover:text-red-400"/>       

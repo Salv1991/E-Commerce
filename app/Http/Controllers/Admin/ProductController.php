@@ -119,14 +119,14 @@ class ProductController extends Controller
         // Get file extension.
         $extension = $file->getClientOriginalExtension(); 
 
-        $directory = 'products/'; 
+        $directory = 'products'; 
 
         // Start with original name.
         $filename = $originalName . '.' . $extension; 
         $counter = 1;
 
         // Check if file exists, and modify filename if necessary.
-        while (Storage::disk('public')->exists($directory . $filename)) {
+        while (Storage::disk('public')->exists($directory . '/' . $filename)) {
             $filename = $originalName . '-' . $counter . '.' . $extension;
             $counter++;
         }

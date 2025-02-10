@@ -4,8 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class Order extends Model
 {
@@ -53,12 +51,6 @@ class Order extends Model
             } else {
                 $selectedShippingMethod = $this->shipping_method ?? $defaultShippingMethod;
                 $shipping_fee = $shippingMethods[$selectedShippingMethod]['extra_cost'];
-               // if($selectedShippingMethod){
-                   //$shipping_fee = $shippingMethods[$selectedShippingMethod]['extra_cost'];
-               // } else {
-                 //   $selectedShippingMethod = $defaultShippingMethod;
-                  //  $shipping_fee = $shippingMethods[$defaultShippingMethod]['extra_cost'];
-               // }
             }
 
         $this->update([
@@ -68,14 +60,4 @@ class Order extends Model
             'total_price' => $subtotal + $shipping_fee + $this->payment_fee
         ]);
     }
-
-    public function calculateFeesAndPrices() {
-
-        $currentOrder = Auth::user()->currentOrder()->first();
-
-        $currentOrder->update([
-            'total_price' => $currentOrder->subtotal + $currentOrder->payment_fee + $currentOrder->shipping_fee,
-        ]);  
-    }
-
 }

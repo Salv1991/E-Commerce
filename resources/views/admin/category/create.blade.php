@@ -26,7 +26,7 @@
                
             <label for="parent_category" class="block text-xs font-bold pl-2 mt-5">Parent category *</label>
                 <select name="parent_id" id="parent_category" class="w-full mt-2 p-2">
-                    <option value="">No parent</option>
+                    <option value="">-</option>
                     @foreach ($categories as $category)
                         <option value="{{ $category->id }}" class="text-black">
                             {{ $category->title }}
@@ -46,10 +46,7 @@
                     {{ $message }}
                 </div>
             @enderror
-            
-            <div class="ml-auto w-full sm:w-fit">
-                <button type="submit" class="bg-black mt-10 w-full rounded-sm hover:underline underline-offset-4 px-20 py-4 text-white">Save changes</button>
-            </div>
+            <x-admin.button />
         </form>
    </x-admin.layout>
 </x-layout>

@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use App\Models\Category;
-use App\Models\Product;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
@@ -110,6 +109,16 @@ class AdminCategoryTest extends TestCase
             'is_admin' => true
         ]);
 
+        $category = Category::create([
+            'parent_id' => null,
+            'depth' => 0,
+            'weight' => 2,
+            'slug' => 'foobar',
+            'title' => 'foobar',
+            'description' => 'Sittin in my office with a plate of grilled bacon Called my man Dwight, just to see what was shakin Yo, Mike, our town is dope and prettySo check out how we live In the Electric City',
+            'image_path' => 'products/placeholder.jpg'  
+        ]);
+
         $this->actingAs($user);
 
         $response = $this->get(route('admin.category.create.show'));
@@ -117,7 +126,7 @@ class AdminCategoryTest extends TestCase
         $response->assertStatus(200);
                 
         $this->post(route('admin.category.create.store'),[
-            'parent_id' => null,
+            'parent_id' => $category->id,
             'weight' => 2,
             'title' => 'foo',
             'description' => 'Sittin in my office with a plate of grilled bacon Called my man Dwight, just to see what was shakin Yo, Mike, our town is dope and prettySo check out how we live In the Electric City',
@@ -126,8 +135,8 @@ class AdminCategoryTest extends TestCase
         $response->assertStatus(200);
         
         $this->assertDatabaseHas('categories', ([
-            'parent_id' => null,
-            'depth' => 0,
+            'parent_id' => $category->id,
+            'depth' => 1,
             'weight' => 2,
             'slug' => 'foo',
             'title' => 'foo',

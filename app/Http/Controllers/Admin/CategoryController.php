@@ -17,7 +17,12 @@ class CategoryController extends Controller
     }
 
     public function category($id) {
-        $category = Category::with('parent.parent')->findOrFail($id);
+        $category = Category::with('parent.parent')->find($id);
+
+        if(!$category){
+            return redirect()->back('error', "Category doesn't exist");
+        }
+
         $categories = Category::whereNull('parent_id')
                 ->with(['children.children' => function ($query) {
                 $query->select('id', 'title', 'parent_id');
@@ -30,7 +35,11 @@ class CategoryController extends Controller
 
     public function editCategory(Request $request, $id) {
 
-        $category = Category::findOrFail($id);
+        $category = Category::find($id);
+
+        if(!$category){
+            return redirect()->back('error', "Category doesn't exist");
+        }
 
         $validatedData = $request->validate([
             'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
@@ -74,7 +83,7 @@ class CategoryController extends Controller
             'title' => 'required|string|max:200',
             'description' => 'required|string',
             'weight' => 'required|integer|min:0',
-            'parent_id' => 'nullable|exists:categories,id'
+            'parent_id' => 'required|exists:categories,id'
         ]);
 
         if ($request->hasFile('image')) {
@@ -92,6 +101,7 @@ class CategoryController extends Controller
         }
 
         Category::create([
+            'parent_id' => $validatedData['parent_id'],
             'image_path' => $imagePath,
             'title' => $validatedData['title'],
             'description' => $validatedData['description'],
@@ -114,14 +124,14 @@ class CategoryController extends Controller
         // Get file extension.
         $extension = $file->getClientOriginalExtension(); 
 
-        $directory = 'products/'; 
+        $directory = 'products'; 
 
         // Start with original name.
         $filename = $originalName . '.' . $extension; 
         $counter = 1;
 
         // Check if file exists, and modify filename if necessary.
-        while (Storage::disk('public')->exists($directory . $filename)) {
+        while (Storage::disk('public')->exists($directory . '/' . $filename)) {
             $filename = $originalName . '-' . $counter . '.' . $extension;
             $counter++;
         }

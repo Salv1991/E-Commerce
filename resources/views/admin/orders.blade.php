@@ -3,7 +3,7 @@
         <div class="overflow-x-auto w-full pb-4">
             <table class="table-auto w-full mt-5 min-w-[800px]">
                 <thead class="">
-                    <tr class="*:text-end bg-gray-200 *:px-3 *:whitespace-nowrap">
+                    <tr class="*:text-end bg-gray-300 *:px-3 *:whitespace-nowrap">
                         <th>Id</th>
                         <th>User id</th>
                         <th>Status</th>
@@ -19,7 +19,7 @@
                 </thead>
                 <tbody class="divide-y-2">
                     @forelse($orders as $order)
-                        <tr class="*:text-end hover:bg-gray-50 ">
+                        <tr class="*:text-end hover:bg-gray-200">
                             <td><a href="{{route('admin.order.edit.show', $order->id)}}" class="block w-full h-full px-3">{{$order->id}}</a></td>
                             <td><a href="{{route('admin.order.edit.show', $order->id)}}" class="block w-full h-full px-3">{{$order->user_id ?? '-'}}</a></td>
                             <td>

@@ -49,7 +49,7 @@
                                         </div>    
                                         <div class="flex justify-start items-stretch translate-y-2 translate-x-[11px]">      
                                             <div class="w-3 border-r h-auto -translate-y-[11px]"></div>
-                                            <div class=" " data-thirdDepthCategory >
+                                            <div data-thirdDepthCategory>
                                                 @foreach ($secondDepthCategory->children as $thirdDepthCategory)
                                                     <div class="flex justify-start items-stretch {{$loop->last ? 'pt-1' : 'py-1'}}">
                                                         <div class="w-3 border-t h-auto translate-y-1"></div>
@@ -75,9 +75,8 @@
                 </div>
             @enderror
             
-            <div class="ml-auto w-full sm:w-fit">
-                <button type="submit" class="bg-black mt-10 w-full rounded-sm hover:underline underline-offset-4 px-20 py-4 text-white">Save changes</button>
-            </div>
+            <x-admin.button />
+
         </form>
    </x-admin.layout>
 </x-layout>

@@ -25,10 +25,6 @@ class Header extends Component
         $this->cartCount = 0;
         $this->cartTotal = 0;
         $this->isCartView = $this->isCartView();
-        
-        //$this->wishlistCount = Auth::check() 
-          //  ? Auth::user()->wishlistedProducts()->count() 
-            //: 0; 
 
         $wishlistedProducts = Cache::remember('wishlisted-product-ids-' . Auth::id(), config('cache.durations.categories'), function (){
             return Auth::check() 

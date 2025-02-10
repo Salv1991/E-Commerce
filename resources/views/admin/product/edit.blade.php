@@ -8,7 +8,7 @@
                 <img 
                     src="{{ asset('storage/' . ($product->images->isNotEmpty() ? $product->images->first()->image_path : 'products/placeholder.jpg') )}}" 
                     alt="Product Image" 
-                    class="w-56 object-cover rounded-md" />
+                    class="w-56 min-w-56 object-cover rounded-md" />
             </div>
 
             <label for="image" class="block text-xs font-bold pl-2 mt-5">Upload New Image</label>
@@ -26,11 +26,8 @@
                 <x-form.input readonly type="number" class="col-span-full sm:col-span-2 lg:col-span-1" label="Discount" name="discount" value="{{ old('discount' , $product->discount) }}" placeholder="Discount"/>
                 <x-form.input required type="number" class="col-span-full sm:col-span-2 lg:col-span-1" label="Stock" name="stock" value="{{ old('stock' , $product->stock) }}" placeholder="Stock"/>
                 <x-form.input required class="col-span-full lg:col-span-1" label="mpn" name="mpn" value="{{ old('mpn' , $product->mpn) }}" placeholder="mpn"/>
-            </div>
-                     
-            <div class="ml-auto w-full sm:w-fit">
-                <button type="submit" class="bg-black mt-10 w-full rounded-sm hover:underline underline-offset-4 px-20 py-4 text-white">Save changes</button>
-            </div>
+            </div>   
+            <x-admin.button />
         </form>
    </x-admin.layout>
 </x-layout>

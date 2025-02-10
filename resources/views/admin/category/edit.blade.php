@@ -8,7 +8,7 @@
                 <img 
                     src="{{ asset('storage/' . $category->image_path) }}" 
                     alt="Category Image" 
-                    class="w-56 object-cover rounded-md" />
+                    class="w-56 min-w-56 object-cover rounded-md" />
             </div>
 
             <label for="image" class="block text-xs font-bold pl-2 mt-5">Upload New Image</label>
@@ -26,9 +26,8 @@
                 <x-form.input readonly class="col-span-full sm:col-span-1" label="Slug" name="slug" value="{{ old('slug' , $category->slug) }}" placeholder="Slug"/>
             </div>
                      
-            <div class="ml-auto w-full sm:w-fit">
-                <button type="submit" class="bg-black mt-10 w-full rounded-sm hover:underline underline-offset-4 px-20 py-4 text-white">Save changes</button>
-            </div>
+            <x-admin.button />
+
         </form>
    </x-admin.layout>
 </x-layout>

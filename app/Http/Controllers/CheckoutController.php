@@ -250,9 +250,9 @@ class CheckoutController extends Controller
         $availablePaymentMethods = implode( ',', array_keys( config('app.payment_methods') ));
         
         $valitatedMethods = $request->validate([
-            'payment_method' => ['required','string','filled','in:' . $availablePaymentMethods],
+            'payment_method' => ['required','string', 'in:' . $availablePaymentMethods],
 
-            'shipping_method' => ['required','string','filled','in:' . $availableShippingMethods],
+            'shipping_method' => ['required','string', 'in:' . $availableShippingMethods],
         ]);
 
         $cartData = $cartService->getCartData();

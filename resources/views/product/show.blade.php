@@ -7,6 +7,13 @@
         {{-- BREADCRUMBS --}}
         <x-nav.breadcrumbs :category="$product->categories->first()" :$product />
 
+        {{-- ADMIN --}}
+        @admin
+            <a href="{{route('admin.product.edit', $product->id)}}" class="block group w-full md:w-[310px] m-auto border border-black p-2">
+                <div class="block w-fit m-auto group-hover:underline px-2 ">Edit</div>
+            </a>
+        @endadmin
+
         <div class="w-full m-auto grid grid-cols-2 gap-5 *:col-span-full *:md:col-span-1 mt-8">
 
             {{-- IMAGE --}}
@@ -27,15 +34,13 @@
             {{-- DETAILS --}}
             <div>
                 <div class="">
-                    <h1 class="text-5xl font-bold">{{$product->title}}</h1>
-                    <!-- <div class="mt-5">Reviews</div> -->
+                    <h1 class="text-2xl md:text-5xl font-bold">{{$product->title}}</h1>
                     <div class="flex  justify-start items-center gap-2 mt-2">
                         <x-product.price class="*:text-xl" :$product />
                     </div>
                     <div class="mt-5">
                         <p>Stock: {{ $product->stock }}</p>
                         <p>Brand: {{ $product->stock }}</p>
-                        <p>Manufactured: {{ $product->stock }}</p>
                     </div>
                     <div class="mt-5">
                         <p>{{ $product->description }}</p>
@@ -48,10 +53,10 @@
                             <button type="submit"
                                 @disabled($product->stock <= 0)
                                 class="w-full px-4 py-4 bg-black border-2 border-black hover:bg-white hover:text-black disabled:hover:text-white disabled:border-gray-500/10 disabled:bg-gray-500/50
-                                text-white text-xl duration-300">
+                                text-white text-base md:text-lg duration-300">
                                 @if($product->stock > 0)
                                     <span>Add to cart</span> 
-                                    <x-heroicon-c-shopping-bag class="inline-block w-7 h-7 ml-2 -translate-y-1"/>
+                                    <x-heroicon-c-shopping-bag class="inline-block w-6 h-6 ml-2 -translate-y-1"/>
                                 @else
                                     <span>Out of stock</span> 
                                 @endif
