@@ -83,13 +83,22 @@ export default class extends Controller {
     add(event) {
         event.preventDefault();
         const selectedCartForm = event.currentTarget;
+        const loadingImgContainer =  selectedCartForm.querySelector('[data-loading-image-container]');
+
+        loadingImgContainer.classList.toggle('hidden');
+        selectedCartForm.querySelector('button').classList.toggle('hidden');
+        
+        setTimeout(() => {
+            loadingImgContainer.querySelector('img').classList.add('rotate-180');
+            loadingImgContainer.querySelector('img').classList.remove('rotate-0');
+        },5);
+
         const cartTeasersContainer = document.querySelector('.cart-teasers-container');
         this.fetchData(selectedCartForm, new FormData(selectedCartForm))
         .then(data => {
             if(!data.error){
                 this.cartCount.textContent = data.cartCount;
                 this.headerCartTotal.textContent = `${data.cartSubtotal}$`;
-                
                 this.toggleEmptyCartMessage(data.cartCount);
                 
                 if(!data.lineItemExists){
@@ -101,6 +110,12 @@ export default class extends Controller {
             } else {
                 this.showErrorMessage(data.error);
             }
+        })
+        .finally(() => {
+            loadingImgContainer.classList.toggle('hidden');
+            selectedCartForm.querySelector('button').classList.toggle('hidden');
+            loadingImgContainer.querySelector('img').classList.remove('rotate-180');
+            loadingImgContainer.querySelector('img').classList.add('rotate-0');
         })
         .catch(error => {
             console.error('Error:', error);
@@ -155,6 +170,7 @@ export default class extends Controller {
     delete(event) {
         event.preventDefault();
         const selectedCartForm = event.currentTarget;
+        selectedCartForm.querySelector('button').disabled = true;
         const cartTeasersContainer = document.querySelectorAll('.cart-teasers-container');
 
         this.fetchData(selectedCartForm, new FormData(selectedCartForm))
@@ -173,6 +189,9 @@ export default class extends Controller {
             } else {
                 this.showErrorMessage(data.error);
             }
+        })
+        .finally(() => {
+            selectedCartForm.querySelector('button').disabled = false;
         })
         .catch(error => {
             console.log('Error:', error);

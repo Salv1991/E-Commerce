@@ -20,7 +20,7 @@
             @csrf
             @method('DELETE')
             <button type="submit">
-                <x-heroicon-o-x-mark class="inline-block w-6 h-6 text-gray-500 hover:text-primary-500"/>
+                <x-heroicon-o-x-mark class="inline-block cursor-pointer w-6 h-6 text-gray-500 hover:text-primary-500"/>
             </button>
         </form>
     </div>

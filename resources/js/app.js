@@ -8,6 +8,7 @@ import Order from "./controllers/order";
 import DeleteAccount from "./controllers/deleteAccount";
 import Sidebar from "./controllers/sidebar";
 import Tree from "./controllers/categoriesTree";
+import disableButton from "./controllers/disableButton";
 
 const application = Application.start();
 application.register("responsive-nav-menu", ResponsiveNavMenu);
@@ -19,3 +20,4 @@ application.register("order", Order);
 application.register("delete-account", DeleteAccount);
 application.register("sidebar", Sidebar);
 application.register("tree", Tree);
+application.register("disableButton", disableButton);

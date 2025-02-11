@@ -2,7 +2,7 @@
     Your order 
     <span class="text-sm text-gray-500">( {{ $cartCount }} )</span>
 </h2> 
-<div class="max-h-[680px] overflow-y-auto my-2 divide-y-2">
+<div class="max-h-[670px] overflow-y-auto my-2 divide-y-2 pr-2">
     @if ( $cart->isNotEmpty())
         @foreach ( $cart as $lineItem )
             <div id="product-{{$lineItem->product->id}}" 

@@ -11,7 +11,7 @@
             </div>
     </div>
    
-    <div class="w-full mt-20 px-5 pb-20 max-w-screen-xl m-auto">
+    <div class="w-full mt-16 px-5 pb-20 max-w-screen-xl m-auto">
 
         {{-- CATEGORIES --}}
         @if($randomCategories->isNotEmpty())

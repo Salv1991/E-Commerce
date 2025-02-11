@@ -39,10 +39,10 @@
 
         {{-- LOGO --}}
         <a href="/" class="min-w-[112px]">
-            <img src="{{ asset('svg/logo7.png') }}" alt="Logo" class="w-32 overflow-hidden">
+            <img src="{{ asset('svg/logo.svg') }}" alt="Logo" class="w-32 overflow-hidden">
         </a>
 
-        <div class="w-full flex justify-between items-center gap-6">
+        <div class="w-full flex justify-between items-center gap-1">
             <nav class="flex justify-start items-center gap-1">
              
                 {{-- CATEGORIES --}}
@@ -70,12 +70,12 @@
                                                 @foreach ($category->children as $secondDepthCategory)
                                                     <div class="p-4 col-span-1">
                                                         <a href="{{ route('category', $secondDepthCategory) }}"
-                                                            class="block text-black text-base font-semibold uppercase border-b border-b-gray-300 pb-1">
+                                                            class="block text-black hover:text-red-400 text-base font-semibold uppercase border-b border-b-gray-300 pb-1">
                                                             {{ $secondDepthCategory->title }}
                                                         </a>
                                                         <div class="flex flex-col justify-start items-start text-md mt-2 space-y-2">
                                                             @foreach ($secondDepthCategory->children as $thirdDepthCategory)
-                                                                <a href="{{ route('category', $thirdDepthCategory) }}" class="text-sm uppercase text-gray-600">
+                                                                <a href="{{ route('category', $thirdDepthCategory) }}" class="block w-full text-sm uppercase text-gray-600 hover:text-red-400">
                                                                     {{ $thirdDepthCategory->title }}</a>
                                                             @endforeach
                                                         </div>

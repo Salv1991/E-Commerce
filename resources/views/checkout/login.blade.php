@@ -1,56 +1,45 @@
 <x-layout :hideHeader="true">
-    <div class="bg-white min-h-screen">
-        <div class="max-w-screen-xl m-auto px-5 pt-20 relative">
-            <a href="/" class="block w-fit m-auto" >
-                <img src="{{ asset('svg/logo6.svg') }}" alt="Logo" class="h-56">
-            </a>
+    <x-checkout.layout :steps="$steps" :currentStep="$currentStep" title="Checkout">
+    
+        <div class="w-full grid grid-cols-2 mt-10 py-14 gap-20 md:gap-0" data-controller="disableButton">
+            <div class="col-span-full order-2 md:order-1 md:col-span-1 md:px-8">
+                <h1 class="text-center text-3xl font-semibold">Login</h1>
+                <form action="/login" method="POST" class="mt-10" data-action="submit->disableButton#disable">
+                    @csrf
 
-            <h1 class="text-center text-5xl font-semibold">Checkout</h1>
-            
-            <x-checkout.steps :$steps :$currentStep />      
+                    <x-form.input required label="E-mail" name="email" value="{{old('email')}}" placeholder="E-mail"/>
+                    <span class="text-gray-500 text-xs pl-2">
+                        Default admin e-mail: <strong>'admin@admin.com'</strong>
+                    </span>
 
-            <div class="w-full grid grid-cols-2 mt-10 py-14 gap-20 md:gap-0">
-                <div class="col-span-full order-2 md:order-1 md:col-span-1 px-10 border-r border-gray-100">
-                    <h1 class="text-center text-3xl font-semibold">Login</h1>
-                    <form action="/login" method="POST" class="mt-10">
-                        @csrf
+                    <x-form.input type="password" required label="Password" name="password" value="{{old('password')}}" placeholder="Password" />
+                    <span class="text-gray-500 text-xs pl-2">
+                        Default admin password: <strong>'admin'</strong>
+                    </span>
 
-                        <x-form.input required label="E-mail" name="email" value="{{old('email')}}" placeholder="E-mail"/>
-
-                        <x-form.input type="password" required label="Password" name="password" value="{{old('password')}}" placeholder="Password" />
-                                        
-                        @if ($errors->any())
-                            <div class="text-red-500">
-                                {{ $errors->first('login') }}
-                            </div>
-                        @endif
-                        <button type="submit" class="font-semibold mt-5 rounded-full px-5 py-4 w-full text-white text-base bg-gradient-to-br from-red-500 to-pink-500">
-                            Login
-                        </button>
-                        <div class="mt-5 flex justify-between items-center">
-                            <div class="text-sm has-[:checked]:text-red-600">
-                                <input id="remember-me" type="checkbox" class="accent-red-500 checked:border-red-500">
-                                <label for="remember-me" class="font-normal text-sm">Remember Me</label>
-                            </div>
-                            <a class="text-sm hover:text-primary-500">Forgot Password?</a>
+                    @if ($errors->any())
+                        <div class="text-red-500">
+                            {{ $errors->first('login') }}
                         </div>
-                    </form>
-                </div>
+                    @endif
+                    <button type="submit" class="font-semibold cursor-pointer mt-5 rounded-full px-5 py-4 w-full text-white text-base bg-gradient-to-br from-red-500 to-pink-500">
+                        Login
+                    </button>
+                </form>
+            </div>
 
-                <div class="col-span-full order-2 md:order-1 md:col-span-1  px-10 bg-white flex flex-col">
-                    <h1 class="text-center text-3xl font-semibold">Guest</h1>
-                    <div class="mt-10 flex-1 flex flex-col pb-10">
-                        @csrf   
+            <div class="col-span-full order-2 md:order-1 md:col-span-1 md:px-8 bg-white flex flex-col">
+                <h1 class="text-center text-3xl font-semibold">Guest</h1>
+                <div class="mt-10 flex-1 flex flex-col">
+                    @csrf   
 
-                        <div class="flex-1 flex justify-center items-center bg-gray-50 min-h-[180px]">Proceed to checkout as guest.</div>
+                    <div class="flex-1 flex justify-center items-center bg-gray-50 min-h-[180px]">Proceed to checkout as guest.</div>
 
-                        <a href="{{route('checkout.customer')}}" class="block font-semibold mt-5 rounded-full px-5 py-4 w-full text-white text-center text-base bg-gradient-to-br from-red-500 to-pink-500">
-                            Continue as Guest
-                        </a>
-                        
-                    </div>
+                    <a href="{{route('checkout.customer')}}" class="block font-semibold mt-5 rounded-full px-5 py-4 w-full text-white text-center text-base bg-gradient-to-br from-red-500 to-pink-500">
+                        Continue as Guest
+                    </a>
+                    
                 </div>
             </div>
-        </div>
-    </div>
+    </x-checkout.layout>
 </x-layout>

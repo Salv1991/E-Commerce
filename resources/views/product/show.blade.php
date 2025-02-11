@@ -35,7 +35,7 @@
             <div>
                 <div class="">
                     <h1 class="text-2xl md:text-5xl font-bold">{{$product->title}}</h1>
-                    <div class="flex  justify-start items-center gap-2 mt-2">
+                    <div class="flex  justify-start items-center gap-2 mt-3">
                         <x-product.price class="*:text-xl" :$product />
                     </div>
                     <div class="mt-5">
@@ -61,6 +61,11 @@
                                     <span>Out of stock</span> 
                                 @endif
                             </button>
+                        
+                            <button disabled data-loading-image-container class="hidden border-2 border-black flex justify-center items-center w-full px-4 py-[17px]">
+                                <img  src="{{ asset('svg/loading.svg') }}" alt="Logo" class="rotate w-6 h-6 rotate-0 transition-all ease-in-out duration-[2500ms] overflow-hidden">
+                            </button>
+                            
                         </form>
 
                         {{-- WISHLIST --}}

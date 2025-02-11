@@ -47,7 +47,7 @@
                 <x-checkout.order-items :cart="$cartData['cart']" :cartCount="$cartData['cartCount']" />
 
                 <div class="text-right border-t border-t-black pt-10">
-                    <span class="text-base font-semibold">Subtotal: {{ number_format($cartData['cartSubtotal'], 2) }}$</span>
+                    <span class="text-base font-semibold">Subtotal: {{ number_format($cartData['cartSubtotal'], 2) }} $</span>
                 </div>
                 <div class="grid grid-cols-2 gap-4 mt-6">
                     <a href="{{ route('cart') }}" class="col-span-full sm:col-span-1 block bg-transparent border hover:underline underline-offset-4 border-black text-center text-sm py-3 px-5">BACK</a>

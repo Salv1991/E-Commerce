@@ -4,9 +4,6 @@ export default class extends Controller {
     static targets = ['sidebar', 'content', 'sidebarSmall', 'button'];
 
     connect() {
-        this.buttonTargets.forEach(element => {
-            console.log(element.dataset);
-        });
     }
 
     toggle() {

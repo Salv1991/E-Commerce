@@ -10,12 +10,10 @@ export default class extends Controller {
         this.paymentFee = document.getElementById('payment-fee');
         this.shippingFee = document.getElementById('shipping-fee');
         this.total = document.getElementById('total');
-        console.log('Connected order')
     }
 
     updateShippingMethod(event){
         const selectedShippingMethod = event.currentTarget.value;
-        console.log(selectedShippingMethod);
         fetch('/checkout/shipping-method', {
             method: 'POST',
             body: JSON.stringify({shipping_method: selectedShippingMethod}),
@@ -27,7 +25,6 @@ export default class extends Controller {
         })
         .then(response => response.json())
         .then(data => {
-            console.log(data);
             if(!data.error){
                 this.subtotal.textContent = data.cartSubtotal;
                 if( data.shippingFee == 0) {
@@ -46,7 +43,6 @@ export default class extends Controller {
 
     updatePaymentMethod(event){
         const selectedPaymentMethod = event.currentTarget.value;
-        console.log(selectedPaymentMethod);
         fetch('/checkout/payment-method', {
             method: 'POST',
             body: JSON.stringify({payment_method: selectedPaymentMethod}),
@@ -58,7 +54,6 @@ export default class extends Controller {
         })
         .then(response => response.json())
         .then(data => {
-            console.log(data);
             if(!data.error){
                 this.subtotal.textContent = data.cartSubtotal;
                 this.paymentFee.textContent = data.paymentFee + ' $';

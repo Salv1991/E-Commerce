@@ -7,7 +7,7 @@
     @endif
     <p @class([
             'text-sm sm:text-base font-semibold',
-            'text-gray-600' => !$product->discount,
+            'text-gray-500' => !$product->discount || $product->discount <= 0,
             'line-through text-gray-400' => $product->discount,
         ])>
         ${{ number_format($product->original_price, 2) }}
