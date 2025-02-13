@@ -7,6 +7,7 @@ use App\Models\CustomerInformation;
 use App\Models\User;
 use App\Models\ProductImage;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\File;
 
 class DatabaseSeeder extends Seeder
 {
@@ -15,6 +16,41 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+
+        $directory = storage_path('app/public/products'); 
+
+        if (File::exists($directory)) {
+            // Get all image files
+            $files = File::files($directory);
+
+            // Define the images to keep
+            $keepFiles = [
+                'product1.jpg',
+                'product2.jpg',
+                'product3.jpg',
+                'product5.jpg',
+                'product6.jpg',
+                'product7.jpg',
+                'product8.jpg',
+                'product9.jpg',
+                'product10.jpg',
+                'product11.jpg',
+                'product12.jpg',
+                'image4.jpg',
+                'image5.jpg',
+                'image6.jpg',
+                'image7.jpg',
+                'image8.jpg',
+                'image9.jpg'
+            ];
+
+            foreach ($files as $file) {
+                if (!in_array($file->getFilename(), $keepFiles)) {
+                    File::delete($file->getPathname());
+                }
+            }
+        }
+        
         //Creates user
         $user = User::factory()->create([
             'name' => 'Admin',

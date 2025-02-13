@@ -21,7 +21,6 @@ class ProductImageFactory extends Factory
             'products/product1.jpg',
             'products/product2.jpg',
             'products/product3.jpg',
-            'products/product4.jpg',
             'products/product5.jpg',
             'products/product6.jpg',
             'products/product7.jpg',

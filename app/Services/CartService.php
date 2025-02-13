@@ -7,7 +7,6 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Traits\FormatPrices;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cache;
 
 class CartService
 {
