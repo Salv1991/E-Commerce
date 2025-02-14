@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('mpn')->nullable();
             $table->string('title')->nullable();
-            $table->string('description')->nullable();
+            $table->text('description')->nullable();
             $table->decimal('current_price')->nullable();
             $table->decimal('original_price')->nullable();
             $table->integer('discount')->nullable();

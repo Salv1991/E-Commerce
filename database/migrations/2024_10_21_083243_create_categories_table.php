@@ -18,7 +18,7 @@ return new class extends Migration
             $table->integer('weight')->nullable();
             $table->string('slug')->nullable();
             $table->string('title')->unique();
-            $table->string('description')->nullable();
+            $table->text('description')->nullable();
             $table->string('image_path')->nullable();
             $table->timestamps();
         });
