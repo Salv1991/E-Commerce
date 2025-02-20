@@ -484,7 +484,7 @@ class CartService
             ];
         } 
 
-        //if (!empty($upsertData)){
+        if (!empty($upsertData)){
             LineItem::upsert(
                 $upsertData,
                 uniqueBy: ['order_id', 'product_id'],
@@ -494,7 +494,7 @@ class CartService
             $currentOrder->refresh()->calculateOrderSummary();
             session()->forget('guest');
 
-        //}
+        }
     }
 
 }
